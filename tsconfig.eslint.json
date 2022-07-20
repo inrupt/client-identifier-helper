@@ -3,10 +3,7 @@
   "include": [
     "src/**/*.ts",
     "e2e/**/*.ts",
-    "examples/**/*.ts",
-    "*.md",
-    "./*.js",
-    "./**/*.jsx"
+    "*.md"
   ],
   "exclude": ["**/node_modules", "**/dist/**"]
 }

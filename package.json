@@ -1,16 +1,22 @@
 {
-  "name": "client-identifier-helper",
+  "name": "@inrupt/client-identifier-helper",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "npm run lint:check",
+    "lint:fix": "npm run lint:eslint -- --fix && npm run lint:prettier -- --write",
+    "lint:check": "npm run lint:eslint && npm run lint:prettier -- --check",
+    "lint:eslint": "eslint --config .eslintrc.cjs \"src/\"",
+    "lint:prettier": "prettier \"{src,e2e}/**/*.{ts,tsx,js,jsx,css}\" \"**/*.{md,mdx,yml}\""
   },
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
+    "@inrupt/eslint-config-lib": "^1.1.0",
     "@mui/material": "^5.9.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
