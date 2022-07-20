@@ -1,0 +1,34 @@
+{
+  "name": "@inrupt/client-identifier-helper",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "npm run lint:check",
+    "lint:fix": "npm run lint:eslint -- --fix && npm run lint:prettier -- --write",
+    "lint:check": "npm run lint:eslint && npm run lint:prettier -- --check",
+    "lint:eslint": "eslint --config .eslintrc.cjs \"src/\"",
+    "lint:prettier": "prettier \"{src,e2e}/**/*.{ts,tsx,js,jsx,css}\" \"**/*.{md,mdx,yml}\""
+  },
+  "dependencies": {
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
+    "@mui/material": "^5.9.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@inrupt/eslint-config-lib": "^1.1.0",
+    "@inrupt/eslint-config-react": "^1.1.0",
+    "@rushstack/eslint-patch": "^1.1.4",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^2.0.0",
+    "eslint-import-resolver-typescript": "^3.3.0",
+    "typescript": "^4.6.4",
+    "vite": "^3.0.0"
+  }
+}
