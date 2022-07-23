@@ -3,7 +3,8 @@ name: CI
 on: [push]
 jobs:
   lint:
-    uses: inrupt/javascript-style-configs/.github/workflows/reusable-lint.yml@v1.1.0
+    # FIXME: Use published version that disables package-check:
+    uses: inrupt/javascript-style-configs/.github/workflows/reusable-lint.yml@fix/disable-package-check
 
   ci:
     runs-on: ubuntu-latest
