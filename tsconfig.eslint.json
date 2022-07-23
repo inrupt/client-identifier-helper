@@ -2,8 +2,10 @@
   "extends": "./tsconfig.json",
   "include": [
     "src/**/*.ts",
-    "e2e/**/*.ts",
-    "*.md"
+    "src/**/*.test.ts",
+    "src/**/*.tsx",
+    "src/**/*.test.tsx",
+    "**/*.md"
   ],
   "exclude": ["**/node_modules", "**/dist/**"]
 }

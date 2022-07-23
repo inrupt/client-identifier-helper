@@ -15,6 +15,14 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "**/*.md"],
+  "exclude": [
+    "**/node_modules",
+    "dist",
+    "**/__mocks__/**",
+    "**/__snapshots__/**",
+    "src/**/*.test.tsx",
+    "src/**/*.test.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
