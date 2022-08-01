@@ -34,5 +34,8 @@ module.exports = {
         extensions: [".tsx"],
       },
     ],
+    // fix for https://github.com/typescript-eslint/tslint-to-eslint-config/issues/856
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["error"]
   },
 };
