@@ -18,3 +18,40 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+
+export interface GenerateClientIdDocumentParameters {
+  clientId: string;
+  clientName: string;
+  clientUri: string;
+  redirectUris: string | string[];
+  useRefreshTokens: boolean;
+  compact: boolean;
+}
+
+export default function generateClientIdDocument({
+  clientId,
+  clientName,
+  clientUri,
+  redirectUris,
+  useRefreshTokens,
+  compact = false,
+}: GenerateClientIdDocumentParameters) {
+  const clientIdentifierDocument = {
+    "@context": ["https://www.w3.org/ns/solid/oidc-context.jsonld"],
+    client_id: clientId,
+    client_name: clientName,
+    client_uri: clientUri,
+    redirect_uris: Array.isArray(redirectUris) ? redirectUris : [redirectUris],
+    grant_types: useRefreshTokens
+      ? ["authorization_code", "refresh_token"]
+      : undefined, // Default: ["authorization_code"]
+    scope: useRefreshTokens ? "openid webid offline_access" : "openid webid",
+    token_endpoint_auth_method: "none",
+  };
+
+  return JSON.stringify(
+    clientIdentifierDocument,
+    null,
+    compact ? undefined : 2
+  );
+}

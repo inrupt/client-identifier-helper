@@ -23,7 +23,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 
 import theme from "./theme";
-import ClientIdentifierGenerator from "./components/ClientIdentifierGenerator";
+import ClientIdentifierGenerator from "./pages/generate";
 
 function App() {
   return (
