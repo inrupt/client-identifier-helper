@@ -14,7 +14,7 @@
     "lint:prettier": "prettier \"{src,e2e}/**/*.{ts,tsx,js,jsx,css}\" \"**/*.{md,mdx,yml}\""
   },
   "dependencies": {
-    "@emotion/react": "^11.9.3",
+    "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.9.3",
     "@mui/material": "^5.9.1",
     "react": "^18.2.0",
