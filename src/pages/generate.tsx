@@ -19,41 +19,94 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+import { useState } from "react";
 import {
   Button,
   Checkbox,
   FormControlLabel,
+  FormLabel,
   Grid,
   TextField,
   Typography,
 } from "@mui/material";
-
-import { useFormik } from "formik";
-import { useState } from "react";
+import type { FieldArrayRenderProps } from "formik";
+import { FieldArray, Form, Formik } from "formik";
 import generateClientIdDocument from "../lib/generateDocument";
+
+function RedirectUrisComponent({ push, remove, form }: FieldArrayRenderProps) {
+  return (
+    <Grid container item spacing={1}>
+      {form.values.redirectUris.map((redirectUri: string, index: number) => {
+        return (
+          // eslint-disable-next-line react/no-array-index-key
+          <Grid container item key={index}>
+            <Grid container item xs>
+              <TextField
+                label="Redirect URI"
+                name={`redirectUris.${index}`}
+                value={redirectUri}
+                onChange={form.handleChange}
+                type="url"
+                variant="outlined"
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid item>
+              <Button
+                type="button"
+                title="Remove Redirect URI of this row"
+                onClick={() => remove(index)}
+                color="secondary"
+                variant="outlined"
+                style={{ height: "100%" }}
+              >
+                x
+              </Button>
+            </Grid>
+          </Grid>
+        );
+      })}
+      <Grid item>
+        <Button type="button" variant="outlined" onClick={() => push("")}>
+          Add new
+        </Button>
+      </Grid>
+    </Grid>
+  );
+}
+
+type FormParameters = {
+  clientId: string;
+  clientName: string;
+  clientUri: string;
+  redirectUris: string[];
+  useRefreshTokens: boolean;
+};
 
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");
 
-  const form = useFormik({
-    initialValues: {
-      clientId: "",
-      clientName: "",
-      clientUri: "",
-      redirectUris: "",
-      useRefreshTokens: false,
-    },
-    onSubmit: (values) => {
-      const generatedDocument = generateClientIdDocument({
-        ...values,
-        compact: false,
-      });
-      setDocumentJson(generatedDocument);
-    },
-    onReset: () => {
-      setDocumentJson("");
-    },
-  });
+  const initialFormValues: FormParameters = {
+    clientId: "",
+    clientName: "",
+    clientUri: "",
+    redirectUris: [""],
+    useRefreshTokens: true,
+  };
+
+  const onSubmit = (values: FormParameters) => {
+    const clientIdDocument = generateClientIdDocument({
+      ...values,
+      redirectUris: values.redirectUris.filter((s) => s.length > 0),
+      compact: false,
+    });
+    setDocumentJson(clientIdDocument);
+  };
+
+  const onReset = () => {
+    setDocumentJson("");
+  };
 
   return (
     <>
@@ -62,75 +115,82 @@ export default function ClientIdentifierGenerator() {
       </Typography>
       <Grid container padding={2} direction="row">
         <Grid container item direction="column" md={6}>
-          <form onSubmit={form.handleSubmit} onReset={form.handleReset}>
-            <Grid container item direction="column" spacing={2}>
-              <Grid item>
-                <TextField
-                  type="url"
-                  name="clientId"
-                  label="Client Identifier URI"
-                  value={form.values.clientId}
-                  onChange={form.handleChange}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  type="text"
-                  name="clientName"
-                  label="Client Name"
-                  value={form.values.clientName}
-                  onChange={form.handleChange}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  type="url"
-                  name="clientUri"
-                  label="Client Homepage URI"
-                  value={form.values.clientUri}
-                  onChange={form.handleChange}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  type="url"
-                  name="redirectUris"
-                  label="Redirect URI"
-                  value={form.values.redirectUris}
-                  onChange={form.handleChange}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item>
-                <FormControlLabel
-                  label="Support usage of refresh tokens / offline access"
-                  control={
-                    <Checkbox
-                      name="useRefreshTokens"
-                      value={form.values.useRefreshTokens}
+          <Formik
+            onSubmit={onSubmit}
+            onReset={onReset}
+            initialValues={initialFormValues}
+          >
+            {(form) => (
+              <Form>
+                <Grid container item direction="column" spacing={2}>
+                  <Grid container item>
+                    <TextField
+                      type="url"
+                      name="clientId"
+                      label="Client Identifier URI"
+                      value={form.values.clientId}
                       onChange={form.handleChange}
+                      fullWidth
                     />
-                  }
-                />
-              </Grid>
-              <Grid item container justifyContent="flex-end" spacing={2}>
-                <Grid item>
-                  <Button color="secondary" variant="outlined" type="reset">
-                    Reset
-                  </Button>
+                  </Grid>
+                  <Grid container item>
+                    <TextField
+                      type="text"
+                      name="clientName"
+                      label="Client Name"
+                      value={form.values.clientName}
+                      onChange={form.handleChange}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid container item>
+                    <TextField
+                      type="url"
+                      name="clientUri"
+                      label="Client Homepage URI"
+                      value={form.values.clientUri}
+                      onChange={form.handleChange}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid container item>
+                    <FormLabel>Redirect URIs</FormLabel>
+                  </Grid>
+                  <Grid item container marginLeft={3} paddingRight={3}>
+                    <FieldArray
+                      name="redirectUris"
+                      component={RedirectUrisComponent}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <FormControlLabel
+                      label="Support usage of refresh tokens / offline access"
+                      control={
+                        <Checkbox
+                          name="useRefreshTokens"
+                          value={form.values.useRefreshTokens}
+                          checked={form.values.useRefreshTokens}
+                          onChange={form.handleChange}
+                        />
+                      }
+                    />
+                  </Grid>
+                  <Grid item container justifyContent="flex-end" spacing={2}>
+                    <Grid item>
+                      <Button color="secondary" variant="outlined" type="reset">
+                        Reset
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Button color="primary" variant="contained" type="submit">
+                        Generate
+                      </Button>
+                    </Grid>
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  <Button color="primary" variant="contained" type="submit">
-                    Generate
-                  </Button>
-                </Grid>
-              </Grid>
-            </Grid>
-          </form>
-
+              </Form>
+            )}
+          </Formik>
           <Grid
             marginTop={2}
             container
@@ -161,7 +221,7 @@ export default function ClientIdentifierGenerator() {
             </Grid>
           </Grid>
         </Grid>
-        <Grid container item direction="column" alignContent="center" md={6}>
+        <Grid container item direction="column" md={6} alignContent="center">
           <Typography variant="h3">Validation Results</Typography>
         </Grid>
       </Grid>
