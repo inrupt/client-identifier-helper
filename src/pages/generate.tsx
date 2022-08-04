@@ -31,7 +31,14 @@ import {
 } from "@mui/material";
 import type { FieldArrayRenderProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
+import ValidationResults from "../components/validationResults";
 import generateClientIdDocument from "../lib/generateDocument";
+import {
+  offlineRules,
+  remoteRules,
+  validateDocument,
+} from "../lib/validationRules";
+import { RuleResult } from "../lib/types";
 
 function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
   if (!props) {
@@ -92,6 +99,9 @@ type FormParameters = {
 
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");
+  const [validationResults, setValidationResults] = useState(
+    [] as RuleResult[]
+  );
 
   const initialFormValues: FormParameters = {
     clientId: "",
@@ -101,13 +111,25 @@ export default function ClientIdentifierGenerator() {
     useRefreshTokens: true,
   };
 
-  const onSubmit = (values: FormParameters) => {
+  const onSubmit = async (values: FormParameters) => {
     const clientIdDocument = generateClientIdDocument({
       ...values,
       redirectUris: values.redirectUris.filter((s) => s.length > 0),
       compact: false,
     });
     setDocumentJson(clientIdDocument);
+
+    const results = await validateDocument(clientIdDocument, offlineRules);
+    setValidationResults(results);
+    try {
+      validateDocument(clientIdDocument, remoteRules)
+        .then((asyncResults) => {
+          setValidationResults([...results, ...asyncResults]);
+        })
+        .catch(() => {});
+    } catch {
+      // we ignore remote errors?
+    }
   };
 
   const onReset = () => {
@@ -120,7 +142,7 @@ export default function ClientIdentifierGenerator() {
         Generate a Client Identifier Document
       </Typography>
       <Grid container padding={2} direction="row">
-        <Grid container item direction="column" md={6}>
+        <Grid container item direction="column" md={6} paddingRight={2}>
           <Formik
             onSubmit={onSubmit}
             onReset={onReset}
@@ -227,8 +249,19 @@ export default function ClientIdentifierGenerator() {
             </Grid>
           </Grid>
         </Grid>
-        <Grid container item direction="column" md={6} alignContent="center">
-          <Typography variant="h3">Validation Results</Typography>
+        <Grid container item direction="column" md={6}>
+          <Grid
+            container
+            item
+            justifyContent="center"
+            alignContent="start"
+            xs={12}
+          >
+            <Grid item>
+              <Typography variant="h3">Validation Results</Typography>
+            </Grid>
+            <ValidationResults results={validationResults} />
+          </Grid>
         </Grid>
       </Grid>
     </>
