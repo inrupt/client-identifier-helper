@@ -33,11 +33,17 @@ import type { FieldArrayRenderProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
 import generateClientIdDocument from "../lib/generateDocument";
 
-function RedirectUrisComponent({ push, remove, form }: FieldArrayRenderProps) {
+function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
+  if (!props) {
+    return <Grid container item spacing={1} />;
+  }
+  const { push, remove, form } = props;
   return (
     <Grid container item spacing={1}>
       {form.values.redirectUris.map((redirectUri: string, index: number) => {
         return (
+          // index={key} taken from https://formik.org/docs/examples/field-arrays
+          // this seems fine in this context
           // eslint-disable-next-line react/no-array-index-key
           <Grid container item key={index}>
             <Grid container item xs>
@@ -213,7 +219,7 @@ export default function ClientIdentifierGenerator() {
               <TextField
                 label="Generated JSON"
                 multiline
-                readOnly
+                inputProps={{ readOnly: true }}
                 value={documentJson}
                 fullWidth
                 minRows={15}
