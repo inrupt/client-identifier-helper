@@ -19,12 +19,21 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+import { ClientIdDocument } from "./types";
+
 export interface GenerateClientIdDocumentParameters {
   clientId: string;
   clientName: string;
   clientUri: string;
   redirectUris: string | string[];
   useRefreshTokens: boolean;
+  logoUri: string;
+  tosUri: string;
+  policyUri: string;
+  contact: string;
+  applicationType: "web" | "native";
+  requireAuthTime?: boolean;
+  defaultMaxAge?: number;
   compact: boolean;
 }
 
@@ -34,9 +43,16 @@ export default function generateClientIdDocument({
   clientUri,
   redirectUris,
   useRefreshTokens,
+  logoUri,
+  tosUri,
+  policyUri,
+  contact,
+  applicationType,
+  requireAuthTime,
+  defaultMaxAge,
   compact = false,
 }: GenerateClientIdDocumentParameters) {
-  const clientIdentifierDocument = {
+  const clientIdentifierDocument: ClientIdDocument = {
     "@context": ["https://www.w3.org/ns/solid/oidc-context.jsonld"],
     client_id: clientId,
     client_name: clientName,
@@ -47,6 +63,13 @@ export default function generateClientIdDocument({
       : ["authorization_code"],
     scope: useRefreshTokens ? "openid webid offline_access" : "openid webid",
     token_endpoint_auth_method: "none",
+    logoUri,
+    tosUri,
+    policyUri,
+    contacts: [contact],
+    applicationType,
+    requireAuthTime,
+    defaultMaxAge,
   };
 
   return JSON.stringify(
