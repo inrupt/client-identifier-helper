@@ -24,12 +24,15 @@ import { CssBaseline } from "@mui/material";
 
 import theme from "./theme";
 import ClientIdentifierGenerator from "./pages/generate";
+import ClientIdentifierValidator from "./pages/validate";
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ClientIdentifierGenerator />
+      <hr />
+      <ClientIdentifierValidator />
     </ThemeProvider>
   );
 }
