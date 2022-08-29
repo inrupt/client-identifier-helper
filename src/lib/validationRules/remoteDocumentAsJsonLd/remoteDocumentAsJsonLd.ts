@@ -19,6 +19,8 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+// eslint-disable-next-line no-shadow
+import { fetch, request, Response } from "undici";
 import {
   ValidationRule,
   RuleResult,
@@ -108,8 +110,10 @@ const remoteDocumentAsJsonLd: ValidationRule = {
 
     let remoteDocument: ClientIdDocument;
     try {
-      remoteDocument = await fetchResult.json();
-    } catch {
+      // we need this to allow error-less passing from .json() to ClientIdDocument
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      remoteDocument = (await fetchResult.json()) as any;
+    } catch (error) {
       results.push({
         status: "error",
         title: "Remote Client Identifier Document could not be parsed",

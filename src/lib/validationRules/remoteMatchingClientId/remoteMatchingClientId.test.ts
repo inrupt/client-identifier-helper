@@ -22,18 +22,31 @@
 /* eslint-disable no-shadow */
 
 import { describe, expect, test } from "@jest/globals";
-import fetchMock from "fetch-mock";
+import { MockAgent, setGlobalDispatcher } from "undici";
 import remoteMatchingClientId from "./remoteMatchingClientId";
 
+// The text Encoder / Decoders are implicitly used in node_modules/undici/lib/fetch/dataURL.js
+// They are however not globally provided when testing. Therefore, the hack..
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { TextEncoder, TextDecoder } = require("util");
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 describe("remote document Client Identifier URI check", () => {
+  const mockAgent = new MockAgent();
+  mockAgent.disableNetConnect();
+  setGlobalDispatcher(mockAgent);
+  const mockPool = mockAgent.get(/.*/);
+
   test("fails for missing remote `client_id` field", async () => {
-    fetchMock.mock("https://app.example/id-missing", {
-      status: 200,
-      body: JSON.stringify({}),
-      headers: {
-        "content-type": "application/ld+json; charset=utf8",
-      },
-    });
+    mockPool
+      .intercept({ path: "https://app.example/id-missing" })
+      .reply(200, "{}", {
+        headers: {
+          "content-type": "application/ld+json; charset=utf8",
+        },
+      });
 
     const results = await remoteMatchingClientId.check({
       documentIri: "https://app.example/id-missing",
@@ -46,15 +59,17 @@ describe("remote document Client Identifier URI check", () => {
   });
 
   test("fails for mismatching Client Identifiers", async () => {
-    fetchMock.mock("https://app.example/id-mismatching", {
-      status: 200,
-      body: JSON.stringify({
+    mockPool.intercept({ path: "https://app.example/id-mismatching" }).reply(
+      200,
+      JSON.stringify({
         client_id: "https://app.example/id",
       }),
-      headers: {
-        "content-type": "application/ld+json; charset=utf8",
-      },
-    });
+      {
+        headers: {
+          "content-type": "application/ld+json; charset=utf8",
+        },
+      }
+    );
 
     const results = await remoteMatchingClientId.check({
       documentIri: "https://app.example/id-mismatching",
@@ -75,9 +90,6 @@ describe("remote document Client Identifier URI check", () => {
   });
 
   test("ignores for invalid documentIri", async () => {
-    fetchMock.get("This is not a URI", () =>
-      Promise.reject(new Error("This is not a URI"))
-    );
     const results = await remoteMatchingClientId.check({
       documentIri: "This is not a URI",
       document: {},
@@ -86,15 +98,17 @@ describe("remote document Client Identifier URI check", () => {
   });
 
   test("succeeds for matching Client Identifiers", async () => {
-    fetchMock.mock("https://app.example/id", {
-      status: 200,
-      body: JSON.stringify({
+    mockPool.intercept({ path: "https://app.example/id" }).reply(
+      200,
+      JSON.stringify({
         client_id: "https://app.example/id",
       }),
-      headers: {
-        "content-type": "application/ld+json; charset=utf8",
-      },
-    });
+      {
+        headers: {
+          "content-type": "application/ld+json; charset=utf8",
+        },
+      }
+    );
 
     const results = await remoteMatchingClientId.check({
       documentIri: "https://app.example/id",

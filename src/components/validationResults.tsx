@@ -34,14 +34,14 @@ import {
   Typography,
 } from "@mui/material";
 
-import { RuleResult } from "../lib/types";
+import { ValidationResult } from "../lib/types";
 
 export default function ValidationResults({
   results,
 }: {
-  results: RuleResult[];
+  results: ValidationResult[];
 }) {
-  const iconForResult = (result: RuleResult) =>
+  const iconForResult = (result: ValidationResult) =>
     ({
       success: <CheckCircleIcon color="success" />,
       info: <InfoIcon color="info" />,
@@ -49,8 +49,8 @@ export default function ValidationResults({
       error: <ErrorIcon color="error" />,
     }[result.status]);
 
-  const resultCard = (result: RuleResult) => (
-    <Grid container item direction="column" marginBottom={1}>
+  const resultCard = (result: ValidationResult, index: number) => (
+    <Grid container item direction="column" marginBottom={1} key={index}>
       <Paper sx={{ border: 1, borderRadius: 0, borderColor: "lightgrey" }}>
         <Grid container padding={1}>
           <Grid container item>
@@ -88,7 +88,10 @@ export default function ValidationResults({
       (result1, result2) =>
         // define order here..
         ["error", "warning", "info", "success"].indexOf(result1.status) -
-        ["error", "warning", "info", "success"].indexOf(result2.status)
+        ["error", "warning", "info", "success"].indexOf(result2.status) +
+        // remote document results are shown first
+        (result1.rule.type === "remote" ? -100 : 0) -
+        (result2.rule.type === "remote" ? -100 : 0)
     )
     .map(resultCard);
 

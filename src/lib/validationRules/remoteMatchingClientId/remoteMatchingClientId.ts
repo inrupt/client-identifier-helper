@@ -19,6 +19,8 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+// eslint-disable-next-line no-shadow
+import { fetch } from "undici";
 import {
   ValidationRule,
   ValidationContext,
@@ -40,7 +42,9 @@ const remoteMatchingClientId: ValidationRule = {
 
     let remoteDocument: ClientIdDocument;
     try {
-      remoteDocument = await (await fetch(context.documentIri)).json();
+      // needs cast from `unknown` `any` in order to allow assignment to ClientIdDocument
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      remoteDocument = (await (await fetch(context.documentIri)).json()) as any;
     } catch {
       // availability of document is handled in remoteDocumentAsJsonLD
       return [];
@@ -81,7 +85,6 @@ const remoteMatchingClientId: ValidationRule = {
           "The remote `client-id` field matches the local Client Identifier.",
         affectedFields: [
           { fieldName: "client_id", fieldValue: remoteDocument.client_id },
-          { fieldName: "client_id", fieldValue: context.documentIri },
         ],
       },
     ];

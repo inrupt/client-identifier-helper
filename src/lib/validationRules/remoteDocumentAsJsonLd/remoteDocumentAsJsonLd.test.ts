@@ -19,24 +19,40 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-/* eslint-disable-next-line no-shadow */
+/* eslint-disable no-shadow */
+
 import { describe, expect, test } from "@jest/globals";
-import fetchMock from "fetch-mock";
+import { MockAgent, setGlobalDispatcher } from "undici";
 import { OIDC_CONTEXT } from "../../types";
 import remoteDocumentAsJsonLd from "./remoteDocumentAsJsonLd";
 
+// The text Encoder / Decoders are implicitly used in node_modules/undici/lib/fetch/dataURL.js
+// They are however not globally provided when testing. Therefore, the hack..
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { TextEncoder, TextDecoder } = require("util");
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 describe("remote document as json-ld check", () => {
+  const mockAgent = new MockAgent();
+  mockAgent.disableNetConnect();
+  setGlobalDispatcher(mockAgent);
+  const mockPool = mockAgent.get(/.*/);
+
   test("succeeds for valid remote document with application/json header", async () => {
-    fetchMock.mock("https://app.example/id-no-ld", {
-      body: JSON.stringify({
+    mockPool.intercept({ path: "https://app.example/id-no-ld" }).reply(
+      200,
+      JSON.stringify({
         "@context": OIDC_CONTEXT,
         client_id: "https://app.example/id-no-ld",
       }),
-      status: 200,
-      headers: {
-        "content-type": "application/json; charset=utf8",
-      },
-    });
+      {
+        headers: {
+          "content-type": "application/json; charset=utf8",
+        },
+      }
+    );
 
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-no-ld",
@@ -50,16 +66,18 @@ describe("remote document as json-ld check", () => {
 
   test("succeeds for valid remote document with application/ld+json header", async () => {
     // fetch a good document with content-type application/json
-    fetchMock.mock("https://app.example/id", {
-      body: JSON.stringify({
+    mockPool.intercept({ path: "https://app.example/id" }).reply(
+      200,
+      JSON.stringify({
         "@context": [OIDC_CONTEXT],
         client_id: "https://app.example/id",
       }),
-      status: 200,
-      headers: {
-        "content-type": "application/ld+json; charset=utf8",
-      },
-    });
+      {
+        headers: {
+          "content-type": "application/ld+json; charset=utf8",
+        },
+      }
+    );
 
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id",
@@ -95,10 +113,15 @@ describe("remote document as json-ld check", () => {
 
   test("errors if documentIri results in a redirect", async () => {
     // fetch a good document with content-type application/json
-    fetchMock.get("https://app.example/redirected", {
-      status: 302,
-      redirectUrl: "https://app.example/id",
-    });
+    mockPool
+      .intercept({ path: "https://app.example/redirected" })
+      .reply(302, "", {
+        headers: {
+          location: "https://app.example/id",
+        },
+      });
+
+    mockPool.intercept({ path: "https://app.example/id" }).reply(200);
 
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/redirected",
@@ -110,80 +133,85 @@ describe("remote document as json-ld check", () => {
 
   test("errors if documentIri results in a non-200 status code", async () => {
     // fetch a good document with content-type application/json
-    fetchMock.get("https://app.example/non-200", {
-      status: 201,
-    });
+    mockPool.intercept({ path: "https://app.example/non-200" }).reply(201);
 
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/non-200",
       document: {},
     });
-    expect(fetchMock.called()).toBe(true);
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(/Unexpected status code/);
   });
 
   test("errors if `@context` field is missing", async () => {
-    fetchMock.get("https://app.example/id-missing-context", {
-      status: 200,
-      body: JSON.stringify({
-        client_id: "https://app.example/id-missing-context",
-      }),
-      headers: {
-        "content-type": "application/ld+json; charset=utf8",
-      },
-    });
+    mockPool
+      .intercept({ path: "https://app.example/id-missing-context" })
+      .reply(
+        200,
+        JSON.stringify({
+          client_id: "https://app.example/id-missing-context",
+        }),
+        {
+          headers: {
+            "content-type": "application/ld+json; charset=utf8",
+          },
+        }
+      );
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-missing-context",
       document: {},
     });
-    expect(fetchMock.called()).toBe(true);
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(/misses `@context` field/);
   });
 
   test("errors if `@context` field is invalid", async () => {
-    fetchMock.get(/https:\/\/app.example\/id-invalid-context/, {
-      status: 200,
-      body: JSON.stringify({
-        "@context": "https://invalid-schema.example/",
-        client_id: "https://app.example/id-invalid-context",
-      }),
-      headers: {
-        "content-type": "application/ld+json; charset=utf8",
-      },
-    });
+    mockPool
+      .intercept({ path: "https://app.example/id-invalid-context" })
+      .reply(
+        200,
+        JSON.stringify({
+          "@context": "https://invalid-schema.example/",
+          client_id: "https://app.example/id-invalid-context",
+        }),
+        {
+          headers: {
+            "content-type": "application/ld+json; charset=utf8",
+          },
+        }
+      );
+
     const resultsForInvalidContext = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-invalid-context",
       document: {},
     });
-    expect(fetchMock.called()).toBe(true);
     expect(resultsForInvalidContext).toHaveLength(1);
     expect(resultsForInvalidContext[0].title).toMatch(/Invalid `@context`/);
   });
 
   test("errors if status code 404 is returned", async () => {
-    fetchMock.get("https://app.example/id-bad-status", {
-      status: 404,
-      body: "not found",
-      headers: {
-        "content-type": "application/ld+json; charset=utf8",
-      },
-    });
+    mockPool
+      .intercept({ path: "https://app.example/id-bad-status" })
+      .reply(404, "not found", {
+        headers: {
+          "content-type": "application/ld+json; charset=utf8",
+        },
+      });
+
     const resultsForBadStatus = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-bad-status",
       document: {},
     });
-    expect(fetchMock.called()).toBe(true);
     expect(resultsForBadStatus).toHaveLength(1);
     expect(resultsForBadStatus[0].title).toMatch(/Unexpected status code/);
   });
 
   test("errors if the fetch fails", async () => {
-    fetchMock.get(
-      "https://app.example/fetch-will-fail",
-      Promise.reject(new Error("this fetch was supposed to fail by test"))
-    );
+    mockPool
+      .intercept({ path: "https://app.example/fetch-will-fail" })
+      .reply(() => {
+        throw new Error("this fetch was supposed to fail by test");
+      });
     const resultsForFailedFetch = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/fetch-will-fail",
       document: {},
@@ -193,37 +221,39 @@ describe("remote document as json-ld check", () => {
   });
 
   test("errors if client identifier document cannot be parsed", async () => {
-    fetchMock.get("https://app.example/id-not-parsable", {
-      status: 200,
-      body: "invalid json",
-      headers: {
-        "content-type": "application/ld+json; charset=utf8",
-      },
-    });
+    mockPool
+      .intercept({ path: "https://app.example/id-not-parsable" })
+      .reply(200, "invalid json", {
+        headers: {
+          "content-type": "application/ld+json; charset=utf8",
+        },
+      });
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-not-parsable",
       document: {},
     });
-    expect(fetchMock.called()).toBe(true);
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(/could not be parsed/);
   });
 
   test("errors on missing/wrong content type header", async () => {
-    fetchMock.get("https://app.example/id-missing-content-type-header", {
-      status: 200,
-      body: JSON.stringify({
-        "@context": OIDC_CONTEXT,
-      }),
-      headers: {
-        "content-type": "",
-      },
-    });
+    mockPool
+      .intercept({ path: "https://app.example/id-missing-content-type-header" })
+      .reply(
+        200,
+        JSON.stringify({
+          "@context": OIDC_CONTEXT,
+        }),
+        {
+          headers: {
+            "content-type": "",
+          },
+        }
+      );
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-missing-content-type-header",
       document: {},
     });
-    expect(fetchMock.called()).toBe(true);
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(/Invalid `content-type` header/);
   });

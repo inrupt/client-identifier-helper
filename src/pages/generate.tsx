@@ -35,10 +35,10 @@ import ValidationResults from "../components/validationResults";
 import generateClientIdDocument from "../lib/generateDocument";
 import {
   offlineRules,
-  remoteRules,
+  requestRemoteValidation,
   validateDocument,
 } from "../lib/validationRules";
-import { RuleResult } from "../lib/types";
+import { ValidationResult } from "../lib/types";
 
 function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
   if (!props) {
@@ -100,7 +100,7 @@ type FormParameters = {
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");
   const [validationResults, setValidationResults] = useState(
-    [] as RuleResult[]
+    [] as ValidationResult[]
   );
 
   const initialFormValues: FormParameters = {
@@ -122,7 +122,7 @@ export default function ClientIdentifierGenerator() {
     const results = await validateDocument(clientIdDocument, offlineRules);
     setValidationResults(results);
     try {
-      validateDocument(clientIdDocument, remoteRules)
+      requestRemoteValidation(clientIdDocument)
         .then((asyncResults) => {
           setValidationResults([...results, ...asyncResults]);
         })

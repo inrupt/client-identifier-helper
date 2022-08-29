@@ -26,16 +26,16 @@ import ValidationResults from "../components/validationResults";
 import {
   validateDocument,
   offlineRules,
-  runRemoteChecks,
+  requestRemoteValidation,
 } from "../lib/validationRules/index";
-import { RuleResult } from "../lib/types";
+import { ValidationResult } from "../lib/types";
 
 function ClientIdentifierValidator() {
   const [documentJson, setDocumentJson] = useState("");
   const [clientIdentifierUri, setClientIdentifierUri] = useState("");
   const [isFetchingAndValidating, setIsFetchingAndValidating] = useState(false);
   const [validationResults, setValidationResults] = useState(
-    [] as RuleResult[]
+    [] as ValidationResult[]
   );
 
   const onValidateBtnClick = async () => {
@@ -45,8 +45,8 @@ function ClientIdentifierValidator() {
 
   const fetchAndValidate = async () => {
     setIsFetchingAndValidating(true);
-    const results = await runRemoteChecks(clientIdentifierUri);
-    setValidationResults(results);
+    const remoteResults = await requestRemoteValidation(clientIdentifierUri);
+    setValidationResults(remoteResults);
     setIsFetchingAndValidating(false);
   };
 

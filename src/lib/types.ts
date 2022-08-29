@@ -42,6 +42,8 @@ export interface ClientIdDocument extends Record<string, unknown> {
 export interface ValidationContext {
   document: ClientIdDocument;
   documentIri?: string;
+  // for remote documents, the fetched response
+  fetchResponse?: Response;
 }
 
 export interface ValidationRuleMetadata {
