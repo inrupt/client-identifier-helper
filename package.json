@@ -26,7 +26,7 @@
     "@inrupt/eslint-config-lib": "^1.1.0",
     "@inrupt/eslint-config-react": "^1.1.0",
     "@rushstack/eslint-patch": "^1.1.4",
-    "@types/react": "^18.0.17",
+    "@types/react": "^18.0.18",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.0.1",
     "eslint-import-resolver-typescript": "^3.5.0",
