@@ -21,4 +21,13 @@
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme();
+if (
+  theme.components &&
+  theme.components.MuiFormLabel &&
+  theme.components.MuiFormLabel.defaultProps &&
+  theme.components.MuiFormLabel.defaultProps.sx
+) {
+  // theme.components.MuiFormLabel.defaultProps.sx.color = "black";
+}
+
 export default theme;

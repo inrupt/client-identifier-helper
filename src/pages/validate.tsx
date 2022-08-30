@@ -29,9 +29,19 @@ import validateLocalDocument from "../lib/validateLocalDocument";
 import { ValidationResult } from "../lib/types";
 
 function ClientIdentifierValidator() {
-  const [documentJson, setDocumentJson] = useState("");
-  const [clientIdentifierUri, setClientIdentifierUri] = useState("");
-  const [isFetchingAndValidating, setIsFetchingAndValidating] = useState(false);
+  // get the document from search parameter, if supplied
+  const searchParamsDocument = new URLSearchParams(window.location.search).get(
+    "document"
+  );
+  const searchParamsDocumentIri = new URLSearchParams(
+    window.location.search
+  ).get("documentIri");
+
+  const [documentJson, setDocumentJson] = useState(searchParamsDocument || "");
+  const [clientIdentifierUri, setClientIdentifierUri] = useState(
+    searchParamsDocumentIri || ""
+  );
+  const [isValidatingRemotely, setIsFetchingAndValidating] = useState(false);
   const [validationResults, setValidationResults] = useState(
     [] as ValidationResult[]
   );
@@ -48,100 +58,139 @@ function ClientIdentifierValidator() {
     setIsFetchingAndValidating(false);
   };
 
-  return (
-    <>
-      <Typography variant="h3">
-        Validate a Client Identifier Document
-      </Typography>
-      <Grid container padding={2}>
-        <Grid container item direction="column" md={6}>
-          <Grid item>
-            <Typography variant="h4">Validate from URI</Typography>
-          </Grid>
-          <Grid
-            marginTop={2}
-            container
-            item
-            direction="column"
-            justifyContent="space-between"
-            spacing={2}
-          >
-            <Grid item container justifyContent="flex-end" spacing={1}>
-              <Grid item xs={12}>
-                <TextField
-                  type="url"
-                  label="Client Identifier URI"
-                  value={clientIdentifierUri}
-                  onChange={(e) => setClientIdentifierUri(e.target.value)}
-                  fullWidth
-                />
-              </Grid>
-              <Grid
-                container
-                item
-                spacing={1}
-                alignItems="center"
-                justifyContent="end"
-              >
-                <Grid item>
-                  <LoadingButton
-                    color="primary"
-                    onClick={() => fetchAndValidate()}
-                    variant="contained"
-                    loading={isFetchingAndValidating}
-                  >
-                    Fetch & Validate
-                  </LoadingButton>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <Typography variant="h4">Validate from JSON text</Typography>
-            </Grid>
+  if (documentJson) {
+    onValidateBtnClick()
+      .then(() => {})
+      .catch(() => {});
+  } else if (clientIdentifierUri) {
+    fetchAndValidate()
+      .then(() => {})
+      .catch(() => {});
+  }
 
-            <Grid item container justifyContent="flex-end" spacing={1}>
-              <Grid item xs={12}>
-                <TextField
-                  label="Paste your JSON formatted document here"
-                  multiline
-                  fullWidth
-                  minRows={15}
-                  spellCheck="false"
-                  value={documentJson}
-                  onChange={(e) => setDocumentJson(e.target.value)}
-                />
-              </Grid>
-              <Grid
-                container
-                item
-                spacing={1}
-                alignItems="center"
-                justifyContent="end"
-              >
-                <Grid item>
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    onClick={() => onValidateBtnClick()}
-                    disabled={isFetchingAndValidating}
-                  >
-                    Validate
-                  </Button>
-                </Grid>
-              </Grid>
-            </Grid>
+  return (
+    <Grid
+      container
+      item
+      marginLeft="auto"
+      marginRight="auto"
+      justifyContent="center"
+    >
+      <Grid container item maxWidth="50em" md={6}>
+        <Grid container item justifyContent="center">
+          <Grid item>
+            <Typography variant="h4">
+              Validate a Client Identifier Document
+            </Typography>
           </Grid>
         </Grid>
-        <Grid container item justifyContent="start" direction="column" md={6}>
-          <Grid container item alignContent="center" justifyContent="center">
-            <Typography variant="h3">Validation Results</Typography>
-          </Grid>
-          <Grid item>
-            <ValidationResults results={validationResults} />
+        <Grid container item padding={2}>
+          <Grid container item direction="column">
+            <Grid item>
+              <Typography variant="h5">Validate from URI</Typography>
+            </Grid>
+            <Typography variant="body1">
+              Enter the URI to a Client Identifier Document. Our server will
+              fetch the document (due to cors restrictions) and validate it.
+            </Typography>
+            <Typography variant="body1">
+              This will also check, if the REST resource is set up correctly and
+              the remote Client Identifier matches the here given.
+            </Typography>
+            <Grid
+              marginTop={2}
+              container
+              item
+              direction="column"
+              justifyContent="space-between"
+              spacing={2}
+            >
+              <Grid item container justifyContent="flex-end" spacing={1}>
+                <Grid item xs={12}>
+                  <TextField
+                    type="url"
+                    label="Client Identifier URI"
+                    value={clientIdentifierUri}
+                    onChange={(e) => setClientIdentifierUri(e.target.value)}
+                    size="small"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid
+                  container
+                  item
+                  spacing={1}
+                  alignItems="center"
+                  justifyContent="end"
+                >
+                  <Grid item>
+                    <LoadingButton
+                      color="primary"
+                      onClick={() => fetchAndValidate()}
+                      variant="contained"
+                      loading={isValidatingRemotely}
+                    >
+                      Fetch & Validate
+                    </LoadingButton>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <Typography variant="h5">Validate from JSON text</Typography>
+              </Grid>
+
+              <Grid item container justifyContent="flex-end" spacing={1}>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Paste your JSON formatted document here"
+                    multiline
+                    fullWidth
+                    minRows={15}
+                    spellCheck="false"
+                    value={documentJson}
+                    onChange={(e) => setDocumentJson(e.target.value)}
+                  />
+                </Grid>
+                <Grid
+                  container
+                  item
+                  spacing={1}
+                  alignItems="center"
+                  justifyContent="end"
+                >
+                  <Grid item>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      onClick={() => onValidateBtnClick()}
+                      disabled={isValidatingRemotely}
+                    >
+                      Validate
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
-    </>
+      <Grid
+        display={validationResults.length ? undefined : "none"}
+        container
+        item
+        maxWidth="50em"
+        md={6}
+        justifyContent="start"
+        direction="column"
+      >
+        <Grid container item alignContent="center" justifyContent="center">
+          <Typography variant="h4">Validation Results</Typography>
+        </Grid>
+        <Grid item>
+          <ValidationResults results={validationResults} />
+        </Grid>
+      </Grid>
+    </Grid>
   );
 }
 

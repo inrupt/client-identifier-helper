@@ -39,11 +39,8 @@ import {
 import type { FieldArrayRenderProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ValidationResults from "../components/validationResults";
+import { useNavigate } from "react-router-dom";
 import generateClientIdDocument from "../lib/generateDocument";
-import { localRules } from "../lib/validationRules";
-import validateLocalDocument from "../lib/validateLocalDocument";
-import { ValidationResult } from "../lib/types";
 
 function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
   if (!props) {
@@ -57,14 +54,14 @@ function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
           // index={key} taken from https://formik.org/docs/examples/field-arrays
           // this seems fine in this context
           // eslint-disable-next-line react/no-array-index-key
-          <Grid container item key={index}>
-            <Grid container item xs>
+          <Grid container item key={index} spacing={1}>
+            <Grid item sx={{ flexGrow: 1 }}>
               <TextField
                 label="Redirect URI"
                 name={`redirectUris.${index}`}
                 value={redirectUri}
                 onChange={form.handleChange}
-                type="url"
+                inputProps={{ inputMode: "url" }}
                 variant="outlined"
                 required
                 fullWidth
@@ -78,7 +75,7 @@ function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
                 onClick={() => remove(index)}
                 color="secondary"
                 variant="outlined"
-                style={{ height: "100%" }}
+                sx={{ height: 40, width: 40 }}
                 disabled={form.values.redirectUris.length === 1}
               >
                 x
@@ -87,7 +84,7 @@ function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
           </Grid>
         );
       })}
-      <Grid item>
+      <Grid container item marginLeft={2}>
         <Button type="button" variant="outlined" onClick={() => push("")}>
           Add new
         </Button>
@@ -113,9 +110,6 @@ type FormParameters = {
 
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");
-  const [validationResults, setValidationResults] = useState(
-    [] as ValidationResult[]
-  );
   const [expandedPanel, setExpandedPanel] = useState(
     undefined as string | undefined
   );
@@ -141,9 +135,7 @@ export default function ClientIdentifierGenerator() {
       compact: false,
     });
     setDocumentJson(clientIdDocument);
-
-    const results = await validateLocalDocument(clientIdDocument, localRules);
-    setValidationResults(results);
+    window.scrollTo({ top: 10000, behavior: "smooth" });
   };
 
   const onReset = () => {
@@ -152,31 +144,67 @@ export default function ClientIdentifierGenerator() {
 
   const onPanelChange =
     (panel: string) => (e: React.SyntheticEvent, newExpanded: boolean) => {
-      setExpandedPanel(newExpanded ? panel : false);
+      setExpandedPanel(newExpanded ? panel : undefined);
     };
 
+  const navigate = useNavigate();
+  const onValidateButtonClick = () => {
+    navigate(`/validator?document=${encodeURI(documentJson)}`);
+  };
+
   return (
-    <>
-      <Typography variant="h4">
-        Generate a Client Identifier Document
-      </Typography>
-      <Grid container padding={2} direction="row">
-        <Grid container item direction="column" md={6} spacing={1}>
-          <Typography variant="h5">
-            Generate a Client Identifier Document
-          </Typography>
+    <Grid
+      container
+      item
+      maxWidth="50em"
+      direction="column"
+      marginLeft="auto"
+      marginRight="auto"
+    >
+      <Grid container item>
+        <Grid container item justifyContent="center">
+          <Grid item>
+            <Typography variant="h4">
+              Generate a Client Identifier Document
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid container item padding={2} spacing={1} marginLeft={2}>
           <Grid item>
             <Typography variant="body1">
               This generator helps you set up a Client Identifier Document. A
               Client Identifier Document describes your application, the client,
               to a Solid OpenID Connect Provider (Solid OIDC Provider).
             </Typography>
+          </Grid>
+          <Grid item>
             <Typography variant="body1">
-              You need a Client Identifier Document to authenticate your
-              application, i.e. gain an OIDC ID token.
+              Do you want your users to login to their solid pods? Then you need
+              a Client Identifier Document! The user&apos;s OIDC Authentication
+              Provider will check your Client Identifier Document, let the user
+              authenticate, and hand your application an OIDC ID token.
             </Typography>
           </Grid>
           <Grid item>
+            <Typography variant="body1">
+              With the token, your application can request resources from the
+              user&apos;s pod.
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid
+          container
+          paddingLeft={2}
+          paddingRight={2}
+          direction="column"
+          spacing={1}
+        >
+          <Grid item>
+            <Typography variant="h5">
+              Your app&apos;s (client&apos;s) information
+            </Typography>
+          </Grid>
+          <Grid container item>
             <Formik
               onSubmit={onSubmit}
               onReset={onReset}
@@ -184,7 +212,13 @@ export default function ClientIdentifierGenerator() {
             >
               {(form) => (
                 <Form>
-                  <Grid container item direction="column" spacing={2}>
+                  <Grid
+                    container
+                    item
+                    direction="column"
+                    spacing={2}
+                    padding={1}
+                  >
                     <Grid container item>
                       <TextField
                         name="clientId"
@@ -195,11 +229,11 @@ export default function ClientIdentifierGenerator() {
                         fullWidth
                         size="small"
                         label="Client Identifier URI"
-                        helperText="The URI that locates the
-                          Client Identifier Document. It identifies your
+                        helperText="The URI where your
+                          Client Identifier Document is located. It identifies your
                           application, the client, to the Solid OIDC Provider.
-                          The Client Identifier Document should be static and
-                          publicly accessible
+                          The Client Identifier Document should be a static resource
+                          and publicly accessible.
                           Field name: `client_id`"
                       />
                     </Grid>
@@ -220,7 +254,6 @@ export default function ClientIdentifierGenerator() {
                     </Grid>
                     <Grid container item>
                       <TextField
-                        type="url"
                         name="clientUri"
                         required
                         value={form.values.clientUri}
@@ -255,13 +288,13 @@ export default function ClientIdentifierGenerator() {
                       </Grid>
                     </Grid>
 
-                    <Grid item container marginLeft={2} paddingRight={2}>
+                    <Grid item container>
                       <FieldArray
                         name="redirectUris"
                         component={RedirectUrisComponent}
                       />
                     </Grid>
-                    <Grid item>
+                    <Grid container item>
                       <FormControlLabel
                         label="Support usage of refresh tokens / offline access"
                         control={
@@ -293,58 +326,66 @@ export default function ClientIdentifierGenerator() {
                           More fields
                         </AccordionSummary>
                         <AccordionDetails>
-                          <Grid container item>
-                            <TextField
-                              name="logoUri"
-                              inputProps={{ inputMode: "url" }}
-                              value={form.values.logoUri}
-                              onChange={form.handleChange}
-                              fullWidth
-                              size="small"
-                              label="Logo URI"
-                              helperText="The URI to the logo of your application.
-                                This will be displayed by the OIDC Provider while
-                                the user is logging in. Field name: `logo_uri`"
-                            />
+                          <Grid container spacing={2}>
+                            <Grid container item>
+                              <TextField
+                                name="logoUri"
+                                inputProps={{ inputMode: "url" }}
+                                value={form.values.logoUri}
+                                onChange={form.handleChange}
+                                fullWidth
+                                size="small"
+                                label="Logo URI"
+                                helperText="The URI to the logo of your application.
+                                  This will be displayed by the OIDC Provider while
+                                  the user is logging in. Field name: `logo_uri`"
+                              />
+                            </Grid>
+                            <Grid container item>
+                              <TextField
+                                name="policyUri"
+                                inputProps={{ inputMode: "url" }}
+                                value={form.values.policyUri}
+                                onChange={form.handleChange}
+                                fullWidth
+                                size="small"
+                                label="Policy URI"
+                                helperText="The URI to the Policy terms of
+                                your application. This will be linked to by the
+                                OIDC Provider while the user is logging in.
+                                Field name: `policy_uri`"
+                              />
+                            </Grid>
+                            <Grid container item>
+                              <TextField
+                                name="tosUri"
+                                inputProps={{ inputMode: "url" }}
+                                value={form.values.tosUri}
+                                onChange={form.handleChange}
+                                fullWidth
+                                size="small"
+                                label="Terms of Service URI"
+                                helperText="The URI to the Terms of Service of
+                                your application. This will be linked to by the
+                                OIDC Provider while the user is logging in.
+                                Field name: `tos_uri`"
+                              />
+                            </Grid>
+                            <Grid container item>
+                              <TextField
+                                name="contact"
+                                inputProps={{ inputMode: "url" }}
+                                value={form.values.contact}
+                                onChange={form.handleChange}
+                                fullWidth
+                                size="small"
+                                label="Contact"
+                                helperText="An email address to reach out to the
+                                application owners/developers.
+                                Field name: `contacts`"
+                              />
+                            </Grid>
                           </Grid>
-                          <TextField
-                            name="policyUri"
-                            inputProps={{ inputMode: "url" }}
-                            value={form.values.policyUri}
-                            onChange={form.handleChange}
-                            fullWidth
-                            size="small"
-                            label="Policy URI"
-                            helperText="The URI to the Policy terms of
-                              your application. This will be linked to by the
-                              OIDC Provider while the user is logging in.
-                              Field name: `policy_uri`"
-                          />
-                          <TextField
-                            name="tosUri"
-                            inputProps={{ inputMode: "url" }}
-                            value={form.values.tosUri}
-                            onChange={form.handleChange}
-                            fullWidth
-                            size="small"
-                            label="Terms of Service URI"
-                            helperText="The URI to the Terms of Service of
-                              your application. This will be linked to by the
-                              OIDC Provider while the user is logging in.
-                              Field name: `tos_uri`"
-                          />
-                          <TextField
-                            name="contact"
-                            inputProps={{ inputMode: "url" }}
-                            value={form.values.contact}
-                            onChange={form.handleChange}
-                            fullWidth
-                            size="small"
-                            label="Contact"
-                            helperText="An email address to reach out to the
-                              application owners/developers.
-                              Field name: `contacts`"
-                          />
                         </AccordionDetails>
                       </Accordion>
                     </Grid>
@@ -354,54 +395,79 @@ export default function ClientIdentifierGenerator() {
                         onChange={onPanelChange("panelTechnicalFields")}
                       >
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                          More technical fields
+                          Optional Technical Fields
                         </AccordionSummary>
                         <AccordionDetails>
-                          <Grid item>
-                            <InputLabel
-                              variant="standard"
-                              id="applicationTypeLabel"
-                            >
-                              Application Type
-                            </InputLabel>
-                            <Select
-                              name="applicationType"
-                              value={form.values.applicationType}
-                              labelId="applicationTypeLabel"
-                              onChange={form.handleChange}
-                              size="small"
-                            >
-                              <MenuItem value="web">Web Application</MenuItem>
-                              <MenuItem value="native">
-                                Native Application
-                              </MenuItem>
-                            </Select>
-                          </Grid>
-                          <TextField
-                            type="number"
-                            inputProps={{
-                              inputMode: "numeric",
-                              pattern: "[0-9]*",
-                            }}
-                            name="defaultMaxAge"
-                            value={form.values.defaultMaxAge}
-                            onChange={form.handleChange}
-                            fullWidth
-                            size="small"
-                            label="Default maximum age"
-                            helperText="TODO: description"
-                          />
-                          <FormControlLabel
-                            label="Require Auth Time?"
-                            control={
-                              <Checkbox
-                                name="requireAuthTime"
-                                value={form.values.requireAuthTime}
-                                checked={form.values.requireAuthTime}
+                          <Grid container item spacing={2}>
+                            <Grid item>
+                              <InputLabel
+                                variant="standard"
+                                id="applicationTypeLabel"
+                              >
+                                Application Type
+                              </InputLabel>
+                              <Select
+                                name="applicationType"
+                                value={form.values.applicationType}
+                                labelId="applicationTypeLabel"
                                 onChange={form.handleChange}
+                                size="small"
+                              >
+                                <MenuItem value="web">Web Application</MenuItem>
+                                <MenuItem value="native">
+                                  Native Application
+                                </MenuItem>
+                              </Select>
+                              <Grid item marginLeft={2} paddingRight={2}>
+                                <FormHelperText>
+                                  Usually, you will develop a Web Application.
+                                  With a Client Identifier Document for a native
+                                  application, your redirect urls will go to
+                                  local host or use a non-http protocol. Field
+                                  name: `application_type`
+                                </FormHelperText>
+                              </Grid>
+                            </Grid>
+                            <Grid item>
+                              <TextField
+                                type="number"
+                                inputProps={{
+                                  inputMode: "numeric",
+                                  pattern: "[0-9]*",
+                                }}
+                                name="defaultMaxAge"
+                                value={form.values.defaultMaxAge}
+                                onChange={form.handleChange}
+                                fullWidth
+                                size="small"
+                                label="Default maximum age"
+                                helperText="The number of seconds after which the
+                              user must be actively re-authenticated.
+                              Field name: `default_max_age`"
                               />
-                            }
-                          />{" "}
+                            </Grid>
+                            <Grid item>
+                              <FormControlLabel
+                                label="Request a time of authentication claim"
+                                control={
+                                  <Checkbox
+                                    name="requireAuthTime"
+                                    value={form.values.requireAuthTime}
+                                    checked={form.values.requireAuthTime}
+                                    onChange={form.handleChange}
+                                  />
+                                }
+                              />
+                              <Grid item marginLeft={2} paddingRight={2}>
+                                <FormHelperText>
+                                  Requests that the ID Token will contain a
+                                  record (claim) with its time of creation, i.e.
+                                  the authentication time. Field name:
+                                  `require_auth_time`
+                                </FormHelperText>
+                              </Grid>
+                            </Grid>
+                          </Grid>
                         </AccordionDetails>
                       </Accordion>
                     </Grid>
@@ -432,6 +498,7 @@ export default function ClientIdentifierGenerator() {
           </Grid>
 
           <Grid
+            display={documentJson ? undefined : "none"}
             marginTop={2}
             container
             item
@@ -459,23 +526,20 @@ export default function ClientIdentifierGenerator() {
                 minRows={15}
               />
             </Grid>
-          </Grid>
-        </Grid>
-        <Grid container item direction="column" md={6}>
-          <Grid
-            container
-            item
-            justifyContent="center"
-            alignContent="start"
-            xs={12}
-          >
-            <Grid item>
-              <Typography variant="h3">Validation Results</Typography>
+            <Grid item container justifyContent="flex-end">
+              <Grid item>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  onClick={onValidateButtonClick}
+                >
+                  Validate Document
+                </Button>
+              </Grid>
             </Grid>
-            <ValidationResults results={validationResults} />
           </Grid>
         </Grid>
       </Grid>
-    </>
+    </Grid>
   );
 }
