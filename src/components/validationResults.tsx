@@ -30,79 +30,92 @@ import {
   AccordionDetails,
   AccordionSummary,
   Grid,
-  Paper,
+  Card,
   Typography,
+  CardHeader,
+  CardContent,
+  CardActions,
 } from "@mui/material";
 
 import { ValidationResult } from "../lib/types";
+
+const iconForResult = {
+  success: <CheckCircleIcon color="success" />,
+  info: <InfoIcon color="info" />,
+  warning: <WarningIcon color="warning" />,
+  error: <ErrorIcon color="error" />,
+};
+
+function ResultCard(
+  // eslint-disable-next-line no-shadow
+  { result }: { result: ValidationResult }
+) {
+  const ResultIcon = () => iconForResult[result.status];
+  return (
+    <Grid
+      container
+      item
+      direction="column"
+      marginBottom={1}
+      key={result.title + result.description}
+    >
+      <Card>
+        <Grid container padding={1}>
+          <CardHeader title={result.title} avatar={<ResultIcon />} />
+
+          <CardContent>
+            <Typography variant="body2" color="text.secondary">
+              {result.description}
+            </Typography>
+          </CardContent>
+
+          <Grid item xs={12}>
+            <Accordion>
+              <AccordionSummary
+                expandIcon={
+                  <CardActions>
+                    <ExpandMoreIcon />
+                  </CardActions>
+                }
+              >
+                <Typography variant="body2" color="text.secondary">
+                  Affected fields
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <CardContent>
+                  <Typography variant="body2" color="text.secondary">
+                    {JSON.stringify(result.affectedFields, undefined, 1)}
+                  </Typography>
+                </CardContent>
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+        </Grid>
+      </Card>
+    </Grid>
+  );
+}
 
 export default function ValidationResults({
   results,
 }: {
   results: ValidationResult[];
 }) {
-  const iconForResult = (result: ValidationResult) =>
-    ({
-      success: <CheckCircleIcon color="success" />,
-      info: <InfoIcon color="info" />,
-      warning: <WarningIcon color="warning" />,
-      error: <ErrorIcon color="error" />,
-    }[result.status]);
-
-  const resultCard = (result: ValidationResult, index: number) => (
-    <Grid container item direction="column" marginBottom={1} key={index}>
-      <Paper sx={{ border: 1, borderRadius: 0, borderColor: "lightgrey" }}>
-        <Grid container padding={1}>
-          <Grid container item>
-            <Grid container item xs={3}>
-              <Grid item alignContent="center">
-                {iconForResult(result)}
-              </Grid>
-              <Grid item>{result.status}</Grid>
-            </Grid>
-
-            <Grid item>
-              <Typography variant="h6">{result.title}</Typography>
-            </Grid>
-          </Grid>
-
-          <Grid item>{result.description}</Grid>
-
-          <Grid item xs={12}>
-            <Accordion sx={{ borderRadius: 0 }}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                Affected fields
-              </AccordionSummary>
-              <AccordionDetails>
-                {JSON.stringify(result.affectedFields, undefined, 1)}
-              </AccordionDetails>
-            </Accordion>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Grid>
+  const sortedResults = results.sort(
+    (result1, result2) =>
+      // define order here..
+      ["error", "warning", "info", "success"].indexOf(result1.status) -
+      ["error", "warning", "info", "success"].indexOf(result2.status) +
+      // remote document results are shown first
+      (result1.rule.type === "remote" ? -100 : 0) -
+      (result2.rule.type === "remote" ? -100 : 0)
   );
-
-  const sortedResultsByStatus = results
-    .sort(
-      (result1, result2) =>
-        // define order here..
-        ["error", "warning", "info", "success"].indexOf(result1.status) -
-        ["error", "warning", "info", "success"].indexOf(result2.status) +
-        // remote document results are shown first
-        (result1.rule.type === "remote" ? -100 : 0) -
-        (result2.rule.type === "remote" ? -100 : 0)
-    )
-    .map(resultCard);
-
   return (
-    <Grid
-      container
-      direction="column"
-      margin={2}
-      sx={{ border: 1, borderRadius: 1, borderColor: "lightgrey" }}
-    >
-      {sortedResultsByStatus}
+    <Grid container direction="column" margin={2}>
+      {sortedResults.map((result) => (
+        <ResultCard result={result} />
+      ))}
     </Grid>
   );
 }
