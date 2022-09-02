@@ -72,6 +72,7 @@ function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
             <Grid item>
               <Button
                 type="button"
+                name={`removeRedirectUri.${index}`}
                 title="Remove Redirect URI of this row"
                 onClick={() => remove(index)}
                 color="secondary"
@@ -86,7 +87,12 @@ function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
         );
       })}
       <Grid container item marginLeft={2}>
-        <Button type="button" variant="outlined" onClick={() => push("")}>
+        <Button
+          type="button"
+          variant="outlined"
+          name="addRedirectUri"
+          onClick={() => push("")}
+        >
           Add new
         </Button>
       </Grid>
@@ -323,7 +329,10 @@ export default function ClientIdentifierGenerator() {
                     </Grid>
                     <Grid container item>
                       <Accordion>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          className="userInformationFields"
+                        >
                           Additional information displayed to users
                         </AccordionSummary>
                         <AccordionDetails>
@@ -392,7 +401,10 @@ export default function ClientIdentifierGenerator() {
                     </Grid>
                     <Grid container item>
                       <Accordion>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          className="advancedFields"
+                        >
                           Advanced OIDC options
                         </AccordionSummary>
                         <AccordionDetails>
@@ -481,6 +493,7 @@ export default function ClientIdentifierGenerator() {
                       </Grid>
                       <Grid item>
                         <Button
+                          name="generateDocument"
                           color="primary"
                           variant="contained"
                           type="submit"
@@ -517,6 +530,7 @@ export default function ClientIdentifierGenerator() {
             <Grid item>
               <TextField
                 label="Generated JSON"
+                name="generatedJson"
                 multiline
                 inputProps={{ readOnly: true }}
                 value={documentJson}

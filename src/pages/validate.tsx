@@ -126,6 +126,7 @@ function ClientIdentifierValidator() {
               <Grid item container justifyContent="flex-end" spacing={1}>
                 <Grid item xs={12}>
                   <TextField
+                    name="clientIdentifierUri"
                     type="url"
                     label="Client Identifier URI"
                     value={clientIdentifierUri}
@@ -143,6 +144,7 @@ function ClientIdentifierValidator() {
                 >
                   <Grid item>
                     <LoadingButton
+                      name="fetchDocument"
                       color="primary"
                       onClick={() => fetchAndValidate()}
                       variant="contained"
@@ -161,6 +163,7 @@ function ClientIdentifierValidator() {
                 <Grid item xs={12}>
                   <TextField
                     label="Paste your JSON formatted document here"
+                    name="jsonDocument"
                     multiline
                     fullWidth
                     minRows={15}
@@ -179,6 +182,7 @@ function ClientIdentifierValidator() {
                   <Grid item>
                     <Button
                       color="primary"
+                      name="validateDocument"
                       variant="contained"
                       onClick={() => onValidateBtnClick()}
                       disabled={isValidatingRemotely}
