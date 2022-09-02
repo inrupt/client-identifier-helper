@@ -21,7 +21,29 @@
 
 import { fetch, Headers } from "undici";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { validateRemoteDocument } from "./remoteRules";
+
+import { ValidationRule } from "../src/lib/types";
+import remoteDocumentAsJsonLd from "../src/lib/validationRules/remoteDocumentAsJsonLd/remoteDocumentAsJsonLd";
+import remoteMatchingClientId from "../src/lib/validationRules/remoteMatchingClientId/remoteMatchingClientId";
+
+const remoteRules: ValidationRule[] = [
+  remoteDocumentAsJsonLd,
+  remoteMatchingClientId,
+];
+
+async function validateRemoteDocument(documentIri: string) {
+  const validationPromises = remoteRules.map(async (rule) => {
+    const results = await rule.check({
+      documentIri,
+      document: {},
+    });
+    return results.map((result) => ({
+      rule: rule.rule,
+      ...result,
+    }));
+  });
+  return (await Promise.all(validationPromises)).flat();
+}
 
 export default async (request: VercelRequest, response: VercelResponse) => {
   const { documentIri } = request.query;
