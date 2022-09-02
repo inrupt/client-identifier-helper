@@ -21,27 +21,25 @@
 
 /* eslint-disable-next-line no-shadow */
 import { describe, expect, test } from "@jest/globals";
-import noLocalAndRemoteRedirectUris from "./noLocalAndRemoteRedirectUris";
+import noMixedRedirectUrls from "./noMixedRedirectUrls";
 
 describe("remote and localhost redirect URIs should not be mixed", () => {
   test("errors on mixed URIs", async () => {
-    const resultsForMixedLocalRemote = await noLocalAndRemoteRedirectUris.check(
-      {
-        document: {
-          redirect_uris: [
-            "http://localhost:1234/callback",
-            "https://remote.example/callback",
-          ],
-        },
-      }
-    );
+    const resultsForMixedLocalRemote = await noMixedRedirectUrls.check({
+      document: {
+        redirect_uris: [
+          "http://localhost:1234/callback",
+          "https://remote.example/callback",
+        ],
+      },
+    });
     expect(resultsForMixedLocalRemote).toHaveLength(1);
     expect(resultsForMixedLocalRemote[0].title).toMatch(
       /Mixed localhost and remote redirect URIs/
     );
   });
   test("ignores on invalid redirect URIs object", async () => {
-    const resultsForInvalid1 = await noLocalAndRemoteRedirectUris.check({
+    const resultsForInvalid1 = await noMixedRedirectUrls.check({
       document: {
         redirect_uris: "https://invalid-redirect_uris.example",
       },
@@ -50,7 +48,7 @@ describe("remote and localhost redirect URIs should not be mixed", () => {
     expect(resultsForInvalid1).toHaveLength(0);
   });
   test("ignores on invalid redirect URIs", async () => {
-    const resultsForInvalid2 = await noLocalAndRemoteRedirectUris.check({
+    const resultsForInvalid2 = await noMixedRedirectUrls.check({
       document: {
         redirect_uris: ["invalid uri"],
       },
@@ -60,24 +58,22 @@ describe("remote and localhost redirect URIs should not be mixed", () => {
   });
 
   test("succeeds for localhost only redirect URIs", async () => {
-    const resultsForSuccessLocalHost = await noLocalAndRemoteRedirectUris.check(
-      {
-        document: {
-          redirect_uris: [
-            "http://localhost:1234/callback1",
-            "http://localhost:1234/callback2",
-            "http://127.0.0.1:1234/callback3",
-            "http://127.0.0.23:1234/callback4",
-            "http://[::1]:1234/callback5",
-          ],
-        },
-      }
-    );
+    const resultsForSuccessLocalHost = await noMixedRedirectUrls.check({
+      document: {
+        redirect_uris: [
+          "http://localhost:1234/callback1",
+          "http://localhost:1234/callback2",
+          "http://127.0.0.1:1234/callback3",
+          "http://127.0.0.23:1234/callback4",
+          "http://[::1]:1234/callback5",
+        ],
+      },
+    });
     expect(resultsForSuccessLocalHost).toHaveLength(0);
   });
 
   test("succeeds for remote only redirect URIs", async () => {
-    const resultsForSuccessRemote = await noLocalAndRemoteRedirectUris.check({
+    const resultsForSuccessRemote = await noMixedRedirectUrls.check({
       document: {
         redirect_uris: [
           "https://remote.example/callback1",

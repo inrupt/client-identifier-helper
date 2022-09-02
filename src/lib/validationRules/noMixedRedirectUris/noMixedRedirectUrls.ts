@@ -20,10 +20,10 @@
 //
 import { ValidationContext, ValidationRule } from "../../types";
 
-const noLocalAndRemoteRedirectUris: ValidationRule = {
+const noMixedRedirectUrls: ValidationRule = {
   rule: {
     type: "local",
-    name: "No mixed localhost and remote redirect URIs",
+    name: "Must not have redirect URLs that contain both localhost and other domain names",
     description:
       "Redirect URIs must must not contain localhost _and_ remote URIs.",
   },
@@ -67,4 +67,4 @@ const noLocalAndRemoteRedirectUris: ValidationRule = {
   },
 };
 
-export default noLocalAndRemoteRedirectUris;
+export default noMixedRedirectUrls;

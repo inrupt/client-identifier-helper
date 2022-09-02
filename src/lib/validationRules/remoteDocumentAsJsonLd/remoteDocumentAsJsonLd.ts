@@ -77,36 +77,6 @@ const remoteDocumentAsJsonLd: RemoteValidationRule = {
       });
     }
 
-    if (!context.document["@context"]) {
-      results.push({
-        status: "error",
-        title: "Remote Client Identifier Document misses `@context` field",
-        description: `The remote Client Identifier Document has no @context field set but it should be set to \`${OIDC_CONTEXT}\`.`,
-        affectedFields: [
-          { fieldName: "content-type", fieldValue: contentType },
-        ],
-      });
-      return results;
-    }
-
-    if (
-      context.document["@context"] !== OIDC_CONTEXT &&
-      !(
-        Array.isArray(context.document["@context"]) &&
-        context.document["@context"].length === 1 &&
-        context.document["@context"][0] === OIDC_CONTEXT
-      )
-    ) {
-      results.push({
-        status: "error",
-        title: "Invalid `@context` for Remote Client Identifier Document",
-        description: `The remote Client Identifier Document has an incorrect \`@context\` field set. It must be set to \`${OIDC_CONTEXT}\` or [\`${OIDC_CONTEXT}\`].`,
-        affectedFields: [
-          { fieldName: "content-type", fieldValue: contentType },
-        ],
-      });
-    }
-
     if (results.length !== 0) {
       return results;
     }

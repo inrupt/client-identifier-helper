@@ -26,7 +26,7 @@ import validContext from "./validContext/validContext";
 import decentClientName from "./decentClientName/decentClientName";
 import validUriFields from "./validUriFields/validUriFields";
 import sameDomainForRedirectUris from "./sameDomainForRedirectUris/sameDomainForRedirectUris";
-import noLocalAndRemoteRedirectUris from "./noLocalAndRemoteRedirectUris/noLocalAndRemoteRedirectUris";
+import noMixedRedirectUrls from "./noMixedRedirectUris/noMixedRedirectUrls";
 import validResponseType from "./validResponseType/validResponseType";
 import validApplicationType from "./validApplicationType/validApplicationType";
 import rightAuthenticationMethod from "./rightAuthenticationMethod/rightAuthenticationMethod";
@@ -55,7 +55,7 @@ export const offlineRules: ValidationRule[] = [
   rightAuthenticationMethod,
   validResponseType,
   sameDomainForRedirectUris,
-  noLocalAndRemoteRedirectUris,
+  noMixedRedirectUrls,
   noUnsetClientUri,
   // We omit localization validation as it is not supported by ESS or NSS (as of 2022-08-17) but leave it here for spec-compliance guidance.
 ];

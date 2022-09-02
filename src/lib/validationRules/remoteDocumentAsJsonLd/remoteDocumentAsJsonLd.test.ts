@@ -129,56 +129,6 @@ describe("remote document as json-ld check", () => {
     expect(results[0].title).toMatch(/Unexpected status code/);
   });
 
-  test("errors if `@context` field is missing", async () => {
-    mockPool
-      .intercept({ path: "https://app.example/id-missing-context" })
-      .reply(
-        200,
-        JSON.stringify({
-          client_id: "https://app.example/id-missing-context",
-        }),
-        {
-          headers: {
-            "content-type": "application/ld+json; charset=utf8",
-          },
-        }
-      );
-    const fetchResponse = await fetch("https://app.example/id-missing-context");
-    const results = await remoteDocumentAsJsonLd.check({
-      documentIri: "https://app.example/id-missing-context",
-      document: JSON.parse(await fetchResponse.text()),
-      fetchResponse,
-    });
-    expect(results).toHaveLength(1);
-    expect(results[0].title).toMatch(/misses `@context` field/);
-  });
-
-  test("errors if `@context` field is invalid", async () => {
-    mockPool
-      .intercept({ path: "https://app.example/id-invalid-context" })
-      .reply(
-        200,
-        JSON.stringify({
-          "@context": "https://invalid-schema.example/",
-          client_id: "https://app.example/id-invalid-context",
-        }),
-        {
-          headers: {
-            "content-type": "application/ld+json; charset=utf8",
-          },
-        }
-      );
-
-    const fetchResponse = await fetch("https://app.example/id-invalid-context");
-    const resultsForInvalidContext = await remoteDocumentAsJsonLd.check({
-      documentIri: "https://app.example/id-invalid-context",
-      document: JSON.parse(await fetchResponse.text()),
-      fetchResponse,
-    });
-    expect(resultsForInvalidContext).toHaveLength(1);
-    expect(resultsForInvalidContext[0].title).toMatch(/Invalid `@context`/);
-  });
-
   test("errors if status code 404 is returned", async () => {
     mockPool
       .intercept({ path: "https://app.example/id-bad-status" })

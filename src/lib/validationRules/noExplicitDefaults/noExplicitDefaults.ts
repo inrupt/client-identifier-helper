@@ -21,6 +21,19 @@
 
 import { RuleResult, ValidationRule, ValidationContext } from "../../types";
 
+// helper to create info messages
+const createValidationResultForDefaultValue = (
+  fieldName: string,
+  context: ValidationContext
+): RuleResult => {
+  return {
+    status: "info",
+    title: `Field \`${fieldName}\` has explicit default`,
+    description: `The field \`${fieldName}\` is explicitly set to its default value. You do not need to set it (unless supportive for clarity of understanding).`,
+    affectedFields: [{ fieldName, fieldValue: context.document[fieldName] }],
+  };
+};
+
 const noExplicitDefaults: ValidationRule = {
   rule: {
     type: "local",
@@ -29,35 +42,27 @@ const noExplicitDefaults: ValidationRule = {
       "If a field is set to its default value, this is not necessary and can be left out, unless useful for clarity of understanding.",
   },
   check: async (context: ValidationContext) => {
-    // helper to create info messages
-    const createValidationResultForDefaultValue = (
-      fieldName: string
-    ): RuleResult => {
-      return {
-        status: "info",
-        title: `Field \`${fieldName}\` has explicit default`,
-        description: `The field \`${fieldName}\` is explicitly set to its default value. You do not need to set it (unless supportive for clarity of understanding).`,
-        affectedFields: [
-          { fieldName, fieldValue: context.document[fieldName] },
-        ],
-      };
-    };
-
     const results: RuleResult[] = [];
     if (
       Array.isArray(context.document.grant_types) &&
       context.document.grant_types.length === 1 &&
       context.document.grant_types[0] === "authorization_code"
     ) {
-      results.push(createValidationResultForDefaultValue("grant_types"));
+      results.push(
+        createValidationResultForDefaultValue("grant_types", context)
+      );
     }
 
     if (context.document.application_type === "web") {
-      results.push(createValidationResultForDefaultValue("application_type"));
+      results.push(
+        createValidationResultForDefaultValue("application_type", context)
+      );
     }
 
     if (context.document.require_auth_time === false) {
-      results.push(createValidationResultForDefaultValue("require_auth_time"));
+      results.push(
+        createValidationResultForDefaultValue("require_auth_time", context)
+      );
     }
 
     if (
@@ -65,16 +70,21 @@ const noExplicitDefaults: ValidationRule = {
       context.document.response_types.length === 1 &&
       context.document.response_types[0] === "code"
     ) {
-      results.push(createValidationResultForDefaultValue("response_types"));
+      results.push(
+        createValidationResultForDefaultValue("response_types", context)
+      );
     }
 
-    if (
-      typeof context.document.scope === "string" &&
-      context.document.scope.split(" ").length === 2 &&
-      context.document.scope.split(" ").includes("webid") &&
-      context.document.scope.split(" ").includes("openid")
-    ) {
-      results.push(createValidationResultForDefaultValue("scope"));
+    if (typeof context.document.scope === "string") {
+      // non-string scope value test, is not handled here.
+      const scopeValues = context.document.scope.split(" ");
+      if (
+        scopeValues.length === 2 &&
+        scopeValues.includes("webid") &&
+        scopeValues.includes("openid")
+      ) {
+        results.push(createValidationResultForDefaultValue("scope", context));
+      }
     }
 
     return results;
