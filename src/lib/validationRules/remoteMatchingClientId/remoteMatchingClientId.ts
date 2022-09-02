@@ -19,38 +19,22 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-// eslint-disable-next-line no-shadow
-import { fetch } from "undici";
-import {
-  ValidationRule,
-  ValidationContext,
-  ClientIdDocument,
-} from "../../types";
+import { RemoteValidationContext, RemoteValidationRule } from "../../types";
 
-const remoteMatchingClientId: ValidationRule = {
+const remoteMatchingClientId: RemoteValidationRule = {
   rule: {
     type: "remote",
     name: "Remote Document Client ID matches local one",
     description:
       "The remote Client Identifier URI and the local Client Identifier URI must match exactly.",
   },
-  check: async (context: ValidationContext) => {
+  check: async (context: RemoteValidationContext) => {
     if (!context.documentIri) {
       // errors for missing fields are handled in remoteDocumentAsJsonLD
       return [];
     }
 
-    let remoteDocument: ClientIdDocument;
-    try {
-      // needs cast from `unknown` `any` in order to allow assignment to ClientIdDocument
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      remoteDocument = (await (await fetch(context.documentIri)).json()) as any;
-    } catch {
-      // availability of document is handled in remoteDocumentAsJsonLD
-      return [];
-    }
-
-    if (!remoteDocument.client_id) {
+    if (!context.document.client_id) {
       return [
         {
           status: "error",
@@ -62,7 +46,7 @@ const remoteMatchingClientId: ValidationRule = {
       ];
     }
 
-    if (remoteDocument.client_id !== context.documentIri) {
+    if (context.document.client_id !== context.documentIri) {
       return [
         {
           status: "error",
@@ -70,7 +54,7 @@ const remoteMatchingClientId: ValidationRule = {
           description:
             "The remote and the local Client Identifier URI must be equal (string equality).",
           affectedFields: [
-            { fieldName: "client_id", fieldValue: remoteDocument.client_id },
+            { fieldName: "client_id", fieldValue: context.document.client_id },
             { fieldName: "client_id", fieldValue: context.documentIri },
           ],
         },
@@ -84,7 +68,7 @@ const remoteMatchingClientId: ValidationRule = {
         description:
           "The remote `client-id` field matches the local Client Identifier.",
         affectedFields: [
-          { fieldName: "client_id", fieldValue: remoteDocument.client_id },
+          { fieldName: "client_id", fieldValue: context.document.client_id },
         ],
       },
     ];

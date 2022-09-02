@@ -19,6 +19,9 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+// eslint-disable-next-line no-shadow
+import { Response } from "undici";
+
 export const OIDC_CONTEXT = "https://www.w3.org/ns/solid/oidc-context.jsonld";
 
 export interface ClientIdDocument extends Record<string, unknown> {
@@ -40,8 +43,12 @@ export interface ClientIdDocument extends Record<string, unknown> {
 }
 
 export interface ValidationContext {
-  document?: ClientIdDocument | null;
+  document: ClientIdDocument;
   documentIri?: string;
+}
+
+export interface RemoteValidationContext extends ValidationContext {
+  fetchResponse: Response;
 }
 
 export interface ValidationRuleMetadata {
@@ -53,6 +60,10 @@ export interface ValidationRuleMetadata {
 export interface ValidationRule {
   rule: ValidationRuleMetadata;
   check(context: ValidationContext): Promise<RuleResult[]>;
+}
+
+export interface RemoteValidationRule extends ValidationRule {
+  check(context: RemoteValidationContext): Promise<RuleResult[]>;
 }
 
 export interface RuleResult {

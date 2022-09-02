@@ -19,67 +19,22 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-// eslint-disable-next-line no-shadow
-import { fetch, request, Response } from "undici";
 import {
-  ValidationRule,
-  RuleResult,
-  ValidationContext,
   OIDC_CONTEXT,
-  ClientIdDocument,
+  RemoteValidationContext,
+  RemoteValidationRule,
+  RuleResult,
 } from "../../types";
 
-const remoteDocumentAsJsonLd: ValidationRule = {
+const remoteDocumentAsJsonLd: RemoteValidationRule = {
   rule: {
     type: "remote",
     name: "Remote Document must be a correct ld+json document",
     description:
       "The Client Identifier Document must contain the correct Solid OIDC context. The server must serve a mime type of `application/json` or `application/ld+json`",
   },
-  check: async (context: ValidationContext) => {
-    if (!context.documentIri) {
-      return [
-        {
-          status: "error",
-          title: "No Client Identifier URI given",
-          description:
-            "Cannot fetch the Client Identifier Document without the Client Identifier URI.",
-          affectedFields: [],
-        },
-      ];
-    }
-    try {
-      // check for syntax here only..
-      // eslint-disable-next-line no-new
-      new URL(context.documentIri);
-    } catch {
-      return [
-        {
-          status: "error",
-          title: "Client Identifier not a valid URI",
-          description: "The Client Identifier must be a URI to fetch.",
-          affectedFields: [],
-        },
-      ];
-    }
-
-    let fetchResult: Response;
-    try {
-      fetchResult = await fetch(context.documentIri);
-    } catch (error) {
-      return [
-        {
-          status: "error",
-          title: `Client Identifier Document could not be fetched`,
-          description: `The URI \`${context.documentIri}\` could not be resolved:\n${error}`,
-          affectedFields: [
-            { fieldName: "client_id", fieldValue: context.documentIri },
-          ],
-        },
-      ];
-    }
-
-    if (fetchResult.redirected) {
+  check: async (context: RemoteValidationContext) => {
+    if (context.fetchResponse.redirected) {
       return [
         {
           status: "warning",
@@ -93,12 +48,12 @@ const remoteDocumentAsJsonLd: ValidationRule = {
       ];
     }
 
-    if (fetchResult.status !== 200) {
+    if (context.fetchResponse.status !== 200) {
       return [
         {
           status: "error",
           title: "Unexpected status code",
-          description: `The status code from fetching Client Identifier Document was ${fetchResult.status} but should have been 200.`,
+          description: `The status code from fetching Client Identifier Document was ${context.fetchResponse.status} but should have been 200.`,
           affectedFields: [
             { fieldName: "client_id", fieldValue: context.documentIri },
           ],
@@ -108,25 +63,7 @@ const remoteDocumentAsJsonLd: ValidationRule = {
 
     const results: RuleResult[] = [];
 
-    let remoteDocument: ClientIdDocument;
-    try {
-      // we need this to allow error-less passing from .json() to ClientIdDocument
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      remoteDocument = (await fetchResult.json()) as any;
-    } catch (error) {
-      results.push({
-        status: "error",
-        title: "Remote Client Identifier Document could not be parsed",
-        description:
-          "The resource located at the Client Identifier URI is not a valid JSON document.",
-        affectedFields: [
-          { fieldName: "client_id", fieldValue: context.documentIri },
-        ],
-      });
-      return results;
-    }
-
-    const contentType = fetchResult.headers.get("content-type");
+    const contentType = context.fetchResponse.headers.get("content-type");
     const mimeType = !contentType ? "" : contentType.replace(/;.*/, "");
 
     if (mimeType !== "application/json" && mimeType !== "application/ld+json") {
@@ -140,7 +77,7 @@ const remoteDocumentAsJsonLd: ValidationRule = {
       });
     }
 
-    if (!remoteDocument["@context"]) {
+    if (!context.document["@context"]) {
       results.push({
         status: "error",
         title: "Remote Client Identifier Document misses `@context` field",
@@ -153,11 +90,11 @@ const remoteDocumentAsJsonLd: ValidationRule = {
     }
 
     if (
-      remoteDocument["@context"] !== OIDC_CONTEXT &&
+      context.document["@context"] !== OIDC_CONTEXT &&
       !(
-        Array.isArray(remoteDocument["@context"]) &&
-        remoteDocument["@context"].length === 1 &&
-        remoteDocument["@context"][0] === OIDC_CONTEXT
+        Array.isArray(context.document["@context"]) &&
+        context.document["@context"].length === 1 &&
+        context.document["@context"][0] === OIDC_CONTEXT
       )
     ) {
       results.push({

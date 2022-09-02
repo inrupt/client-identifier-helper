@@ -22,7 +22,7 @@
 /* eslint-disable no-shadow */
 
 import { describe, expect, test } from "@jest/globals";
-import { MockAgent, setGlobalDispatcher } from "undici";
+import { MockAgent, setGlobalDispatcher, fetch, Response } from "undici";
 import remoteMatchingClientId from "./remoteMatchingClientId";
 
 // The text Encoder / Decoders are implicitly used in node_modules/undici/lib/fetch/dataURL.js
@@ -48,9 +48,11 @@ describe("remote document Client Identifier URI check", () => {
         },
       });
 
+    const fetchResponse = await fetch("https://app.example/id-missing");
     const results = await remoteMatchingClientId.check({
       documentIri: "https://app.example/id-missing",
-      document: {},
+      document: JSON.parse(await fetchResponse.text()),
+      fetchResponse,
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(
@@ -71,9 +73,11 @@ describe("remote document Client Identifier URI check", () => {
       }
     );
 
+    const fetchResponse = await fetch("https://app.example/id-mismatching");
     const results = await remoteMatchingClientId.check({
       documentIri: "https://app.example/id-mismatching",
-      document: {},
+      document: JSON.parse(await fetchResponse.text()),
+      fetchResponse,
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(
@@ -85,14 +89,7 @@ describe("remote document Client Identifier URI check", () => {
     const results = await remoteMatchingClientId.check({
       documentIri: undefined,
       document: {},
-    });
-    expect(results).toHaveLength(0);
-  });
-
-  test("ignores for invalid documentIri", async () => {
-    const results = await remoteMatchingClientId.check({
-      documentIri: "This is not a URI",
-      document: {},
+      fetchResponse: new Response(),
     });
     expect(results).toHaveLength(0);
   });
@@ -110,9 +107,11 @@ describe("remote document Client Identifier URI check", () => {
       }
     );
 
+    const fetchResponse = await fetch("https://app.example/id");
     const results = await remoteMatchingClientId.check({
       documentIri: "https://app.example/id",
-      document: {},
+      document: JSON.parse(await fetchResponse.text()),
+      fetchResponse,
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(

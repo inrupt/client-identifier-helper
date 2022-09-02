@@ -22,7 +22,7 @@
 /* eslint-disable no-shadow */
 
 import { describe, expect, test } from "@jest/globals";
-import { MockAgent, setGlobalDispatcher } from "undici";
+import { MockAgent, setGlobalDispatcher, fetch } from "undici";
 import { OIDC_CONTEXT } from "../../types";
 import remoteDocumentAsJsonLd from "./remoteDocumentAsJsonLd";
 
@@ -54,9 +54,11 @@ describe("remote document as json-ld check", () => {
       }
     );
 
+    const fetchResponse = await fetch("https://app.example/id-no-ld");
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-no-ld",
-      document: {},
+      document: JSON.parse(await fetchResponse.text()),
+      fetchResponse,
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(
@@ -79,35 +81,15 @@ describe("remote document as json-ld check", () => {
       }
     );
 
+    const fetchResponse = await fetch("https://app.example/id");
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id",
-      document: {},
+      document: JSON.parse(await fetchResponse.text()),
+      fetchResponse,
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(
       /Remote Document is a valid JSON-LD document/
-    );
-  });
-
-  test("errors if documentIri is undefined", async () => {
-    const resultsForMissingDocumentUri = await remoteDocumentAsJsonLd.check({
-      documentIri: undefined,
-      document: {},
-    });
-    expect(resultsForMissingDocumentUri).toHaveLength(1);
-    expect(resultsForMissingDocumentUri[0].title).toMatch(
-      /No Client Identifier URI given/
-    );
-  });
-
-  test("errors if documentIri is an invalid URI", async () => {
-    const resultsForInvalidDocumentUri = await remoteDocumentAsJsonLd.check({
-      documentIri: "https://invalid uri",
-      document: {},
-    });
-    expect(resultsForInvalidDocumentUri).toHaveLength(1);
-    expect(resultsForInvalidDocumentUri[0].title).toMatch(
-      /Client Identifier not a valid URI/
     );
   });
 
@@ -123,9 +105,11 @@ describe("remote document as json-ld check", () => {
 
     mockPool.intercept({ path: "https://app.example/id" }).reply(200);
 
+    const fetchResponse = await fetch("https://app.example/redirected");
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/redirected",
       document: {},
+      fetchResponse,
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(/Unexpected redirect/);
@@ -135,9 +119,11 @@ describe("remote document as json-ld check", () => {
     // fetch a good document with content-type application/json
     mockPool.intercept({ path: "https://app.example/non-200" }).reply(201);
 
+    const fetchResponse = await fetch("https://app.example/non-200");
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/non-200",
       document: {},
+      fetchResponse,
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(/Unexpected status code/);
@@ -157,9 +143,11 @@ describe("remote document as json-ld check", () => {
           },
         }
       );
+    const fetchResponse = await fetch("https://app.example/id-missing-context");
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-missing-context",
-      document: {},
+      document: JSON.parse(await fetchResponse.text()),
+      fetchResponse,
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(/misses `@context` field/);
@@ -181,9 +169,11 @@ describe("remote document as json-ld check", () => {
         }
       );
 
+    const fetchResponse = await fetch("https://app.example/id-invalid-context");
     const resultsForInvalidContext = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-invalid-context",
-      document: {},
+      document: JSON.parse(await fetchResponse.text()),
+      fetchResponse,
     });
     expect(resultsForInvalidContext).toHaveLength(1);
     expect(resultsForInvalidContext[0].title).toMatch(/Invalid `@context`/);
@@ -198,42 +188,14 @@ describe("remote document as json-ld check", () => {
         },
       });
 
+    const fetchResponse = await fetch("https://app.example/id-bad-status");
     const resultsForBadStatus = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-bad-status",
       document: {},
+      fetchResponse,
     });
     expect(resultsForBadStatus).toHaveLength(1);
     expect(resultsForBadStatus[0].title).toMatch(/Unexpected status code/);
-  });
-
-  test("errors if the fetch fails", async () => {
-    mockPool
-      .intercept({ path: "https://app.example/fetch-will-fail" })
-      .reply(() => {
-        throw new Error("this fetch was supposed to fail by test");
-      });
-    const resultsForFailedFetch = await remoteDocumentAsJsonLd.check({
-      documentIri: "https://app.example/fetch-will-fail",
-      document: {},
-    });
-    expect(resultsForFailedFetch).toHaveLength(1);
-    expect(resultsForFailedFetch[0].title).toMatch(/could not be fetched/);
-  });
-
-  test("errors if client identifier document cannot be parsed", async () => {
-    mockPool
-      .intercept({ path: "https://app.example/id-not-parsable" })
-      .reply(200, "invalid json", {
-        headers: {
-          "content-type": "application/ld+json; charset=utf8",
-        },
-      });
-    const results = await remoteDocumentAsJsonLd.check({
-      documentIri: "https://app.example/id-not-parsable",
-      document: {},
-    });
-    expect(results).toHaveLength(1);
-    expect(results[0].title).toMatch(/could not be parsed/);
   });
 
   test("errors on missing/wrong content type header", async () => {
@@ -250,9 +212,14 @@ describe("remote document as json-ld check", () => {
           },
         }
       );
+
+    const fetchResponse = await fetch(
+      "https://app.example/id-missing-content-type-header"
+    );
     const results = await remoteDocumentAsJsonLd.check({
       documentIri: "https://app.example/id-missing-content-type-header",
-      document: {},
+      document: JSON.parse(await fetchResponse.text()),
+      fetchResponse,
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(/Invalid `content-type` header/);

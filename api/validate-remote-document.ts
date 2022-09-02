@@ -116,7 +116,22 @@ export default async (request: VercelRequest, response: VercelResponse) => {
     );
   }
 
+  // is documentIRI well-formed?
   try {
+    // eslint-disable-next-line no-new
+    new URL(documentIri);
+  } catch {
+    return createResponse({
+      document: null,
+      results: createErrorResult(
+        "Document URI invalid",
+        `\`${documentIri}\` is not a valid URI`
+      ),
+    });
+  }
+
+  try {
+    // fetch
     const fetchResponse = await fetch(documentIri, {
       headers: new Headers({
         Accept: "application/ld+json, application/json",
@@ -124,10 +139,9 @@ export default async (request: VercelRequest, response: VercelResponse) => {
       }),
     });
 
-    const document = await fetchResponse.text();
-    let documentJson: ClientIdDocument | null;
+    let documentJson: ClientIdDocument;
     try {
-      documentJson = JSON.parse(document);
+      documentJson = JSON.parse(await fetchResponse.text());
     } catch {
       return response.status(200).json(
         createResponse({
@@ -155,7 +169,7 @@ export default async (request: VercelRequest, response: VercelResponse) => {
         document: null,
         results: createErrorResult(
           "Remote document could not be fetched",
-          "The remote document could not be fetched. Is it available and the URI valid?"
+          "The remote document could not be fetched. Is it available?"
         ),
       })
     );
