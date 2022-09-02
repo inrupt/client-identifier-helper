@@ -15,14 +15,20 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "api/**/*.ts", "**/*.md"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "api/**/*.ts",
+    "e2e/**/*.ts",
+    "**/*.md"
+  ],
   "exclude": [
     "**/node_modules",
     "dist",
     "**/__mocks__/**",
     "**/__snapshots__/**",
     "src/**/*.test.tsx",
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

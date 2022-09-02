@@ -19,19 +19,19 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { ThemeProvider } from "@mui/material/styles";
 import { Box, CssBaseline, Tab, Tabs } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
 import {
-  Route,
-  Link,
   BrowserRouter,
-  Routes,
+  Link,
   Navigate,
+  Route,
+  Routes,
   useLocation,
 } from "react-router-dom";
-import theme from "./theme";
 import ClientIdentifierGenerator from "./pages/generate";
 import ClientIdentifierValidator from "./pages/validate";
+import theme from "./theme";
 
 function TabsComponent() {
   const currentTab = useLocation().pathname;
@@ -43,12 +43,14 @@ function TabsComponent() {
           value="/generator"
           label="Generator"
           component={Link}
+          className="openGeneratorPage"
         />
         <Tab
           to="/validator"
           value="/validator"
           label="Validator"
           component={Link}
+          className="openValidatorPage"
         />
       </Tabs>
     </Box>
