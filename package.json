@@ -2,16 +2,16 @@
   "name": "@inrupt/client-identifier-helper",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite dev",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "npm run lint:check",
     "lint:fix": "npm run lint:eslint -- --fix && npm run lint:prettier -- --write",
     "lint:check": "npm run lint:eslint && npm run lint:prettier -- --check",
     "lint:eslint": "eslint --config .eslintrc.cjs \"src/\"",
-    "lint:prettier": "prettier \"{src,e2e}/**/*.{ts,tsx,js,jsx,css}\" \"**/*.{md,mdx,yml}\""
+    "lint:prettier": "prettier \"{src,e2e}/**/*.{ts,tsx,js,jsx,css}\" \"**/*.{md,mdx,yml}\"",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@emotion/react": "^11.10.4",
@@ -29,6 +29,7 @@
     "@inrupt/eslint-config-lib": "^1.1.0",
     "@inrupt/eslint-config-react": "^1.1.0",
     "@jest/globals": "^29.0.3",
+    "@playwright/test": "^1.25.1",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/jest": "^28.1.6",
     "@types/react": "^18.0.19",
