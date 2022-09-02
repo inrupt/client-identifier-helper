@@ -40,10 +40,8 @@ export interface ClientIdDocument extends Record<string, unknown> {
 }
 
 export interface ValidationContext {
-  document: ClientIdDocument;
+  document?: ClientIdDocument | null;
   documentIri?: string;
-  // for remote documents, the fetched response
-  fetchResponse?: Response;
 }
 
 export interface ValidationRuleMetadata {
@@ -69,3 +67,9 @@ export interface ValidationResult extends RuleResult {
 }
 
 export type ValidationResults = ValidationResult[];
+
+export interface RemoteValidationResponse {
+  results: ValidationResults;
+  document: ClientIdDocument | null;
+  documentIri: string | string[];
+}

@@ -22,20 +22,50 @@
 import { fetch, Headers } from "undici";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-import { ValidationRule } from "../src/lib/types";
+import {
+  ClientIdDocument,
+  RemoteValidationContext,
+  RemoteValidationResponse,
+  RemoteValidationRule,
+  ValidationResults,
+} from "../src/lib/types";
 import remoteDocumentAsJsonLd from "../src/lib/validationRules/remoteDocumentAsJsonLd/remoteDocumentAsJsonLd";
 import remoteMatchingClientId from "../src/lib/validationRules/remoteMatchingClientId/remoteMatchingClientId";
 
-const remoteRules: ValidationRule[] = [
+const remoteRules: RemoteValidationRule[] = [
   remoteDocumentAsJsonLd,
   remoteMatchingClientId,
 ];
 
-async function validateRemoteDocument(documentIri: string) {
+const createErrorResult = (
+  errorTitle: string,
+  errorDescription: string
+): ValidationResults => {
+  return [
+    {
+      rule: {
+        name: "Remote validation",
+        description: "",
+        type: "remote",
+      },
+      affectedFields: [],
+      status: "error",
+      title: errorTitle,
+      description: errorDescription,
+    },
+  ];
+};
+
+async function validateRemoteDocument({
+  documentIri,
+  document,
+  fetchResponse,
+}: RemoteValidationContext) {
   const validationPromises = remoteRules.map(async (rule) => {
     const results = await rule.check({
       documentIri,
-      document: {},
+      document,
+      fetchResponse,
     });
     return results.map((result) => ({
       rule: rule.rule,
@@ -48,53 +78,86 @@ async function validateRemoteDocument(documentIri: string) {
 export default async (request: VercelRequest, response: VercelResponse) => {
   const { documentIri } = request.query;
 
-  if (request.method !== "POST") {
-    return response.status(405).json({
+  const createResponse = ({
+    document,
+    results,
+  }: {
+    document: ClientIdDocument | null;
+    results: ValidationResults;
+  }): RemoteValidationResponse => {
+    return {
       documentIri,
-      error: {
-        message:
-          "Method not allowed: This API endpoint only accepts POST requests",
-      },
-      results: null,
-      document: null,
-    });
+      document,
+      results,
+    };
+  };
+
+  if (request.method !== "POST") {
+    return response.status(405).json(
+      createResponse({
+        document: null,
+        results: createErrorResult(
+          "Remote validation failed",
+          "Method not allowed: The validation API endpoint only accepts POST requests."
+        ),
+      })
+    );
   }
 
   if (!documentIri || Array.isArray(documentIri)) {
-    return response.status(400).json({
-      documentIri,
-      error: {
-        message:
-          "Missing documentIri query parameter, or multiple have been passed",
-      },
-      results: null,
-      document: null,
-    });
+    return response.status(400).json(
+      createResponse({
+        document: null,
+        results: createErrorResult(
+          "Remote validation failed",
+          "The validation API endpoint needs exactly one documentIri parameter."
+        ),
+      })
+    );
   }
 
   try {
     const fetchResponse = await fetch(documentIri, {
       headers: new Headers({
-        "User-Agent":
-          "Inrupt Client Identifier Helper (https://solid-client-indentifier-helper.vercel.app/)",
+        Accept: "application/ld+json, application/json",
+        "User-Agent": `Inrupt Client Identifier Helper (${request.headers.origin})`,
       }),
     });
 
     const document = await fetchResponse.text();
+    let documentJson: ClientIdDocument | null;
+    try {
+      documentJson = JSON.parse(document);
+    } catch {
+      return response.status(200).json(
+        createResponse({
+          document: null,
+          results: createErrorResult(
+            "Remote document could not be parsed",
+            "The remote document is not valid JSON"
+          ),
+        })
+      );
+    }
 
-    const validationResults = await validateRemoteDocument(documentIri);
-
-    return response.status(200).json({
-      results: validationResults,
-      document,
+    const results = await validateRemoteDocument({
       documentIri,
+      document: documentJson,
+      fetchResponse,
     });
+
+    return response
+      .status(200)
+      .json(createResponse({ document: documentJson, results }));
   } catch (err) {
-    return response.status(200).json({
-      error: { message: "could not fetch" },
-      documentIri,
-      results: null,
-      document: null,
-    });
+    return response.status(200).json(
+      createResponse({
+        document: null,
+        results: createErrorResult(
+          "Remote document could not be fetched",
+          "The remote document could not be fetched. Is it available and the URI valid?"
+        ),
+      })
+    );
   }
 };

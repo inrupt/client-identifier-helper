@@ -35,7 +35,11 @@ import validScope from "./validScope/validScope";
 import validGrantTypes from "./validGrantTypes/validGrantTypes";
 import noUnsetClientUri from "./noUnsetClientUri/noUnsetClientUri";
 
-import { ValidationResults, ValidationRule } from "../types";
+import {
+  RemoteValidationResponse,
+  ValidationResults,
+  ValidationRule,
+} from "../types";
 
 export const offlineRules: ValidationRule[] = [
   decentClientName,
@@ -57,27 +61,31 @@ export const offlineRules: ValidationRule[] = [
 ];
 
 export async function validateDocument(
-  jsonDocument: string,
+  jsonDocument: string | object,
   rules: ValidationRule[]
 ): Promise<ValidationResults> {
   // try parsing first..
   let clientIdDocument = {};
-  try {
-    clientIdDocument = JSON.parse(jsonDocument);
-  } catch {
-    return [
-      {
-        rule: {
-          type: "local",
-          name: "Document must be valid JSON",
-          description: "The document must be a valid JSON string.",
+  if (typeof jsonDocument === "string") {
+    try {
+      clientIdDocument = JSON.parse(jsonDocument);
+    } catch {
+      return [
+        {
+          rule: {
+            type: "local",
+            name: "Document must be valid JSON",
+            description: "The document must be a valid JSON string.",
+          },
+          status: "error",
+          title: "Invalid JSON",
+          description: "The document could not be parsed to JSON.",
+          affectedFields: [],
         },
-        status: "error",
-        title: "Invalid JSON",
-        description: "The document could not be parsed to JSON.",
-        affectedFields: [],
-      },
-    ];
+      ];
+    }
+  } else {
+    clientIdDocument = jsonDocument;
   }
 
   const validationPromises = rules.map(async (rule) => {
@@ -94,69 +102,41 @@ export async function validateDocument(
 export async function requestRemoteValidation(
   documentIri: string
 ): Promise<ValidationResults> {
-  let response: Response;
+  let response: RemoteValidationResponse;
   try {
-    response = await await fetch(
+    const fetchResponse = await fetch(
       `/api/validate-remote-document?documentIri=${documentIri}`,
       {
         method: "POST",
       }
     );
+    response = await fetchResponse.json();
   } catch (error) {
     return [
       {
+        rule: {
+          type: "remote",
+          name: "API must be available",
+          description:
+            "To generate remote validation results and fetch remote Client Identifier Documents, the validator api must be available.",
+        },
         status: "error",
+        title: "Validation service not available",
+        description:
+          "Requesting remote validation failed because the validation server could not be reached or returned an invalid response. Are you connected to the internet?",
         affectedFields: [],
-        rule: { description: "", name: "", type: "remote" },
-        title: `Fetching resource was not successful`,
-        description: `An error ocured while trying to fetch the resource: ${error}`,
-      },
-    ];
-  }
-  let jsonResponse: any;
-  try {
-    jsonResponse = await response.json();
-  } catch (error) {
-    return [
-      {
-        status: "error",
-        affectedFields: [],
-        rule: { description: "", name: "", type: "remote" },
-        title: `Fetching resource was not successful`,
-        description: `The validation result could not be parsed.`,
       },
     ];
   }
 
-  if (jsonResponse?.error) {
-    return [
-      {
-        status: "error",
-        affectedFields: [],
-        rule: { description: "", name: "", type: "remote" },
-        title: `Validation not successful`,
-        description: `The resource could not be validated: ${jsonResponse.error}`,
-      },
-    ];
-  }
+  const remoteResults = response.results;
+  let localResults: ValidationResults = [];
 
-  if (!Array.isArray(jsonResponse.results)) {
-    return [
-      {
-        status: "error",
-        affectedFields: [],
-        rule: { description: "", name: "", type: "remote" },
-        title: `Fetching resource was not successful`,
-        description: `The validation result could not be parsed.`,
-      },
-    ];
+  // if the document was empty,
+  // the remoteResults will indicate so and there is nothing more to do..
+  if (response.document) {
+    localResults = await validateDocument(response.document, offlineRules);
   }
-
-  const remoteResults: ValidationResults = jsonResponse.results;
-  const localResults = await validateDocument(
-    jsonResponse.document,
-    offlineRules
-  );
 
   return [...remoteResults, ...localResults];
 }
