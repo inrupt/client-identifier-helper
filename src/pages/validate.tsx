@@ -23,11 +23,9 @@ import { useState } from "react";
 import { Typography, Grid, TextField, Button } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import ValidationResults from "../components/validationResults";
-import {
-  validateDocument,
-  offlineRules,
-  requestRemoteValidation,
-} from "../lib/validationRules/index";
+import { localRules } from "../lib/validationRules";
+import validateRemoteDocument from "../lib/validateRemoteDocument";
+import validateLocalDocument from "../lib/validateLocalDocument";
 import { ValidationResult } from "../lib/types";
 
 function ClientIdentifierValidator() {
@@ -39,13 +37,13 @@ function ClientIdentifierValidator() {
   );
 
   const onValidateBtnClick = async () => {
-    const results = await validateDocument(documentJson, offlineRules);
+    const results = await validateLocalDocument(documentJson, localRules);
     setValidationResults(results);
   };
 
   const fetchAndValidate = async () => {
     setIsFetchingAndValidating(true);
-    const remoteResults = await requestRemoteValidation(clientIdentifierUri);
+    const remoteResults = await validateRemoteDocument(clientIdentifierUri);
     setValidationResults(remoteResults);
     setIsFetchingAndValidating(false);
   };

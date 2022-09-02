@@ -26,16 +26,9 @@ import {
   ClientIdDocument,
   RemoteValidationContext,
   RemoteValidationResponse,
-  RemoteValidationRule,
   ValidationResults,
 } from "../src/lib/types";
-import remoteDocumentAsJsonLd from "../src/lib/validationRules/remoteDocumentAsJsonLd/remoteDocumentAsJsonLd";
-import remoteMatchingClientId from "../src/lib/validationRules/remoteMatchingClientId/remoteMatchingClientId";
-
-const remoteRules: RemoteValidationRule[] = [
-  remoteDocumentAsJsonLd,
-  remoteMatchingClientId,
-];
+import { remoteRules } from "../src/lib/validationRules";
 
 const createErrorResult = (
   errorTitle: string,
@@ -121,13 +114,15 @@ export default async (request: VercelRequest, response: VercelResponse) => {
     // eslint-disable-next-line no-new
     new URL(documentIri);
   } catch {
-    return createResponse({
-      document: null,
-      results: createErrorResult(
-        "Document URI invalid",
-        `\`${documentIri}\` is not a valid URI`
-      ),
-    });
+    return response.status(200).json(
+      createResponse({
+        document: null,
+        results: createErrorResult(
+          "Document URI invalid",
+          `\`${documentIri}\` is not a valid URI`
+        ),
+      })
+    );
   }
 
   try {

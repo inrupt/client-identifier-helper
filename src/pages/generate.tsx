@@ -33,11 +33,8 @@ import type { FieldArrayRenderProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
 import ValidationResults from "../components/validationResults";
 import generateClientIdDocument from "../lib/generateDocument";
-import {
-  offlineRules,
-  requestRemoteValidation,
-  validateDocument,
-} from "../lib/validationRules";
+import { localRules } from "../lib/validationRules";
+import validateLocalDocument from "../lib/validateLocalDocument";
 import { ValidationResult } from "../lib/types";
 
 function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
@@ -119,17 +116,8 @@ export default function ClientIdentifierGenerator() {
     });
     setDocumentJson(clientIdDocument);
 
-    const results = await validateDocument(clientIdDocument, offlineRules);
+    const results = await validateLocalDocument(clientIdDocument, localRules);
     setValidationResults(results);
-    try {
-      requestRemoteValidation(clientIdDocument)
-        .then((asyncResults) => {
-          setValidationResults([...results, ...asyncResults]);
-        })
-        .catch(() => {});
-    } catch {
-      // we ignore remote errors?
-    }
   };
 
   const onReset = () => {
