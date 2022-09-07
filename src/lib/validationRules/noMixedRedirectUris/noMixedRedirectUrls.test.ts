@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import noMixedRedirectUrls from "./noMixedRedirectUrls";
 
 describe("remote and localhost redirect URIs should not be mixed", () => {
-  test("errors on mixed URIs", async () => {
+  it("errors on mixed URIs", async () => {
     const resultsForMixedLocalRemote = await noMixedRedirectUrls.check({
       document: {
         redirect_uris: [
@@ -38,7 +38,7 @@ describe("remote and localhost redirect URIs should not be mixed", () => {
       /Mixed localhost and remote redirect URIs/
     );
   });
-  test("ignores on invalid redirect URIs object", async () => {
+  it("ignores on invalid redirect URIs object", async () => {
     const resultsForInvalid1 = await noMixedRedirectUrls.check({
       document: {
         redirect_uris: "https://invalid-redirect_uris.example",
@@ -47,7 +47,7 @@ describe("remote and localhost redirect URIs should not be mixed", () => {
     // invalid types are handled elsewhere
     expect(resultsForInvalid1).toHaveLength(0);
   });
-  test("ignores on invalid redirect URIs", async () => {
+  it("ignores on invalid redirect URIs", async () => {
     const resultsForInvalid2 = await noMixedRedirectUrls.check({
       document: {
         redirect_uris: ["invalid uri"],
@@ -57,7 +57,7 @@ describe("remote and localhost redirect URIs should not be mixed", () => {
     expect(resultsForInvalid2).toHaveLength(0);
   });
 
-  test("succeeds for localhost only redirect URIs", async () => {
+  it("succeeds for localhost only redirect URIs", async () => {
     const resultsForSuccessLocalHost = await noMixedRedirectUrls.check({
       document: {
         redirect_uris: [
@@ -72,7 +72,7 @@ describe("remote and localhost redirect URIs should not be mixed", () => {
     expect(resultsForSuccessLocalHost).toHaveLength(0);
   });
 
-  test("succeeds for remote only redirect URIs", async () => {
+  it("succeeds for remote only redirect URIs", async () => {
     const resultsForSuccessRemote = await noMixedRedirectUrls.check({
       document: {
         redirect_uris: [

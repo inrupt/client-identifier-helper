@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import validGrantTypes from "./validGrantTypes";
 
 describe("grant types must be known and valid for Solid OIDC", () => {
-  test("errors on unset `grant_types`", async () => {
+  it("errors on unset `grant_types`", async () => {
     const resultsForUndefined = await validGrantTypes.check({
       document: {
         grant_types: undefined,
@@ -34,7 +34,7 @@ describe("grant types must be known and valid for Solid OIDC", () => {
     expect(resultsForUndefined[0].title).toMatch(/No Grant Type set/);
   });
 
-  test("errors on invalid `grant_types` object", async () => {
+  it("errors on invalid `grant_types` object", async () => {
     const resultsForWrongType = await validGrantTypes.check({
       document: {
         grant_types: "this is not an array",
@@ -44,7 +44,7 @@ describe("grant types must be known and valid for Solid OIDC", () => {
     expect(resultsForWrongType[0].description).toMatch(/must be an array/);
   });
 
-  test("errors on missing grant type `authorization_code`", async () => {
+  it("errors on missing grant type `authorization_code`", async () => {
     const resultsForNoAuthCode = await validGrantTypes.check({
       document: {
         grant_types: [],
@@ -54,7 +54,7 @@ describe("grant types must be known and valid for Solid OIDC", () => {
     expect(resultsForNoAuthCode[0].title).toMatch(/Missing Grant Type/);
   });
 
-  test("errors on present grant type `implicit`", async () => {
+  it("errors on present grant type `implicit`", async () => {
     const resultsForImplicit = await validGrantTypes.check({
       document: {
         grant_types: ["implicit", "authorization_code"],
@@ -66,7 +66,7 @@ describe("grant types must be known and valid for Solid OIDC", () => {
     );
   });
 
-  test("errors on duplicate grant types", async () => {
+  it("errors on duplicate grant types", async () => {
     const resultsForDuplicates = await validGrantTypes.check({
       document: {
         grant_types: ["authorization_code", "authorization_code"],
@@ -76,7 +76,7 @@ describe("grant types must be known and valid for Solid OIDC", () => {
     expect(resultsForDuplicates[0].description).toMatch(/duplicate values/);
   });
 
-  test("infos for unknown grant types", async () => {
+  it("infos for unknown grant types", async () => {
     const resultsForUnknown = await validGrantTypes.check({
       document: {
         grant_types: ["misspelled grant type", "authorization_code"],
@@ -86,7 +86,7 @@ describe("grant types must be known and valid for Solid OIDC", () => {
     expect(resultsForUnknown[0].title).toMatch(/Unknown Grant Types/);
   });
 
-  test("succeeds on valid grant types", async () => {
+  it("succeeds on valid grant types", async () => {
     const resultsForSuccess = await validGrantTypes.check({
       document: {
         grant_types: ["authorization_code"],

@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import sameDomainForRedirectUris from "./sameDomainForRedirectUris";
 
 describe("redirect URIs should be located on the same domain", () => {
-  test("warns if redirect URIs are on different domains", async () => {
+  it("warns if redirect URIs are on different domains", async () => {
     const resultsForDifferentDomains = await sameDomainForRedirectUris.check({
       document: {
         redirect_uris: [
@@ -39,7 +39,7 @@ describe("redirect URIs should be located on the same domain", () => {
     );
   });
 
-  test("ignores on invalid `redirect_uris` object", async () => {
+  it("ignores on invalid `redirect_uris` object", async () => {
     const resultsForInvalid = await sameDomainForRedirectUris.check({
       document: {
         redirect_uris: "https://invalid-redirect_uris.example",
@@ -49,7 +49,7 @@ describe("redirect URIs should be located on the same domain", () => {
     expect(resultsForInvalid).toHaveLength(0);
   });
 
-  test("ignores on invalid redirect URIs", async () => {
+  it("ignores on invalid redirect URIs", async () => {
     const resultsForInvalid2 = await sameDomainForRedirectUris.check({
       document: {
         redirect_uris: ["invalid uri"],
@@ -59,7 +59,7 @@ describe("redirect URIs should be located on the same domain", () => {
     expect(resultsForInvalid2).toHaveLength(0);
   });
 
-  test("succeeds for redirect URIs on same domain", async () => {
+  it("succeeds for redirect URIs on same domain", async () => {
     const resultsForSuccess = await sameDomainForRedirectUris.check({
       document: {
         redirect_uris: [

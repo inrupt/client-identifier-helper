@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import validScope from "./validScope";
 
 describe("valid `scope` field check", () => {
-  test("errors on non-string `scope` field", async () => {
+  it("errors on non-string `scope` field", async () => {
     const resultsForInvalid = await validScope.check({
       document: {
         scope: ["openid", "webid"],
@@ -34,7 +34,7 @@ describe("valid `scope` field check", () => {
     expect(resultsForInvalid[0].description).toMatch(/must be a string/);
   });
 
-  test("errors on unset `scope` field", async () => {
+  it("errors on unset `scope` field", async () => {
     const resultsForUnset = await validScope.check({
       document: {
         scope: undefined,
@@ -44,7 +44,7 @@ describe("valid `scope` field check", () => {
     expect(resultsForUnset[0].title).toMatch(/Scope field not set/);
   });
 
-  test("errors on missing `webid` and `openid` scope", async () => {
+  it("errors on missing `webid` and `openid` scope", async () => {
     const resultsForEmpty = await validScope.check({
       document: {
         scope: "profile",
@@ -55,7 +55,7 @@ describe("valid `scope` field check", () => {
     expect(resultsForEmpty[1].title).toMatch(/Missing.*webid/);
   });
 
-  test("errors on duplicates", async () => {
+  it("errors on duplicates", async () => {
     const resultsForDuplicates = await validScope.check({
       document: {
         scope: "openid webid profile profile",
@@ -65,7 +65,7 @@ describe("valid `scope` field check", () => {
     expect(resultsForDuplicates[0].title).toMatch(/Duplicate Scope values/);
   });
 
-  test("infos for unknown scope field", async () => {
+  it("infos for unknown scope field", async () => {
     const resultsForUnknowns = await validScope.check({
       document: {
         scope: "openid webid custom_scope",
@@ -75,7 +75,7 @@ describe("valid `scope` field check", () => {
     expect(resultsForUnknowns[0].title).toMatch(/Unknown Scope value/);
   });
 
-  test("succeeds on correctly set `openid webid` scope", async () => {
+  it("succeeds on correctly set `openid webid` scope", async () => {
     const resultsForSuccess = await validScope.check({
       document: {
         scope: "openid\t webid",

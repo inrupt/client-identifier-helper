@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import validRedirectUris from "./validRedirectUris";
 
 describe("redirect URIs must be syntactically correct and should be static", () => {
-  test("errors on invalid `redirect_uris` type", async () => {
+  it("errors on invalid `redirect_uris` type", async () => {
     const resultsForWrongType = await validRedirectUris.check({
       document: {
         redirect_uris: "https://no-array-example/",
@@ -34,7 +34,7 @@ describe("redirect URIs must be syntactically correct and should be static", () 
     expect(resultsForWrongType[0].title).toMatch(/Redirect URIs field invalid/);
   });
 
-  test("errors on empty `redirect uris`", async () => {
+  it("errors on empty `redirect uris`", async () => {
     const resultsForEmptyRedirectUris = await validRedirectUris.check({
       document: {
         redirect_uris: [],
@@ -46,7 +46,7 @@ describe("redirect URIs must be syntactically correct and should be static", () 
     );
   });
 
-  test("errors on malformed redirect URI", async () => {
+  it("errors on malformed redirect URI", async () => {
     const resultsForMalformedRedirectUri = await validRedirectUris.check({
       document: {
         redirect_uris: ["this-is-no-uri.example/"],
@@ -58,7 +58,7 @@ describe("redirect URIs must be syntactically correct and should be static", () 
     );
   });
 
-  test("warns for missing URI path", async () => {
+  it("warns for missing URI path", async () => {
     const resultsForMissingRedirectUriPath = await validRedirectUris.check({
       document: {
         redirect_uris: ["https://my-app.example"],
@@ -70,7 +70,7 @@ describe("redirect URIs must be syntactically correct and should be static", () 
     );
   });
 
-  test("warns for non-static redirect URIs", async () => {
+  it("warns for non-static redirect URIs", async () => {
     const resultsForRedirectUriWithSearchParameters =
       await validRedirectUris.check({
         document: {
@@ -83,7 +83,7 @@ describe("redirect URIs must be syntactically correct and should be static", () 
     );
   });
 
-  test("succeeds for valid redirect URIs", async () => {
+  it("succeeds for valid redirect URIs", async () => {
     const resultsForSuccess = await validRedirectUris.check({
       document: {
         redirect_uris: ["https://my-app.example/callback"],

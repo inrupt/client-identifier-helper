@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import validDefaultMaxAge from "./validDefaultMaxAge";
 
 describe("`default_max_age` must be valid, unset, or should be set decently", () => {
-  test("errors on negative max age", async () => {
+  it("errors on negative max age", async () => {
     const resultsForInvalid = await validDefaultMaxAge.check({
       document: {
         default_max_age: -60,
@@ -36,7 +36,7 @@ describe("`default_max_age` must be valid, unset, or should be set decently", ()
     );
   });
 
-  test("warns for small max age", async () => {
+  it("warns for small max age", async () => {
     const resultsForSmallValue = await validDefaultMaxAge.check({
       document: {
         default_max_age: 5,
@@ -48,7 +48,7 @@ describe("`default_max_age` must be valid, unset, or should be set decently", ()
     );
   });
 
-  test("passes for decent max age", async () => {
+  it("passes for decent max age", async () => {
     const resultsForUnset = await validDefaultMaxAge.check({
       document: {
         default_max_age: undefined,

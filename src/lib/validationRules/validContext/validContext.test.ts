@@ -20,12 +20,12 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import { OIDC_CONTEXT } from "../../types";
 import validContext from "./validContext";
 
 describe("json ld @context field must be set correctly", () => {
-  test("errors on missing context", async () => {
+  it("errors on missing context", async () => {
     const resultsForMissingContext = await validContext.check({
       document: {},
     });
@@ -33,7 +33,7 @@ describe("json ld @context field must be set correctly", () => {
     expect(resultsForMissingContext[0].title).toMatch(/@context field missing/);
   });
 
-  test("errors on invalid context", async () => {
+  it("errors on invalid context", async () => {
     const resultsForInvalidContext = await validContext.check({
       document: {
         "@context": "https://wrong context",
@@ -45,7 +45,7 @@ describe("json ld @context field must be set correctly", () => {
     );
   });
 
-  test("errors on empty context", async () => {
+  it("errors on empty context", async () => {
     const resultsForEmptyContext = await validContext.check({
       document: {
         "@context": [],
@@ -57,7 +57,7 @@ describe("json ld @context field must be set correctly", () => {
     );
   });
 
-  test("errors on additional context values", async () => {
+  it("errors on additional context values", async () => {
     const resultsForAdditionalContext = await validContext.check({
       document: {
         "@context": [OIDC_CONTEXT, "https://custom-schema.example/schema1"],
@@ -69,7 +69,7 @@ describe("json ld @context field must be set correctly", () => {
     );
   });
 
-  test("succeeds on valid context", async () => {
+  it("succeeds on valid context", async () => {
     const resultsForSuccess1 = await validContext.check({
       document: {
         "@context": OIDC_CONTEXT,
@@ -81,7 +81,7 @@ describe("json ld @context field must be set correctly", () => {
     );
   });
 
-  test("succeeds on valid context set as array", async () => {
+  it("succeeds on valid context set as array", async () => {
     const resultsForSuccess2 = await validContext.check({
       document: {
         "@context": [OIDC_CONTEXT],

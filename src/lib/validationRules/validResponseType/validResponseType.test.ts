@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import validResponseType from "./validResponseType";
 
 describe("response type must be valid or unset", () => {
-  test("errors if `response_type` is not an array", async () => {
+  it("errors if `response_type` is not an array", async () => {
     const resultsForInvalid = await validResponseType.check({
       document: {
         response_types: "invalid type",
@@ -34,7 +34,7 @@ describe("response type must be valid or unset", () => {
     expect(resultsForInvalid[0].title).toMatch(/Invalid `response_types`/);
   });
 
-  test("warns if response type has more than `code` set", async () => {
+  it("warns if response type has more than `code` set", async () => {
     const resultsForTooMany = await validResponseType.check({
       document: {
         response_types: ["code", "any other invalid type"],
@@ -44,7 +44,7 @@ describe("response type must be valid or unset", () => {
     expect(resultsForTooMany[0].title).toMatch(/has more values than expected/);
   });
 
-  test("errors if response type is missing `code`", async () => {
+  it("errors if response type is missing `code`", async () => {
     const resultsForMissing = await validResponseType.check({
       document: {
         response_types: ["some value"],
@@ -56,7 +56,7 @@ describe("response type must be valid or unset", () => {
     );
   });
 
-  test("passes on correct response type", async () => {
+  it("passes on correct response type", async () => {
     const resultsForSuccessExplicit = await validResponseType.check({
       document: {
         response_types: ["code"],
@@ -65,7 +65,7 @@ describe("response type must be valid or unset", () => {
     expect(resultsForSuccessExplicit).toHaveLength(0);
   });
 
-  test("passes on empty/implicit correct response type", async () => {
+  it("passes on empty/implicit correct response type", async () => {
     const resultsForSuccessImplicit = await validResponseType.check({
       document: {
         response_types: undefined,

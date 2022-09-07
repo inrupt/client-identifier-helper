@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import staticClientIDUri from "./staticClientIDUri";
 
 describe("Client Identifier URIs must be static", () => {
-  test("ignores for invalid `client_id` object", async () => {
+  it("ignores for invalid `client_id` object", async () => {
     const resultsForInvalid1 = await staticClientIDUri.check({
       document: {
         client_id: ["not a string"],
@@ -33,7 +33,7 @@ describe("Client Identifier URIs must be static", () => {
     expect(resultsForInvalid1).toHaveLength(0);
   });
 
-  test("ignores for invalid `client_id` URI field", async () => {
+  it("ignores for invalid `client_id` URI field", async () => {
     const resultsForInvalid2 = await staticClientIDUri.check({
       document: {
         client_id: "malformed URI",
@@ -42,7 +42,7 @@ describe("Client Identifier URIs must be static", () => {
     expect(resultsForInvalid2).toHaveLength(0);
   });
 
-  test("warns for Client Identifier URI with search params", async () => {
+  it("warns for Client Identifier URI with search params", async () => {
     const resultsForSearchParameters = await staticClientIDUri.check({
       document: {
         client_id:
@@ -55,7 +55,7 @@ describe("Client Identifier URIs must be static", () => {
     );
   });
 
-  test("passes for plain Client Identifier URI", async () => {
+  it("passes for plain Client Identifier URI", async () => {
     const resultsForSuccess = await staticClientIDUri.check({
       document: {
         client_id: "https://my-app.example/client-identifier",

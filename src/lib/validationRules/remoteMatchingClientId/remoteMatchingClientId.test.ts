@@ -21,7 +21,7 @@
 
 /* eslint-disable no-shadow */
 
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import { MockAgent, setGlobalDispatcher, fetch, Response } from "undici";
 import remoteMatchingClientId from "./remoteMatchingClientId";
 
@@ -39,7 +39,7 @@ describe("remote document Client Identifier URI check", () => {
   setGlobalDispatcher(mockAgent);
   const mockPool = mockAgent.get(/.*/);
 
-  test("fails for missing remote `client_id` field", async () => {
+  it("fails for missing remote `client_id` field", async () => {
     mockPool
       .intercept({ path: "https://app.example/id-missing" })
       .reply(200, "{}", {
@@ -60,7 +60,7 @@ describe("remote document Client Identifier URI check", () => {
     );
   });
 
-  test("fails for mismatching Client Identifiers", async () => {
+  it("fails for mismatching Client Identifiers", async () => {
     mockPool.intercept({ path: "https://app.example/id-mismatching" }).reply(
       200,
       JSON.stringify({
@@ -85,7 +85,7 @@ describe("remote document Client Identifier URI check", () => {
     );
   });
 
-  test("ignores for missing documentIri", async () => {
+  it("ignores for missing documentIri", async () => {
     const results = await remoteMatchingClientId.check({
       documentIri: undefined,
       document: {},
@@ -94,7 +94,7 @@ describe("remote document Client Identifier URI check", () => {
     expect(results).toHaveLength(0);
   });
 
-  test("succeeds for matching Client Identifiers", async () => {
+  it("succeeds for matching Client Identifiers", async () => {
     mockPool.intercept({ path: "https://app.example/id" }).reply(
       200,
       JSON.stringify({

@@ -21,7 +21,7 @@
 
 /* eslint-disable no-shadow */
 
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import { MockAgent, setGlobalDispatcher, fetch } from "undici";
 import { OIDC_CONTEXT } from "../../types";
 import remoteDocumentAsJsonLd from "./remoteDocumentAsJsonLd";
@@ -40,7 +40,7 @@ describe("remote document as json-ld check", () => {
   setGlobalDispatcher(mockAgent);
   const mockPool = mockAgent.get(/.*/);
 
-  test("succeeds for valid remote document with application/json header", async () => {
+  it("succeeds for valid remote document with application/json header", async () => {
     mockPool.intercept({ path: "https://app.example/id-no-ld" }).reply(
       200,
       JSON.stringify({
@@ -66,7 +66,7 @@ describe("remote document as json-ld check", () => {
     );
   });
 
-  test("succeeds for valid remote document with application/ld+json header", async () => {
+  it("succeeds for valid remote document with application/ld+json header", async () => {
     // fetch a good document with content-type application/json
     mockPool.intercept({ path: "https://app.example/id" }).reply(
       200,
@@ -93,7 +93,7 @@ describe("remote document as json-ld check", () => {
     );
   });
 
-  test("errors if documentIri results in a redirect", async () => {
+  it("errors if documentIri results in a redirect", async () => {
     // fetch a good document with content-type application/json
     mockPool
       .intercept({ path: "https://app.example/redirected" })
@@ -115,7 +115,7 @@ describe("remote document as json-ld check", () => {
     expect(results[0].title).toMatch(/Unexpected redirect/);
   });
 
-  test("errors if documentIri results in a non-200 status code", async () => {
+  it("errors if documentIri results in a non-200 status code", async () => {
     // fetch a good document with content-type application/json
     mockPool.intercept({ path: "https://app.example/non-200" }).reply(201);
 
@@ -129,7 +129,7 @@ describe("remote document as json-ld check", () => {
     expect(results[0].title).toMatch(/Unexpected status code/);
   });
 
-  test("errors if status code 404 is returned", async () => {
+  it("errors if status code 404 is returned", async () => {
     mockPool
       .intercept({ path: "https://app.example/id-bad-status" })
       .reply(404, "not found", {
@@ -148,7 +148,7 @@ describe("remote document as json-ld check", () => {
     expect(resultsForBadStatus[0].title).toMatch(/Unexpected status code/);
   });
 
-  test("errors on missing/wrong content type header", async () => {
+  it("errors on missing/wrong content type header", async () => {
     mockPool
       .intercept({ path: "https://app.example/id-missing-content-type-header" })
       .reply(

@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import noExplicitDefaults from "./noExplicitDefaults";
 
 describe("no explicit defaults set check", () => {
-  test("errors on explicitly set defaults", async () => {
+  it("errors on explicitly set defaults", async () => {
     const resultsForNoUrl = await noExplicitDefaults.check({
       document: {
         application_type: "web",

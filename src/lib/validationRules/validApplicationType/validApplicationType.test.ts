@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import applicationTypeWebOrNative from "./validApplicationType";
 
 describe("application type must be set to `web` or `native`", () => {
-  test("errors on invalid/unknown application type", async () => {
+  it("errors on invalid/unknown application type", async () => {
     const resultsForInvalidType = await applicationTypeWebOrNative.check({
       document: {
         application_type: "invalid",
@@ -34,7 +34,7 @@ describe("application type must be set to `web` or `native`", () => {
     expect(resultsForInvalidType[0].title).toMatch(/Application Type invalid/);
   });
 
-  test("passes on explicitly set application type", async () => {
+  it("passes on explicitly set application type", async () => {
     const resultsForSuccessExplicit = await applicationTypeWebOrNative.check({
       document: {
         application_type: "native",
@@ -43,7 +43,7 @@ describe("application type must be set to `web` or `native`", () => {
     expect(resultsForSuccessExplicit).toHaveLength(0);
   });
 
-  test("passes on implicitly set (i.e. unset) application type", async () => {
+  it("passes on implicitly set (i.e. unset) application type", async () => {
     const resultsForSuccessImplicit = await applicationTypeWebOrNative.check({
       document: {
         application_type: undefined,

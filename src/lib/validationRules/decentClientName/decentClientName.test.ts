@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import decentClientName from "./decentClientName";
 
 describe("well-formed client name check", () => {
-  test("fails on empty client name", async () => {
+  it("fails on empty client name", async () => {
     const resultsForEmptyClientName = await decentClientName.check({
       document: { client_name: "" },
     });
@@ -34,7 +34,7 @@ describe("well-formed client name check", () => {
     );
   });
 
-  test("fails on invalid `client_name` object", async () => {
+  it("fails on invalid `client_name` object", async () => {
     const resultsForInvalidClientName = await decentClientName.check({
       document: { client_name: ["arrays are invalid client names"] },
     });
@@ -42,7 +42,7 @@ describe("well-formed client name check", () => {
     expect(resultsForInvalidClientName[0].title).toMatch(/Invalid Client Name/);
   });
 
-  test("warns on long client name", async () => {
+  it("warns on long client name", async () => {
     const resultsForLongClientName = await decentClientName.check({
       document: {
         client_name:
@@ -53,7 +53,7 @@ describe("well-formed client name check", () => {
     expect(resultsForLongClientName[0].title).toMatch(/Long Client Name/);
   });
 
-  test("passes on decent client name", async () => {
+  it("passes on decent client name", async () => {
     const resultsForValidClientName = await decentClientName.check({
       document: {
         client_name: "My regular app",

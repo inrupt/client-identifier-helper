@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import noUnknownFields from "./noUnknownFields";
 
 describe("all set Client Identifier Document fields should be known", () => {
-  test("errors for unknown fields", async () => {
+  it("errors for unknown fields", async () => {
     const resultsForUnknownField = await noUnknownFields.check({
       document: {
         unknown_field1: "some value 1",
@@ -35,7 +35,7 @@ describe("all set Client Identifier Document fields should be known", () => {
     expect(resultsForUnknownField[0].title).toMatch(/Unknown field/);
     expect(resultsForUnknownField[1].title).toMatch(/Unknown field/);
   });
-  test("succeeds for known fields only", async () => {
+  it("succeeds for known fields only", async () => {
     const resultsForSuccess = await noUnknownFields.check({
       document: {
         client_id: "https://my-app.example/webid#this",

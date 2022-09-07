@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import noUnsetClientUri from "./noUnsetClientUri";
 
 describe("URI to client homepage should be set", () => {
-  test("errors on unset client uri", async () => {
+  it("errors on unset client uri", async () => {
     const resultsForNoUrl = await noUnsetClientUri.check({
       document: {
         client_uri: "",
@@ -33,7 +33,7 @@ describe("URI to client homepage should be set", () => {
     expect(resultsForNoUrl).toHaveLength(1);
     expect(resultsForNoUrl[0].title).toMatch(/Client URI should be set/);
   });
-  test("passes on valid client URI", async () => {
+  it("passes on valid client URI", async () => {
     const resultsForSuccess = await noUnsetClientUri.check({
       document: {
         client_uri: "https://my-app.example/about",

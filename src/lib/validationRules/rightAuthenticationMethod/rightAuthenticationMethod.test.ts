@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import rightAuthenticationMethod from "./rightAuthenticationMethod";
 
 describe("authentication method must be explicitly set to none", () => {
-  test("errors on unset authentication method", async () => {
+  it("errors on unset authentication method", async () => {
     const resultsForNoAuthMethod = await rightAuthenticationMethod.check({
       document: {
         token_endpoint_auth_method: undefined,
@@ -36,7 +36,7 @@ describe("authentication method must be explicitly set to none", () => {
     );
   });
 
-  test("errors on wrong authentication method", async () => {
+  it("errors on wrong authentication method", async () => {
     const resultsForWrongAuthMethod = await rightAuthenticationMethod.check({
       document: {
         token_endpoint_auth_method: "client_basic_secret",
@@ -46,7 +46,7 @@ describe("authentication method must be explicitly set to none", () => {
     expect(resultsForWrongAuthMethod[0].title).toMatch(/must be set to `none`/);
   });
 
-  test("succeeds on right authentication method (`none`)", async () => {
+  it("succeeds on right authentication method (`none`)", async () => {
     const resultsForSuccess = await rightAuthenticationMethod.check({
       document: {
         token_endpoint_auth_method: "none",

@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import redirectUrisApplicationTypeRule from "./redirectUrisApplicationTypeRule";
 
 describe("redirect URIs must be valid", () => {
-  test("errors on invalid `redirect_uris` field", async () => {
+  it("errors on invalid `redirect_uris` field", async () => {
     const resultsForInvalid1 = await redirectUrisApplicationTypeRule.check({
       document: {
         redirect_uris: "https://invalid-redirect_uris.example",
@@ -34,7 +34,7 @@ describe("redirect URIs must be valid", () => {
     expect(resultsForInvalid1).toHaveLength(0);
   });
 
-  test("errors on invalid redirect URI", async () => {
+  it("errors on invalid redirect URI", async () => {
     const resultsForInvalid2 = await redirectUrisApplicationTypeRule.check({
       document: {
         redirect_uris: ["invalid uri"],
@@ -44,7 +44,7 @@ describe("redirect URIs must be valid", () => {
     expect(resultsForInvalid2).toHaveLength(0);
   });
 
-  test("errors on non-tls redirect URI", async () => {
+  it("errors on non-tls redirect URI", async () => {
     const resultsForWebHttp = await redirectUrisApplicationTypeRule.check({
       document: {
         application_type: "web",
@@ -57,7 +57,7 @@ describe("redirect URIs must be valid", () => {
     );
   });
 
-  test("errors on wrong URI-scheme for application type `web`", async () => {
+  it("errors on wrong URI-scheme for application type `web`", async () => {
     const resultsForWebCustomScheme =
       await redirectUrisApplicationTypeRule.check({
         document: {
@@ -71,7 +71,7 @@ describe("redirect URIs must be valid", () => {
     );
   });
 
-  test("errors on remote redirect URI for application type `native`", async () => {
+  it("errors on remote redirect URI for application type `native`", async () => {
     const resultsForNativeRemote = await redirectUrisApplicationTypeRule.check({
       document: {
         application_type: "native",
@@ -86,7 +86,7 @@ describe("redirect URIs must be valid", () => {
     expect(resultsForNativeRemote[1].title).toMatch(/No remote http/);
   });
 
-  test("passes for valid redirect URIs for application type `web`", async () => {
+  it("passes for valid redirect URIs for application type `web`", async () => {
     const resultsForSuccessWebLocal =
       await redirectUrisApplicationTypeRule.check({
         document: {
@@ -100,7 +100,7 @@ describe("redirect URIs must be valid", () => {
     expect(resultsForSuccessWebLocal).toHaveLength(0);
   });
 
-  test("passes for valid localhost redirect URIs for application type `native`", async () => {
+  it("passes for valid localhost redirect URIs for application type `native`", async () => {
     const resultsForSuccessWebRemote =
       await redirectUrisApplicationTypeRule.check({
         document: {
@@ -130,7 +130,7 @@ describe("redirect URIs must be valid", () => {
     expect(resultsForSuccessNativeLocal).toHaveLength(0);
   });
 
-  test("passes for valid custom scheme redirect URIs for application type `native`", async () => {
+  it("passes for valid custom scheme redirect URIs for application type `native`", async () => {
     const resultsForSuccessNativeCustom =
       await redirectUrisApplicationTypeRule.check({
         document: {

@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import refreshTokenRule from "./refreshTokenRule";
 
 describe("refresh token request must be set correctly", () => {
-  test("errors on missing scope", async () => {
+  it("errors on missing scope", async () => {
     const resultsForMissingScope = await refreshTokenRule.check({
       document: {
         grant_types: ["authorization_code", "refresh_token"],
@@ -36,7 +36,7 @@ describe("refresh token request must be set correctly", () => {
     );
   });
 
-  test("errors on explicitly missing scope", async () => {
+  it("errors on explicitly missing scope", async () => {
     const resultsForMissingScopeExplicit = await refreshTokenRule.check({
       document: {
         grant_types: ["authorization_code", "refresh_token"],
@@ -49,7 +49,7 @@ describe("refresh token request must be set correctly", () => {
     );
   });
 
-  test("errors on missing grant type", async () => {
+  it("errors on missing grant type", async () => {
     const resultsForMissingGrantType = await refreshTokenRule.check({
       document: {
         scope: "openid webid offline_access",
@@ -61,7 +61,7 @@ describe("refresh token request must be set correctly", () => {
     );
   });
 
-  test("errors on explicitly missing grant type", async () => {
+  it("errors on explicitly missing grant type", async () => {
     const resultsForMissingGrantTypeExplicit = await refreshTokenRule.check({
       document: {
         grant_types: ["authorization_code"],
@@ -74,7 +74,7 @@ describe("refresh token request must be set correctly", () => {
     );
   });
 
-  test("succeeds for valid request", async () => {
+  it("succeeds for valid request", async () => {
     const resultsForSuccess = await refreshTokenRule.check({
       document: {
         grant_types: ["authorization_code", "refresh_token"],

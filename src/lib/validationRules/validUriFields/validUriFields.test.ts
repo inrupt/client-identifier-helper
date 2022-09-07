@@ -20,11 +20,11 @@
 //
 
 /* eslint-disable-next-line no-shadow */
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import validUriFields from "./validUriFields";
 
 describe("URI fields must be valid URIs (and some set) check", () => {
-  test("errors on empty client_id", async () => {
+  it("errors on empty client_id", async () => {
     const resultsForEmpty = await validUriFields.check({
       document: {
         client_id: "",
@@ -36,7 +36,7 @@ describe("URI fields must be valid URIs (and some set) check", () => {
     });
   });
 
-  test("errors on non-string URI", async () => {
+  it("errors on non-string URI", async () => {
     const resultsForInvalidClientIdObject = await validUriFields.check({
       document: {
         client_id: "https://my-client.example/clientid",
@@ -52,7 +52,7 @@ describe("URI fields must be valid URIs (and some set) check", () => {
     );
   });
 
-  test("errors on malformed Client Identifier URI", async () => {
+  it("errors on malformed Client Identifier URI", async () => {
     const resultsForInvalidClientIdUri = await validUriFields.check({
       document: {
         client_id: "Invalid uri",
@@ -66,7 +66,7 @@ describe("URI fields must be valid URIs (and some set) check", () => {
     expect(resultsForInvalidClientIdUri[0].title).toMatch(/URI .* malformed/);
   });
 
-  test("warns on non-https URI", async () => {
+  it("warns on non-https URI", async () => {
     const resultsForNoTlsLogoUri = await validUriFields.check({
       document: {
         client_id: "https://my-client.example/clientid",
@@ -82,7 +82,7 @@ describe("URI fields must be valid URIs (and some set) check", () => {
     );
   });
 
-  test("succeeds on well-formed Client Identifier URI", async () => {
+  it("succeeds on well-formed Client Identifier URI", async () => {
     const resultsForValidClientIdUri = await validUriFields.check({
       document: {
         client_id: "https://my-client.example/client-id",
