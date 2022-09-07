@@ -20,24 +20,32 @@
 //
 
 import { useState } from "react";
-import { Typography, Grid, TextField } from "@mui/material";
+import { Typography, Grid, TextField, Button } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
+import ValidationResults from "../components/validationResults";
+import { localRules } from "../lib/validationRules";
+import validateRemoteDocument from "../lib/validateRemoteDocument";
+import validateLocalDocument from "../lib/validateLocalDocument";
+import { ValidationResult } from "../lib/types";
 
 function ClientIdentifierValidator() {
   const [documentJson, setDocumentJson] = useState("");
   const [clientIdentifierUri, setClientIdentifierUri] = useState("");
   const [isFetchingAndValidating, setIsFetchingAndValidating] = useState(false);
+  const [validationResults, setValidationResults] = useState(
+    [] as ValidationResult[]
+  );
 
-  const validateFromText = () => {
-    alert(`Validation was requested for document:\n${documentJson}`);
+  const onValidateBtnClick = async () => {
+    const results = await validateLocalDocument(documentJson, localRules);
+    setValidationResults(results);
   };
 
-  const fetchAndValidate = () => {
+  const fetchAndValidate = async () => {
     setIsFetchingAndValidating(true);
-    setTimeout(() => {
-      alert(`Validation requested for URI:\n${clientIdentifierUri}`);
-      setIsFetchingAndValidating(false);
-    }, 500);
+    const remoteResults = await validateRemoteDocument(clientIdentifierUri);
+    setValidationResults(remoteResults);
+    setIsFetchingAndValidating(false);
   };
 
   return (
@@ -96,10 +104,11 @@ function ClientIdentifierValidator() {
                 <TextField
                   label="Paste your JSON formatted document here"
                   multiline
+                  fullWidth
                   minRows={15}
+                  spellCheck="false"
                   value={documentJson}
                   onChange={(e) => setDocumentJson(e.target.value)}
-                  fullWidth
                 />
               </Grid>
               <Grid
@@ -110,24 +119,25 @@ function ClientIdentifierValidator() {
                 justifyContent="end"
               >
                 <Grid item>
-                  <LoadingButton
+                  <Button
                     color="primary"
                     variant="contained"
-                    onClick={() => validateFromText()}
+                    onClick={() => onValidateBtnClick()}
                     disabled={isFetchingAndValidating}
                   >
                     Validate
-                  </LoadingButton>
+                  </Button>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
         </Grid>
-        <Grid container item direction="column" md={6}>
-          <Grid container item justifyContent="center" xs={12}>
-            <Grid item>
-              <Typography variant="h3">Validation Results</Typography>
-            </Grid>
+        <Grid container item justifyContent="start" direction="column" md={6}>
+          <Grid container item alignContent="center" justifyContent="center">
+            <Typography variant="h3">Validation Results</Typography>
+          </Grid>
+          <Grid item>
+            <ValidationResults results={validationResults} />
           </Grid>
         </Grid>
       </Grid>

@@ -18,40 +18,30 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+import { ValidationResult } from "./types";
 
-export interface GenerateClientIdDocumentParameters {
-  clientId: string;
-  clientName: string;
-  clientUri: string;
-  redirectUris: string | string[];
-  useRefreshTokens: boolean;
-  compact: boolean;
-}
+export const UNAVAILABLE_API_RESULT: ValidationResult = {
+  rule: {
+    type: "remote",
+    name: "API must be available",
+    description:
+      "To generate remote validation results and fetch remote Client Identifier Documents, the validator api must be available.",
+  },
+  status: "error",
+  title: "Validation service not available",
+  description:
+    "Requesting remote validation failed because the validation server could not be reached or returned an invalid response. Are you connected to the internet?",
+  affectedFields: [],
+};
 
-export default function generateClientIdDocument({
-  clientId,
-  clientName,
-  clientUri,
-  redirectUris,
-  useRefreshTokens,
-  compact = false,
-}: GenerateClientIdDocumentParameters) {
-  const clientIdentifierDocument = {
-    "@context": ["https://www.w3.org/ns/solid/oidc-context.jsonld"],
-    client_id: clientId,
-    client_name: clientName,
-    client_uri: clientUri,
-    redirect_uris: Array.isArray(redirectUris) ? redirectUris : [redirectUris],
-    grant_types: useRefreshTokens
-      ? ["authorization_code", "refresh_token"]
-      : ["authorization_code"],
-    scope: useRefreshTokens ? "openid webid offline_access" : "openid webid",
-    token_endpoint_auth_method: "none",
-  };
-
-  return JSON.stringify(
-    clientIdentifierDocument,
-    null,
-    compact ? undefined : 2
-  );
-}
+export const INVALID_LOCAL_JSON_DOCUMENT_RESULT: ValidationResult = {
+  rule: {
+    type: "local",
+    name: "Document must be valid JSON",
+    description: "The document must be a valid JSON string.",
+  },
+  status: "error",
+  title: "Invalid JSON",
+  description: "The document could not be parsed to JSON.",
+  affectedFields: [],
+};

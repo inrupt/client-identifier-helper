@@ -19,39 +19,26 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-export interface GenerateClientIdDocumentParameters {
-  clientId: string;
-  clientName: string;
-  clientUri: string;
-  redirectUris: string | string[];
-  useRefreshTokens: boolean;
-  compact: boolean;
-}
+/* eslint-disable-next-line no-shadow */
+import { describe, expect, it } from "@jest/globals";
+import noUnsetClientUri from "./noUnsetClientUri";
 
-export default function generateClientIdDocument({
-  clientId,
-  clientName,
-  clientUri,
-  redirectUris,
-  useRefreshTokens,
-  compact = false,
-}: GenerateClientIdDocumentParameters) {
-  const clientIdentifierDocument = {
-    "@context": ["https://www.w3.org/ns/solid/oidc-context.jsonld"],
-    client_id: clientId,
-    client_name: clientName,
-    client_uri: clientUri,
-    redirect_uris: Array.isArray(redirectUris) ? redirectUris : [redirectUris],
-    grant_types: useRefreshTokens
-      ? ["authorization_code", "refresh_token"]
-      : ["authorization_code"],
-    scope: useRefreshTokens ? "openid webid offline_access" : "openid webid",
-    token_endpoint_auth_method: "none",
-  };
-
-  return JSON.stringify(
-    clientIdentifierDocument,
-    null,
-    compact ? undefined : 2
-  );
-}
+describe("URI to client homepage should be set", () => {
+  it("errors on unset client uri", async () => {
+    const resultsForNoUrl = await noUnsetClientUri.check({
+      document: {
+        client_uri: "",
+      },
+    });
+    expect(resultsForNoUrl).toHaveLength(1);
+    expect(resultsForNoUrl[0].title).toMatch(/Client URI should be set/);
+  });
+  it("passes on valid client URI", async () => {
+    const resultsForSuccess = await noUnsetClientUri.check({
+      document: {
+        client_uri: "https://my-app.example/about",
+      },
+    });
+    expect(resultsForSuccess).toHaveLength(0);
+  });
+});

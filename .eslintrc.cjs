@@ -35,4 +35,13 @@ module.exports = {
       },
     ],
   },
+
+  overrides: [
+    {
+      files: "api/**/*.ts",
+      rules: {
+        "no-shadow": "off",
+      },
+    },
+  ],
 };

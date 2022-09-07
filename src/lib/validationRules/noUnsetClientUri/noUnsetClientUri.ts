@@ -18,40 +18,35 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+import { ValidationContext, ValidationRule } from "../../types";
 
-export interface GenerateClientIdDocumentParameters {
-  clientId: string;
-  clientName: string;
-  clientUri: string;
-  redirectUris: string | string[];
-  useRefreshTokens: boolean;
-  compact: boolean;
-}
+const noUnsetClientUri: ValidationRule = {
+  rule: {
+    type: "local",
+    name: "Client URI should be set",
+    description:
+      "The `client_uri`, which is supposed to link to the client's homepage, should be set.",
+  },
+  check: async (context: ValidationContext) => {
+    // type check is done separately
+    if (!context.document.client_uri) {
+      return [
+        {
+          status: "warning",
+          title: "Client URI should be set",
+          description:
+            "The field `client_uri` should be set to the homepage of the client.",
+          affectedFields: [
+            {
+              fieldName: "client_uri",
+              fieldValue: context.document.client_uri,
+            },
+          ],
+        },
+      ];
+    }
+    return [];
+  },
+};
 
-export default function generateClientIdDocument({
-  clientId,
-  clientName,
-  clientUri,
-  redirectUris,
-  useRefreshTokens,
-  compact = false,
-}: GenerateClientIdDocumentParameters) {
-  const clientIdentifierDocument = {
-    "@context": ["https://www.w3.org/ns/solid/oidc-context.jsonld"],
-    client_id: clientId,
-    client_name: clientName,
-    client_uri: clientUri,
-    redirect_uris: Array.isArray(redirectUris) ? redirectUris : [redirectUris],
-    grant_types: useRefreshTokens
-      ? ["authorization_code", "refresh_token"]
-      : ["authorization_code"],
-    scope: useRefreshTokens ? "openid webid offline_access" : "openid webid",
-    token_endpoint_auth_method: "none",
-  };
-
-  return JSON.stringify(
-    clientIdentifierDocument,
-    null,
-    compact ? undefined : 2
-  );
-}
+export default noUnsetClientUri;

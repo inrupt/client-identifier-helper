@@ -18,40 +18,38 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+import { RemoteValidationResponse, ValidationResults } from "./types";
+import { UNAVAILABLE_API_RESULT } from "./staticValidationResult";
+import validateLocalDocument from "./validateLocalDocument";
+import { localRules } from "./validationRules";
 
-export interface GenerateClientIdDocumentParameters {
-  clientId: string;
-  clientName: string;
-  clientUri: string;
-  redirectUris: string | string[];
-  useRefreshTokens: boolean;
-  compact: boolean;
-}
+export default async function validateRemoteDocument(
+  documentIri: string
+): Promise<ValidationResults> {
+  let response: RemoteValidationResponse;
+  try {
+    const fetchResponse = await fetch(
+      new URL(
+        `/api/validate-remote-document?documentIri=${documentIri}`,
+        window.location.origin
+      ),
+      {
+        method: "POST",
+      }
+    );
+    response = await fetchResponse.json();
+  } catch (error) {
+    return [UNAVAILABLE_API_RESULT];
+  }
 
-export default function generateClientIdDocument({
-  clientId,
-  clientName,
-  clientUri,
-  redirectUris,
-  useRefreshTokens,
-  compact = false,
-}: GenerateClientIdDocumentParameters) {
-  const clientIdentifierDocument = {
-    "@context": ["https://www.w3.org/ns/solid/oidc-context.jsonld"],
-    client_id: clientId,
-    client_name: clientName,
-    client_uri: clientUri,
-    redirect_uris: Array.isArray(redirectUris) ? redirectUris : [redirectUris],
-    grant_types: useRefreshTokens
-      ? ["authorization_code", "refresh_token"]
-      : ["authorization_code"],
-    scope: useRefreshTokens ? "openid webid offline_access" : "openid webid",
-    token_endpoint_auth_method: "none",
-  };
+  const remoteResults = response.results;
+  let localResults: ValidationResults = [];
 
-  return JSON.stringify(
-    clientIdentifierDocument,
-    null,
-    compact ? undefined : 2
-  );
+  // if the document was empty,
+  // the remoteResults will indicate so and there is nothing more to do..
+  if (response.document) {
+    localResults = await validateLocalDocument(response.document, localRules);
+  }
+
+  return [...remoteResults, ...localResults];
 }

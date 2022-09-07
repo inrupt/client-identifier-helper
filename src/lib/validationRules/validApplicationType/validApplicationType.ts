@@ -18,40 +18,40 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+import { ValidationContext, ValidationRule } from "../../types";
 
-export interface GenerateClientIdDocumentParameters {
-  clientId: string;
-  clientName: string;
-  clientUri: string;
-  redirectUris: string | string[];
-  useRefreshTokens: boolean;
-  compact: boolean;
-}
+const validApplicationType: ValidationRule = {
+  rule: {
+    type: "local",
+    name: "Field `application_type` must be `web` or `native`",
+    description:
+      "For the field `application_type`, the two supported values are `web` or `native`. The default is `web`.",
+  },
+  check: async (context: ValidationContext) => {
+    if (
+      context.document.application_type === undefined ||
+      context.document.application_type === "web" ||
+      context.document.application_type === "native"
+    ) {
+      // Not emitting success value as field is not required.
+      return [];
+    }
 
-export default function generateClientIdDocument({
-  clientId,
-  clientName,
-  clientUri,
-  redirectUris,
-  useRefreshTokens,
-  compact = false,
-}: GenerateClientIdDocumentParameters) {
-  const clientIdentifierDocument = {
-    "@context": ["https://www.w3.org/ns/solid/oidc-context.jsonld"],
-    client_id: clientId,
-    client_name: clientName,
-    client_uri: clientUri,
-    redirect_uris: Array.isArray(redirectUris) ? redirectUris : [redirectUris],
-    grant_types: useRefreshTokens
-      ? ["authorization_code", "refresh_token"]
-      : ["authorization_code"],
-    scope: useRefreshTokens ? "openid webid offline_access" : "openid webid",
-    token_endpoint_auth_method: "none",
-  };
+    return [
+      {
+        status: "error",
+        title: "Application Type invalid",
+        description:
+          "The field `application_type` must either be `web` or `native` (or unset, defaulting to `web`).",
+        affectedFields: [
+          {
+            fieldName: "application_type",
+            fieldValue: context.document.application_type,
+          },
+        ],
+      },
+    ];
+  },
+};
 
-  return JSON.stringify(
-    clientIdentifierDocument,
-    null,
-    compact ? undefined : 2
-  );
-}
+export default validApplicationType;
