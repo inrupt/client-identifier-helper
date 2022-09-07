@@ -26,7 +26,7 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
     type: "local",
     name: "Redirect URI scheme/destination must align application type",
     description:
-      "Apps with `application_type` `web` must use http(s), apps with `native` must only use http(s) on localhost.",
+      "Apps with `application_type` `web` must use http(s), apps with `native` must only use http(s) on localhost or a custom scheme.",
   },
   check: async (context: ValidationContext) => {
     const isUrlLocalhost = (url: URL): boolean => {

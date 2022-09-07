@@ -21,11 +21,11 @@
 
 /* eslint-disable-next-line no-shadow */
 import { describe, expect, it } from "@jest/globals";
-import staticClientIDUri from "./staticClientIDUri";
+import staticClientIdUri from "./staticClientIdUri";
 
 describe("Client Identifier URIs must be static", () => {
   it("ignores for invalid `client_id` object", async () => {
-    const resultsForInvalid1 = await staticClientIDUri.check({
+    const resultsForInvalid1 = await staticClientIdUri.check({
       document: {
         client_id: ["not a string"],
       },
@@ -34,7 +34,7 @@ describe("Client Identifier URIs must be static", () => {
   });
 
   it("ignores for invalid `client_id` URI field", async () => {
-    const resultsForInvalid2 = await staticClientIDUri.check({
+    const resultsForInvalid2 = await staticClientIdUri.check({
       document: {
         client_id: "malformed URI",
       },
@@ -43,7 +43,7 @@ describe("Client Identifier URIs must be static", () => {
   });
 
   it("warns for Client Identifier URI with search params", async () => {
-    const resultsForSearchParameters = await staticClientIDUri.check({
+    const resultsForSearchParameters = await staticClientIdUri.check({
       document: {
         client_id:
           "https://my-app.example/client-identifier?someState=currentState",
@@ -56,7 +56,7 @@ describe("Client Identifier URIs must be static", () => {
   });
 
   it("passes for plain Client Identifier URI", async () => {
-    const resultsForSuccess = await staticClientIDUri.check({
+    const resultsForSuccess = await staticClientIdUri.check({
       document: {
         client_id: "https://my-app.example/client-identifier",
       },

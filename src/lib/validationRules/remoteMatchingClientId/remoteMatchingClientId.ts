@@ -24,9 +24,9 @@ import { RemoteValidationContext, RemoteValidationRule } from "../../types";
 const remoteMatchingClientId: RemoteValidationRule = {
   rule: {
     type: "remote",
-    name: "Remote Document Client ID matches local one",
+    name: "Client Identifier in remote document matches local one",
     description:
-      "The remote Client Identifier URI and the local Client Identifier URI must match exactly.",
+      "The Client Identifier URI specified in the remote document and the local Client Identifier URI must match exactly.",
   },
   check: async (context: RemoteValidationContext) => {
     if (!context.documentIri) {

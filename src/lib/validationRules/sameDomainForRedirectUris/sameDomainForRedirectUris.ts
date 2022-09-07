@@ -23,9 +23,9 @@ import { ValidationContext, ValidationRule } from "../../types";
 const sameDomainForRedirectUris: ValidationRule = {
   rule: {
     type: "local",
-    name: "Redirect URIs should be situated on the same domain",
+    name: "Redirect URIs should be located under the same domain",
     description:
-      "Redirect URIs should usually be located within the same domain. Perhaps, setting up to clients / Client Identifier Documents is better.",
+      "Redirect URIs should usually be located under the same domain. Perhaps, setting up two clients / Client Identifier Documents is better.",
   },
   check: async (context: ValidationContext) => {
     if (!Array.isArray(context.document.redirect_uris)) {
