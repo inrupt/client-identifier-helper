@@ -40,7 +40,7 @@ describe("remote document as json-ld check", () => {
   setGlobalDispatcher(mockAgent);
   const mockPool = mockAgent.get(/.*/);
 
-  it("succeeds for valid remote document with application/json header", async () => {
+  it("warns for valid remote document with application/json header", async () => {
     mockPool.intercept({ path: "https://app.example/id-no-ld" }).reply(
       200,
       JSON.stringify({
@@ -62,7 +62,7 @@ describe("remote document as json-ld check", () => {
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(
-      /Remote Document is a valid JSON-LD document/
+      "Use `content-type` header `application/ld+json` over `application/json`"
     );
   });
 

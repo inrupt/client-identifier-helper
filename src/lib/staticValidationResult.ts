@@ -18,32 +18,30 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { INVALID_LOCAL_JSON_DOCUMENT_RESULT } from "./staticValidationResult";
-import { ValidationResults, ValidationRule } from "./types";
+import { ValidationResult } from "./types";
 
-export default async function validateLocalDocument(
-  jsonDocument: string | object,
-  rules: ValidationRule[]
-): Promise<ValidationResults> {
-  // try parsing first..
-  let clientIdDocument = {};
-  if (typeof jsonDocument === "string") {
-    try {
-      clientIdDocument = JSON.parse(jsonDocument);
-    } catch {
-      return [INVALID_LOCAL_JSON_DOCUMENT_RESULT];
-    }
-  } else {
-    clientIdDocument = jsonDocument;
-  }
+export const UNAVAILABLE_API_RESULT: ValidationResult = {
+  rule: {
+    type: "remote",
+    name: "API must be available",
+    description:
+      "To generate remote validation results and fetch remote Client Identifier Documents, the validator api must be available.",
+  },
+  status: "error",
+  title: "Validation service not available",
+  description:
+    "Requesting remote validation failed because the validation server could not be reached or returned an invalid response. Are you connected to the internet?",
+  affectedFields: [],
+};
 
-  const validationPromises = rules.map(async (rule) => {
-    const results = await rule.check({ document: clientIdDocument });
-    return results.map((result) => ({
-      rule: rule.rule,
-      ...result,
-    }));
-  });
-
-  return (await Promise.all(validationPromises)).flat();
-}
+export const INVALID_LOCAL_JSON_DOCUMENT_RESULT: ValidationResult = {
+  rule: {
+    type: "local",
+    name: "Document must be valid JSON",
+    description: "The document must be a valid JSON string.",
+  },
+  status: "error",
+  title: "Invalid JSON",
+  description: "The document could not be parsed to JSON.",
+  affectedFields: [],
+};

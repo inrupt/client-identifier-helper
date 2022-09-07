@@ -68,6 +68,16 @@ async function validateRemoteDocument({
   return (await Promise.all(validationPromises)).flat();
 }
 
+function isUriValid(uri: string) {
+  try {
+    // eslint-disable-next-line no-new
+    new URL(uri);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export default async (request: VercelRequest, response: VercelResponse) => {
   const { documentIri } = request.query;
 
@@ -110,10 +120,7 @@ export default async (request: VercelRequest, response: VercelResponse) => {
   }
 
   // is documentIRI well-formed?
-  try {
-    // eslint-disable-next-line no-new
-    new URL(documentIri);
-  } catch {
+  if (!isUriValid(documentIri)) {
     return response.status(200).json(
       createResponse({
         document: null,

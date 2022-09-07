@@ -19,12 +19,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import {
-  OIDC_CONTEXT,
-  RemoteValidationContext,
-  RemoteValidationRule,
-  RuleResult,
-} from "../../types";
+import { RemoteValidationContext, RemoteValidationRule } from "../../types";
 
 const remoteDocumentAsJsonLd: RemoteValidationRule = {
   rule: {
@@ -61,24 +56,34 @@ const remoteDocumentAsJsonLd: RemoteValidationRule = {
       ];
     }
 
-    const results: RuleResult[] = [];
-
     const contentType = context.fetchResponse.headers.get("content-type");
     const mimeType = !contentType ? "" : contentType.replace(/;.*/, "");
 
-    if (mimeType !== "application/json" && mimeType !== "application/ld+json") {
-      results.push({
-        status: "error",
-        title: "Invalid `content-type` header fetching Client Identifier",
-        description: `The Response Header \`content-type\` must have a MIME type of \`application/ld+json\` or \`application/json\` but was \`${mimeType}\``,
-        affectedFields: [
-          { fieldName: "content-type", fieldValue: contentType },
-        ],
-      });
+    if (mimeType === "application/json") {
+      return [
+        {
+          status: "warning",
+          title:
+            "Use `content-type` header `application/ld+json` over `application/json`",
+          description: `The Response Header \`content-type\` should return \`application/ld+json\`.`,
+          affectedFields: [
+            { fieldName: "content-type", fieldValue: contentType },
+          ],
+        },
+      ];
     }
 
-    if (results.length !== 0) {
-      return results;
+    if (mimeType !== "application/ld+json") {
+      return [
+        {
+          status: "error",
+          title: "Invalid `content-type` header fetching Client Identifier",
+          description: `The Response Header \`content-type\` must have a MIME type of \`application/ld+json\` or \`application/json\` but was \`${mimeType}\``,
+          affectedFields: [
+            { fieldName: "content-type", fieldValue: contentType },
+          ],
+        },
+      ];
     }
 
     return [

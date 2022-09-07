@@ -19,7 +19,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import defaultMaxAgeRule from "./validationRules/validDefaultMaxAge/validDefaultMaxAge";
+import validDefaultMaxAge from "./validationRules/validDefaultMaxAge/validDefaultMaxAge";
 import refreshTokenRule from "./validationRules/refreshTokenRule/refreshTokenRule";
 import validRedirectUris from "./validationRules/validRedirectUris/validRedirectUris";
 import validContext from "./validationRules/validContext/validContext";
@@ -38,23 +38,27 @@ import noUnsetClientUri from "./validationRules/noUnsetClientUri/noUnsetClientUr
 import { RemoteValidationRule, ValidationRule } from "./types";
 import remoteDocumentAsJsonLd from "./validationRules/remoteDocumentAsJsonLd/remoteDocumentAsJsonLd";
 import remoteMatchingClientId from "./validationRules/remoteMatchingClientId/remoteMatchingClientId";
+import staticClientIdUri from "./validationRules/staticClientIdUri/staticClientIdUri";
+import redirectUrisApplicationTypeRule from "./validationRules/redirectUrisApplicationTypeRule/redirectUrisApplicationTypeRule";
 
 export const localRules: ValidationRule[] = [
   decentClientName,
-  validUriFields,
-  validContext,
-  validRedirectUris,
-  refreshTokenRule,
-  validGrantTypes,
-  validScope,
-  noUnknownFields,
-  defaultMaxAgeRule,
-  validApplicationType,
-  rightAuthenticationMethod,
-  validResponseType,
-  sameDomainForRedirectUris,
   noMixedRedirectUrls,
+  noUnknownFields,
   noUnsetClientUri,
+  redirectUrisApplicationTypeRule,
+  refreshTokenRule,
+  rightAuthenticationMethod,
+  sameDomainForRedirectUris,
+  staticClientIdUri,
+  validApplicationType,
+  validContext,
+  validDefaultMaxAge,
+  validGrantTypes,
+  validRedirectUris,
+  validResponseType,
+  validScope,
+  validUriFields,
   // We omit localization validation as it is not supported by ESS or NSS (as of 2022-08-17) but leave the comment it here for spec-compliance guidance.
 ];
 

@@ -19,6 +19,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 import { RemoteValidationResponse, ValidationResults } from "./types";
+import { UNAVAILABLE_API_RESULT } from "./staticValidationResult";
 import validateLocalDocument from "./validateLocalDocument";
 import { localRules } from "./validationRules";
 
@@ -28,28 +29,17 @@ export default async function validateRemoteDocument(
   let response: RemoteValidationResponse;
   try {
     const fetchResponse = await fetch(
-      `/api/validate-remote-document?documentIri=${documentIri}`,
+      new URL(
+        `/api/validate-remote-document?documentIri=${documentIri}`,
+        window.location.origin
+      ),
       {
         method: "POST",
       }
     );
     response = await fetchResponse.json();
   } catch (error) {
-    return [
-      {
-        rule: {
-          type: "remote",
-          name: "API must be available",
-          description:
-            "To generate remote validation results and fetch remote Client Identifier Documents, the validator api must be available.",
-        },
-        status: "error",
-        title: "Validation service not available",
-        description:
-          "Requesting remote validation failed because the validation server could not be reached or returned an invalid response. Are you connected to the internet?",
-        affectedFields: [],
-      },
-    ];
+    return [UNAVAILABLE_API_RESULT];
   }
 
   const remoteResults = response.results;
