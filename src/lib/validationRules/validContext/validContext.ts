@@ -31,7 +31,7 @@ const validContext: ValidationRule = {
       return [
         {
           status: "error",
-          title: "@context field missing",
+          title: "`@context` field missing",
           description: `The Client Identifier Document must have an \`@context\` field with a value of \`["${OIDC_CONTEXT}"]\` or just "${OIDC_CONTEXT}".`,
           affectedFields: [
             { fieldName: "@context", fieldValue: context.document["@context"] },

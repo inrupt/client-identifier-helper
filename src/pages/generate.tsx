@@ -19,26 +19,26 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { useState } from "react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Button,
   Checkbox,
   FormControlLabel,
+  FormHelperText,
   FormLabel,
   Grid,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography,
-  FormHelperText,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Select,
-  MenuItem,
-  InputLabel,
 } from "@mui/material";
 import type { FieldArrayRenderProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import generateClientIdDocument from "../lib/generateDocument";
 
@@ -61,6 +61,7 @@ function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
                 name={`redirectUris.${index}`}
                 value={redirectUri}
                 onChange={form.handleChange}
+                onBlur={form.handleBlur}
                 inputProps={{ inputMode: "url" }}
                 variant="outlined"
                 required
@@ -110,9 +111,6 @@ type FormParameters = {
 
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");
-  const [expandedPanel, setExpandedPanel] = useState(
-    undefined as string | undefined
-  );
   const initialFormValues: FormParameters = {
     clientId: "",
     clientName: "",
@@ -135,17 +133,16 @@ export default function ClientIdentifierGenerator() {
       compact: false,
     });
     setDocumentJson(clientIdDocument);
+
+    // wait for the component to be re-rendered. Is there a more elegant way?
+    // eslint-disable-next-line no-promise-executor-return
+    await new Promise((r) => setTimeout(r, 200));
     window.scrollTo({ top: 10000, behavior: "smooth" });
   };
 
   const onReset = () => {
     setDocumentJson("");
   };
-
-  const onPanelChange =
-    (panel: string) => (e: React.SyntheticEvent, newExpanded: boolean) => {
-      setExpandedPanel(newExpanded ? panel : undefined);
-    };
 
   const navigate = useNavigate();
   const onValidateButtonClick = () => {
@@ -318,10 +315,7 @@ export default function ClientIdentifierGenerator() {
                       </Grid>
                     </Grid>
                     <Grid container item>
-                      <Accordion
-                        expanded={expandedPanel === "panelAppURIs"}
-                        onChange={onPanelChange("panelAppURIs")}
-                      >
+                      <Accordion>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                           More fields
                         </AccordionSummary>
@@ -390,10 +384,7 @@ export default function ClientIdentifierGenerator() {
                       </Accordion>
                     </Grid>
                     <Grid container item>
-                      <Accordion
-                        expanded={expandedPanel === "panelTechnicalFields"}
-                        onChange={onPanelChange("panelTechnicalFields")}
-                      >
+                      <Accordion>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                           Optional Technical Fields
                         </AccordionSummary>
