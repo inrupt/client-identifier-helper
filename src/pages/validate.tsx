@@ -19,7 +19,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Typography, Grid, TextField, Button } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import ValidationResults from "../components/validationResults";
@@ -46,9 +46,23 @@ function ClientIdentifierValidator() {
     [] as ValidationResult[]
   );
 
+  const ValidationResultsRef = useRef<null | HTMLParagraphElement>(null);
+  const scrollToResults = async () => {
+    // Sometimes, the results are not loaded when scroll is requested, so wait a bit
+    if (validationResults.length === 0) {
+      await new Promise((r) => {
+        setTimeout(r, 250);
+      });
+    }
+    ValidationResultsRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // run this function from an event handler or an effect to execute scroll
+
   const onValidateBtnClick = async () => {
     const results = await validateLocalDocument(documentJson, localRules);
     setValidationResults(results);
+    await scrollToResults();
   };
 
   const fetchAndValidate = async () => {
@@ -56,17 +70,28 @@ function ClientIdentifierValidator() {
     const remoteResults = await validateRemoteDocument(clientIdentifierUri);
     setValidationResults(remoteResults);
     setIsFetchingAndValidating(false);
+    await scrollToResults();
   };
 
-  if (documentJson) {
-    onValidateBtnClick()
-      .then(() => {})
-      .catch(() => {});
-  } else if (clientIdentifierUri) {
-    fetchAndValidate()
-      .then(() => {})
-      .catch(() => {});
-  }
+  // if the form was pre-filled (from search params),
+  // trigger validation
+  useEffect(() => {
+    if (validationResults.length === 0) {
+      if (documentJson) {
+        onValidateBtnClick()
+          .then(() => {})
+          .catch(() => {});
+      } else if (clientIdentifierUri) {
+        fetchAndValidate()
+          .then(() => {})
+          .catch(() => {});
+      }
+    }
+    // We only want to auto-validate on initial load
+    // to prevent auto-validation on value changes.
+    // Therefore, we will pass an empty array of deps to useEffect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Grid
@@ -75,9 +100,10 @@ function ClientIdentifierValidator() {
       marginLeft="auto"
       marginRight="auto"
       justifyContent="center"
+      maxWidth="50em"
     >
-      <Grid container item maxWidth="50em" md={6}>
-        <Grid container item justifyContent="center">
+      <Grid container item>
+        <Grid container item>
           <Grid item>
             <Typography variant="h4">
               Validate a Client Identifier Document
@@ -91,7 +117,8 @@ function ClientIdentifierValidator() {
             </Grid>
             <Typography variant="body1">
               Enter the URI to a Client Identifier Document. Our server will
-              fetch the document (due to cors restrictions) and validate it.
+              fetch the document (due to cors restrictions, your browser
+              can&apos;t itself) and validate it.
             </Typography>
             <Typography variant="body1">
               This will also check, if the REST resource is set up correctly and
@@ -178,14 +205,14 @@ function ClientIdentifierValidator() {
         display={validationResults.length ? undefined : "none"}
         container
         item
-        maxWidth="50em"
-        md={6}
         justifyContent="start"
         direction="column"
+        ref={ValidationResultsRef}
       >
-        <Grid container item alignContent="center" justifyContent="center">
+        <Grid container item alignContent="center">
           <Typography variant="h4">Validation Results</Typography>
         </Grid>
+
         <Grid item>
           <ValidationResults results={validationResults} />
         </Grid>

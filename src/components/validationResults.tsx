@@ -19,25 +19,48 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import InfoIcon from "@mui/icons-material/Info";
 import WarningIcon from "@mui/icons-material/Warning";
 import ErrorIcon from "@mui/icons-material/Error";
 
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Grid,
   Card,
   Typography,
   CardHeader,
   CardContent,
-  CardActions,
+  Divider,
+  Box,
 } from "@mui/material";
 
 import { ValidationResult } from "../lib/types";
+
+function AffectedField({
+  fieldName,
+  fieldValue,
+}: {
+  fieldName: string;
+  fieldValue: unknown;
+}) {
+  return (
+    <Typography variant="body2">
+      <Box component="span" color="text.primary">
+        {fieldName}
+      </Box>
+      {fieldValue ? (
+        <Box component="span">
+          : &nbsp;
+          <Box component="span" color="text.secondary">
+            {JSON.stringify(fieldValue)}
+          </Box>
+        </Box>
+      ) : (
+        ""
+      )}
+    </Typography>
+  );
+}
 
 const iconForResult = {
   success: <CheckCircleIcon color="success" />,
@@ -51,45 +74,39 @@ function ResultCard(
   { result }: { result: ValidationResult }
 ) {
   const ResultIcon = () => iconForResult[result.status];
+
+  const AffectedFields = result.affectedFields.map(
+    ({ fieldName, fieldValue }) =>
+      AffectedField({
+        fieldName,
+        fieldValue,
+      })
+  );
+
   return (
-    <Grid
-      container
-      item
-      direction="column"
-      marginBottom={1}
-      key={result.title + result.description}
-    >
+    <Grid container item direction="column" marginBottom={1}>
       <Card>
         <Grid container padding={1}>
-          <CardHeader title={result.title} avatar={<ResultIcon />} />
-
-          <CardContent>
-            <Typography variant="body2" color="text.secondary">
-              {result.description}
-            </Typography>
-          </CardContent>
-
+          <Grid item>
+            <CardHeader title={result.title} avatar={<ResultIcon />} />
+          </Grid>
           <Grid item xs={12}>
-            <Accordion>
-              <AccordionSummary
-                expandIcon={
-                  <CardActions>
-                    <ExpandMoreIcon />
-                  </CardActions>
-                }
-              >
-                <Typography variant="body2" color="text.secondary">
-                  Affected fields
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <CardContent>
-                  <Typography variant="body2" color="text.secondary">
-                    {JSON.stringify(result.affectedFields, undefined, 1)}
+            <CardContent sx={{ padding: ".5em" }}>
+              <Typography variant="body2" color="text.secondary">
+                {result.description}
+              </Typography>
+              <Divider light sx={{ mb: 1, mt: 1 }} />
+              <Grid container item direction="row" alignItems="stretch">
+                <Grid item>
+                  <Typography variant="body2" color="info.dark">
+                    Affected fields:
                   </Typography>
-                </CardContent>
-              </AccordionDetails>
-            </Accordion>
+                </Grid>
+                <Grid item paddingLeft={2} flex={1}>
+                  {AffectedFields}
+                </Grid>
+              </Grid>
+            </CardContent>
           </Grid>
         </Grid>
       </Card>
@@ -114,7 +131,7 @@ export default function ValidationResults({
   return (
     <Grid container direction="column" margin={2}>
       {sortedResults.map((result) => (
-        <ResultCard result={result} />
+        <ResultCard result={result} key={result.title + result.description} />
       ))}
     </Grid>
   );

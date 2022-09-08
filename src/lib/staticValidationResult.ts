@@ -45,3 +45,17 @@ export const INVALID_LOCAL_JSON_DOCUMENT_RESULT: ValidationResult = {
   description: "The document could not be parsed to JSON.",
   affectedFields: [],
 };
+
+export const NO_GIVEN_DOCUMENT_IRI_RESULT: ValidationResult = {
+  rule: {
+    type: "remote",
+    name: "Client Identifier URI must be present",
+    description:
+      "The Client Identifier URI needs to be present in order to fetch the client identifier document.",
+  },
+  status: "error",
+  title: "No Client Identifier URI given",
+  description:
+    "Please enter a Client Identifier URI to validate the remote Client Identifier Document.",
+  affectedFields: [],
+};
