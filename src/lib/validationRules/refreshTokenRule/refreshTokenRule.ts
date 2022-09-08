@@ -71,7 +71,10 @@ const refreshTokenRule: ValidationRule = {
         status: "success",
         title: "Refresh Token rules are met",
         description:
-          "The `grant_types` and the `scope` field align in properties (`refresh_token` and `offline_access`, respectively)",
+          `The \`grant_types\` and the \`scope\` field align in properties (\`refresh_token\` and \`offline_access\`, respectively).` +
+          `A refresh token is ${
+            grantTypesHasRefreshToken ? "" : "_not_ "
+          }requested.`,
         affectedFields: [
           {
             fieldName: "grant_types",
