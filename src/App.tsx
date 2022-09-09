@@ -29,7 +29,6 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
-import { useState } from "react";
 import theme from "./theme";
 import ClientIdentifierGenerator from "./pages/generate";
 import ClientIdentifierValidator from "./pages/validate";

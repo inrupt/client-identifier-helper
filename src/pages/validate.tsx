@@ -41,40 +41,31 @@ function ClientIdentifierValidator() {
   const [clientIdentifierUri, setClientIdentifierUri] = useState(
     searchParamsDocumentIri || ""
   );
-  const [isValidatingRemotely, setIsFetchingAndValidating] = useState(false);
+  const [isValidatingRemotely, setIsValidatingRemotely] = useState(false);
   const [validationResults, setValidationResults] = useState(
     [] as ValidationResult[]
   );
 
-  const ValidationResultsRef = useRef<null | HTMLParagraphElement>(null);
-  const scrollToResults = async () => {
-    // Sometimes, the results are not loaded when scroll is requested, so wait a bit
-    if (validationResults.length === 0) {
-      await new Promise((r) => {
-        setTimeout(r, 250);
-      });
-    }
-    ValidationResultsRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  // run this function from an event handler or an effect to execute scroll
-
   const onValidateBtnClick = async () => {
     const results = await validateLocalDocument(documentJson, localRules);
     setValidationResults(results);
-    await scrollToResults();
   };
 
   const fetchAndValidate = async () => {
-    setIsFetchingAndValidating(true);
+    setIsValidatingRemotely(true);
     const remoteResults = await validateRemoteDocument(clientIdentifierUri);
     setValidationResults(remoteResults);
-    setIsFetchingAndValidating(false);
-    await scrollToResults();
+    setIsValidatingRemotely(false);
   };
 
-  // if the form was pre-filled (from search params),
-  // trigger validation
+  // Scroll to validation results, once they are loaded.
+  const ValidationResultsRef = useRef<null | HTMLParagraphElement>(null);
+  useEffect(() => {
+    ValidationResultsRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [validationResults]);
+
+  // If the form was pre-filled (from search params),
+  // trigger validation.
   useEffect(() => {
     if (validationResults.length === 0) {
       if (documentJson) {
@@ -87,8 +78,8 @@ function ClientIdentifierValidator() {
           .catch(() => {});
       }
     }
-    // We only want to auto-validate on initial load
-    // to prevent auto-validation on value changes.
+    // We only want to auto-validate on initial load,
+    // to prevent auto-validation on user input changes.
     // Therefore, we will pass an empty array of deps to useEffect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

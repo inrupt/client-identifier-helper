@@ -38,7 +38,7 @@ import {
 } from "@mui/material";
 import type { FieldArrayRenderProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import generateClientIdDocument from "../lib/generateDocument";
 
@@ -133,11 +133,6 @@ export default function ClientIdentifierGenerator() {
       compact: false,
     });
     setDocumentJson(clientIdDocument);
-
-    // wait for the component to be re-rendered. Is there a more elegant way?
-    // eslint-disable-next-line no-promise-executor-return
-    await new Promise((r) => setTimeout(r, 200));
-    window.scrollTo({ top: 10000, behavior: "smooth" });
   };
 
   const onReset = () => {
@@ -148,6 +143,12 @@ export default function ClientIdentifierGenerator() {
   const onValidateButtonClick = () => {
     navigate(`/validator?document=${encodeURI(documentJson)}`);
   };
+
+  // Scroll to validation results, once they are loaded.
+  const jsonDocumentSectionRef = useRef<null | HTMLParagraphElement>(null);
+  useEffect(() => {
+    jsonDocumentSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [documentJson]);
 
   return (
     <Grid
@@ -498,7 +499,7 @@ export default function ClientIdentifierGenerator() {
             spacing={2}
           >
             <Grid item>
-              <Typography variant="h4">
+              <Typography variant="h4" ref={jsonDocumentSectionRef}>
                 Generated Client Identifier Document
               </Typography>
             </Grid>
