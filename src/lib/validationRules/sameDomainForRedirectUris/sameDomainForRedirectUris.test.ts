@@ -45,7 +45,7 @@ describe("redirect URIs should be located on the same domain", () => {
         redirect_uris: "https://invalid-redirect_uris.example",
       },
     });
-    // invalid types are handled elsewhere
+    // Invalid types are handled elsewhere.
     expect(resultsForInvalid).toHaveLength(0);
   });
 
@@ -55,7 +55,7 @@ describe("redirect URIs should be located on the same domain", () => {
         redirect_uris: ["invalid uri"],
       },
     });
-    // invalid types are handled elsewhere
+    // Invalid types are handled elsewhere.
     expect(resultsForInvalid2).toHaveLength(0);
   });
 

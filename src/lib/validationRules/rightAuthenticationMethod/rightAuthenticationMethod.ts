@@ -28,7 +28,7 @@ const rightAuthenticationMethod: ValidationRule = {
       "Solid OIDC connect does only support `token_endpoint_auth_method` set to `none`. This must be made explicit to comply with the OIDC specification.",
   },
   check: async (context: ValidationContext) => {
-    // emits warning, if unset, as this is not spec-compliant but would probably work with a solid OIDC server
+    // Emits warning, if unset, as this is not spec-compliant but would probably work with a solid OIDC server
     if (typeof context.document.token_endpoint_auth_method === "undefined") {
       return [
         {

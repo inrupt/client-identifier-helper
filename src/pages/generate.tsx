@@ -51,8 +51,8 @@ function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
     <Grid container item spacing={1}>
       {form.values.redirectUris.map((redirectUri: string, index: number) => {
         return (
-          // index={key} taken from https://formik.org/docs/examples/field-arrays
-          // this seems fine in this context
+          // index={key}, taken from https://formik.org/docs/examples/field-arrays
+          // This seems fine in this context.
           // eslint-disable-next-line react/no-array-index-key
           <Grid container item key={index} spacing={1}>
             <Grid item sx={{ flexGrow: 1 }}>

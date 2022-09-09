@@ -21,7 +21,7 @@
 
 import { RuleResult, ValidationRule, ValidationContext } from "../../types";
 
-// helper to create info messages
+// Helper to create info messages
 const createValidationResultForDefaultValue = (
   fieldName: string,
   context: ValidationContext
@@ -76,7 +76,7 @@ const noExplicitDefaults: ValidationRule = {
     }
 
     if (typeof context.document.scope === "string") {
-      // non-string scope value test, is not handled here.
+      // Non-string scope value test, is not handled here.
       const scopeValues = context.document.scope.split(" ");
       if (
         scopeValues.length === 2 &&

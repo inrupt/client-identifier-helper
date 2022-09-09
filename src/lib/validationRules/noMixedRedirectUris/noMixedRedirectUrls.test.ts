@@ -44,7 +44,7 @@ describe("remote and localhost redirect URIs should not be mixed", () => {
         redirect_uris: "https://invalid-redirect_uris.example",
       },
     });
-    // invalid types are handled elsewhere
+    // Invalid types are handled elsewhere
     expect(resultsForInvalid1).toHaveLength(0);
   });
   it("ignores on invalid redirect URIs", async () => {
@@ -53,7 +53,7 @@ describe("remote and localhost redirect URIs should not be mixed", () => {
         redirect_uris: ["invalid uri"],
       },
     });
-    // invalid types are handled elsewhere
+    // Invalid types are handled elsewhere
     expect(resultsForInvalid2).toHaveLength(0);
   });
 

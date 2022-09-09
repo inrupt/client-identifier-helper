@@ -29,7 +29,7 @@ import validateLocalDocument from "../lib/validateLocalDocument";
 import { ValidationResult } from "../lib/types";
 
 function ClientIdentifierValidator() {
-  // get the document from search parameter, if supplied
+  // Get the document from search parameter, if supplied.
   const searchParamsDocument = new URLSearchParams(window.location.search).get(
     "document"
   );

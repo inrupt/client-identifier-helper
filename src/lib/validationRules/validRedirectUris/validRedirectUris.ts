@@ -78,7 +78,7 @@ const validRedirectUris: ValidationRule = {
       }
       const results: RuleResult[] = [];
 
-      // check, if path is set explicitly.
+      // Check, if path is set explicitly.
       // The URL constructor sets `pathname` in all cases. Thus, this comparison here.
       if (url.pathname === "/" && !uri.endsWith("/")) {
         results.push({

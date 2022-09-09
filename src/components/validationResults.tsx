@@ -121,10 +121,10 @@ export default function ValidationResults({
 }) {
   const sortedResults = results.sort(
     (result1, result2) =>
-      // define order here..
+      // Define order here..
       ["error", "warning", "info", "success"].indexOf(result1.status) -
       ["error", "warning", "info", "success"].indexOf(result2.status) +
-      // remote document results are shown first
+      // Remote document results are shown first
       (result1.rule.type === "remote" ? -100 : 0) -
       (result2.rule.type === "remote" ? -100 : 0)
   );

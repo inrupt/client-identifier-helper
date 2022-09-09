@@ -31,7 +31,7 @@ const refreshTokenRule: ValidationRule = {
     let scopeHasOfflineAccess: boolean;
     let grantTypesHasRefreshToken: boolean;
 
-    // invalid scope or grantType fields are handled separately..
+    // Invalid scope or grantType fields are handled separately..
     if (typeof context.document.scope !== "string") {
       scopeHasOfflineAccess = false;
     } else {

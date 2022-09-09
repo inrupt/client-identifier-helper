@@ -51,7 +51,7 @@ export default async function validateRemoteDocument(
   const remoteResults = validationResponse.results;
   let localResults: ValidationResults = [];
 
-  // if the document was empty,
+  // If the document was empty,
   // the remoteResults will indicate so and there is nothing more to do..
   if (validationResponse.document) {
     localResults = await validateLocalDocument(

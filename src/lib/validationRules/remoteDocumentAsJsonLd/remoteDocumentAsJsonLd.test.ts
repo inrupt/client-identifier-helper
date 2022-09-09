@@ -67,7 +67,7 @@ describe("remote document as json-ld check", () => {
   });
 
   it("succeeds for valid remote document with application/ld+json header", async () => {
-    // fetch a good document with content-type application/json
+    // Fetch a good document with content-type application/json
     mockPool.intercept({ path: "https://app.example/id" }).reply(
       200,
       JSON.stringify({
@@ -94,7 +94,7 @@ describe("remote document as json-ld check", () => {
   });
 
   it("errors if documentIri results in a redirect", async () => {
-    // fetch a good document with content-type application/json
+    // Fetch a good document with content-type application/json
     mockPool
       .intercept({ path: "https://app.example/redirected" })
       .reply(302, "", {
@@ -116,7 +116,7 @@ describe("remote document as json-ld check", () => {
   });
 
   it("errors if documentIri results in a non-200 status code", async () => {
-    // fetch a good document with content-type application/json
+    // Fetch a good document with content-type application/json
     mockPool.intercept({ path: "https://app.example/non-200" }).reply(201);
 
     const fetchResponse = await fetch("https://app.example/non-200");

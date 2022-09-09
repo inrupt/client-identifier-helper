@@ -30,7 +30,7 @@ const remoteMatchingClientId: RemoteValidationRule = {
   },
   check: async (context: RemoteValidationContext) => {
     if (!context.documentIri) {
-      // errors for missing fields are handled in remoteDocumentAsJsonLD
+      // Errors for missing fields are handled in remoteDocumentAsJsonLD
       return [];
     }
 
