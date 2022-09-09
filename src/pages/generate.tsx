@@ -170,23 +170,28 @@ export default function ClientIdentifierGenerator() {
         <Grid container item padding={2} spacing={1} marginLeft={2}>
           <Grid item>
             <Typography variant="body1">
-              This generator helps you set up a Client Identifier Document. A
-              Client Identifier Document describes your application, the client,
-              to a Solid OpenID Connect Provider (Solid OIDC Provider).
+              This generator helps you set up a{" "}
+              <a href="https://solid.github.io/solid-oidc/#clientids-document">
+                Client Identifier Document
+              </a>
+              . A Client Identifier Document describes your application (i.e.
+              the client), to a Solid OIDC Provider.
             </Typography>
           </Grid>
           <Grid item>
             <Typography variant="body1">
-              Do you want your users to login to their solid pods? Then you need
-              a Client Identifier Document! The user&apos;s OIDC Authentication
-              Provider will check your Client Identifier Document, let the user
-              authenticate, and hand your application an OIDC ID token.
+              Do you want your users to grant your app granular access to their
+              Solid Pods? Then you need a Client Identifier Document! The
+              user&apos;s Identity Provider will check your Client Identifier
+              Document, let the user authenticate, and issue an ID token to your
+              application proving the user&apos;s identity.
             </Typography>
           </Grid>
           <Grid item>
             <Typography variant="body1">
-              With the token, your application can request resources from the
-              user&apos;s pod.
+              Thanks to the Client Identifier, your application has a unique,
+              global identity. It may be granted specific access, and users will
+              have a better understanding of how their data is shared.
             </Typography>
           </Grid>
         </Grid>
@@ -199,7 +204,7 @@ export default function ClientIdentifierGenerator() {
         >
           <Grid item>
             <Typography variant="h5">
-              Your app&apos;s (client&apos;s) information
+              Your app&apos;s (client&apos;s) essential information
             </Typography>
           </Grid>
           <Grid container item>
@@ -230,8 +235,7 @@ export default function ClientIdentifierGenerator() {
                         helperText="The URI where your
                           Client Identifier Document is located. It identifies your
                           application, the client, to the Solid OIDC Provider.
-                          The Client Identifier Document should be a static resource
-                          and publicly accessible.
+                          The Client Identifier Document should be publicly accessible.
                           Field name: `client_id`"
                       />
                     </Grid>
@@ -306,19 +310,21 @@ export default function ClientIdentifierGenerator() {
                       />
                       <Grid item marginLeft={2} paddingRight={2}>
                         <FormHelperText>
-                          A refresh token can be used to request new access
-                          tokens after they expire. If not requested, the user
-                          will have to re-authenticate after the access token
-                          expires. Field names: The field `scope` will have the
-                          value `offline_access` set and the field `grant_types`
-                          will have the value `refresh_token` set.
+                          Recommended. A refresh token can be used to request
+                          new access tokens after they expire. If not requested,
+                          the user will have to re-authenticate after the access
+                          token expires, which will happen quite frequently
+                          (e.g. every 5 minutes or so). Field names: The field
+                          `scope` will have the value `offline_access` set and
+                          the field `grant_types` will have the value
+                          `refresh_token` set.
                         </FormHelperText>
                       </Grid>
                     </Grid>
                     <Grid container item>
                       <Accordion>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                          More fields
+                          Additional information displayed to users
                         </AccordionSummary>
                         <AccordionDetails>
                           <Grid container spacing={2}>
@@ -387,7 +393,7 @@ export default function ClientIdentifierGenerator() {
                     <Grid container item>
                       <Accordion>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                          Optional Technical Fields
+                          Advanced OIDC options
                         </AccordionSummary>
                         <AccordionDetails>
                           <Grid container item spacing={2}>

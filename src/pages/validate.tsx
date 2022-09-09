@@ -108,12 +108,12 @@ function ClientIdentifierValidator() {
             </Grid>
             <Typography variant="body1">
               Enter the URI to a Client Identifier Document. Our server will
-              fetch the document (due to cors restrictions, your browser
-              can&apos;t itself) and validate it.
+              fetch the document (due to CORS restrictions, your browser may not
+              be authorized to do so itself) and validate it.
             </Typography>
             <Typography variant="body1">
               This will also check, if the REST resource is set up correctly and
-              the remote Client Identifier matches the here given.
+              the remote Client Identifier matches the one you enter here.
             </Typography>
             <Grid
               marginTop={2}
