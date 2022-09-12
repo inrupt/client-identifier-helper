@@ -28,7 +28,7 @@ const noUnsetClientUri: ValidationRule = {
       "The `client_uri`, which is supposed to link to the client's homepage, should be set.",
   },
   check: async (context: ValidationContext) => {
-    // type check is done separately
+    // Type check is done separately
     if (!context.document.client_uri) {
       return [
         {

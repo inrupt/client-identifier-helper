@@ -19,34 +19,55 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { Box, CssBaseline, Tab, Tabs } from "@mui/material";
+import {
+  Route,
+  Link,
+  BrowserRouter,
+  Routes,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import theme from "./theme";
 import ClientIdentifierGenerator from "./pages/generate";
 import ClientIdentifierValidator from "./pages/validate";
 
+function TabsComponent() {
+  const currentTab = useLocation().pathname;
+  return (
+    <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+      <Tabs value={currentTab}>
+        <Tab
+          to="/generator"
+          value="/generator"
+          label="Generator"
+          component={Link}
+        />
+        <Tab
+          to="/validator"
+          value="/validator"
+          label="Validator"
+          component={Link}
+        />
+      </Tabs>
+    </Box>
+  );
+}
+
 function App() {
-  const [currentTab, setCurrentTab] = useState("tab-generator");
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs
-          value={currentTab}
-          onChange={(e, value) => setCurrentTab(value)}
-          aria-label="basic tabs example"
-        >
-          <Tab label="Generator" value="tab-generator" />
-          <Tab label="Validator" value="tab-validator" />
-        </Tabs>
-      </Box>
-      <div role="tabpanel" hidden={currentTab !== "tab-generator"}>
-        <ClientIdentifierGenerator />
-      </div>
-      <div role="tabpanel" hidden={currentTab !== "tab-validator"}>
-        <ClientIdentifierValidator />
-      </div>
+      <BrowserRouter>
+        <TabsComponent />
+
+        <Routes>
+          <Route path="*" element={<Navigate replace to="/generator" />} />
+          <Route path="/generator" element={<ClientIdentifierGenerator />} />
+          <Route path="/validator" element={<ClientIdentifierValidator />} />
+        </Routes>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }

@@ -30,7 +30,9 @@ describe("json ld @context field must be set correctly", () => {
       document: {},
     });
     expect(resultsForMissingContext).toHaveLength(1);
-    expect(resultsForMissingContext[0].title).toMatch(/@context field missing/);
+    expect(resultsForMissingContext[0].title).toMatch(
+      /`@context field missing`/
+    );
   });
 
   it("errors on invalid context", async () => {

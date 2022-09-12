@@ -119,7 +119,7 @@ export default async (request: VercelRequest, response: VercelResponse) => {
     );
   }
 
-  // is documentIRI well-formed?
+  // Is documentIRI well-formed?
   if (!isUriValid(documentIri)) {
     return response.status(200).json(
       createResponse({
@@ -133,7 +133,7 @@ export default async (request: VercelRequest, response: VercelResponse) => {
   }
 
   try {
-    // fetch
+    // Fetch
     const fetchResponse = await fetch(documentIri, {
       headers: new Headers({
         Accept: "application/ld+json, application/json",

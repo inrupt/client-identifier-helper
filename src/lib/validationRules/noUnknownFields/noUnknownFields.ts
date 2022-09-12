@@ -57,7 +57,7 @@ const noUnknownFields: ValidationRule = {
     const remainingFields = Object.keys(context.document).filter(
       (field) => !knownFields.has(field)
     );
-    // for the remaining fields, check if those are localized fields ending with `#<locale>`
+    // For the remaining fields, check if those are localized fields ending with `#<locale>`
     const unknownFields = remainingFields.filter(
       (remainingField) =>
         !knownLocalizableFields.some((localizableFIeld) =>

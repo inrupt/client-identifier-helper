@@ -19,14 +19,20 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 import { RemoteValidationResponse, ValidationResults } from "./types";
-import { UNAVAILABLE_API_RESULT } from "./staticValidationResult";
+import {
+  UNAVAILABLE_API_RESULT,
+  NO_GIVEN_DOCUMENT_IRI_RESULT,
+} from "./staticValidationResult";
 import validateLocalDocument from "./validateLocalDocument";
 import { localRules } from "./validationRules";
 
 export default async function validateRemoteDocument(
   documentIri: string
 ): Promise<ValidationResults> {
-  let response: RemoteValidationResponse;
+  if (!documentIri) {
+    return [NO_GIVEN_DOCUMENT_IRI_RESULT];
+  }
+  let validationResponse: RemoteValidationResponse;
   try {
     const fetchResponse = await fetch(
       new URL(
@@ -37,18 +43,21 @@ export default async function validateRemoteDocument(
         method: "POST",
       }
     );
-    response = await fetchResponse.json();
+    validationResponse = await fetchResponse.json();
   } catch (error) {
     return [UNAVAILABLE_API_RESULT];
   }
 
-  const remoteResults = response.results;
+  const remoteResults = validationResponse.results;
   let localResults: ValidationResults = [];
 
-  // if the document was empty,
+  // If the document was empty,
   // the remoteResults will indicate so and there is nothing more to do..
-  if (response.document) {
-    localResults = await validateLocalDocument(response.document, localRules);
+  if (validationResponse.document) {
+    localResults = await validateLocalDocument(
+      validationResponse.document,
+      localRules
+    );
   }
 
   return [...remoteResults, ...localResults];

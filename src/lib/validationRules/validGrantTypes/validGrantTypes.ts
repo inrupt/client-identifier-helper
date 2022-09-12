@@ -62,7 +62,7 @@ const validGrantTypes: ValidationRule = {
 
     const results: RuleResult[] = [];
 
-    // no grant type `implicit`
+    // No grant type `implicit`
     if (context.document.grant_types.includes("implicit")) {
       results.push({
         status: "error",
@@ -77,7 +77,7 @@ const validGrantTypes: ValidationRule = {
         ],
       });
     }
-    // no missing authorization_code grant type
+    // No missing authorization_code grant type
     if (!context.document.grant_types.includes("authorization_code")) {
       results.push({
         status: "error",
@@ -91,7 +91,7 @@ const validGrantTypes: ValidationRule = {
         ],
       });
     }
-    // no duplicates
+    // No duplicates
     if (
       new Set(context.document.grant_types).size !==
       context.document.grant_types.length
@@ -108,7 +108,7 @@ const validGrantTypes: ValidationRule = {
         ],
       });
     }
-    // no unknown fields
+    // No unknown fields
     const knownGrantTypes = ["authorization_code", "implicit", "refresh_token"];
     if (
       context.document.grant_types.filter(

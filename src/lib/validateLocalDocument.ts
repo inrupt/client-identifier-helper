@@ -25,7 +25,7 @@ export default async function validateLocalDocument(
   jsonDocument: string | object,
   rules: ValidationRule[]
 ): Promise<ValidationResults> {
-  // try parsing first..
+  // Try parsing first..
   let clientIdDocument = {};
   if (typeof jsonDocument === "string") {
     try {

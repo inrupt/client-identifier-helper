@@ -48,7 +48,7 @@ export const checkUrlSyntax = (
       },
     ];
   }
-  // check URI syntax
+  // Check URI syntax.
   let parsedUrl: URL;
   try {
     parsedUrl = new URL(uri);
