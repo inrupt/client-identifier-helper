@@ -74,11 +74,22 @@ describe("refresh token request must be set correctly", () => {
     );
   });
 
-  it("succeeds for valid request", async () => {
+  it("succeeds for valid refresh token request", async () => {
     const resultsForSuccess = await refreshTokenRule.check({
       document: {
         grant_types: ["authorization_code", "refresh_token"],
         scope: "openid webid offline_access",
+      },
+    });
+    expect(resultsForSuccess).toHaveLength(1);
+    expect(resultsForSuccess[0].title).toMatch(/Refresh Token rules are met/);
+  });
+
+  it("succeeds for no refresh token request", async () => {
+    const resultsForSuccess = await refreshTokenRule.check({
+      document: {
+        grant_types: ["authorization_code"],
+        scope: "openid webid",
       },
     });
     expect(resultsForSuccess).toHaveLength(1);
