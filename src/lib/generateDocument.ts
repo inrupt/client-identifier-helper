@@ -63,13 +63,13 @@ export default function generateClientIdDocument({
       : ["authorization_code"],
     scope: useRefreshTokens ? "openid webid offline_access" : "openid webid",
     token_endpoint_auth_method: "none",
-    logoUri,
-    tosUri,
-    policyUri,
+    logo_uri: logoUri,
+    tos_uri: tosUri,
+    policy_uri: policyUri,
     contacts: [contact],
-    applicationType,
-    requireAuthTime,
-    defaultMaxAge,
+    application_type: applicationType,
+    require_auth_time: requireAuthTime,
+    default_max_age: defaultMaxAge,
   };
 
   return JSON.stringify(
