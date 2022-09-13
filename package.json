@@ -18,7 +18,7 @@
     "@emotion/styled": "^11.10.4",
     "@mui/icons-material": "^5.10.3",
     "@mui/lab": "^5.0.0-alpha.99",
-    "@mui/material": "^5.10.4",
+    "@mui/material": "^5.10.5",
     "@vercel/node": "^2.5.14",
     "formik": "^2.2.9",
     "react": "^18.2.0",
