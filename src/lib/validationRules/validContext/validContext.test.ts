@@ -31,7 +31,7 @@ describe("json ld @context field must be set correctly", () => {
     });
     expect(resultsForMissingContext).toHaveLength(1);
     expect(resultsForMissingContext[0].title).toMatch(
-      /`@context field missing`/
+      /`@context` field missing/
     );
   });
 
