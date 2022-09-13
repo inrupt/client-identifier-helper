@@ -66,7 +66,7 @@ export default function generateClientIdDocument({
     logo_uri: logoUri,
     tos_uri: tosUri,
     policy_uri: policyUri,
-    contacts: [contact],
+    contacts: contact ? [contact] : [],
     application_type: applicationType,
     require_auth_time: requireAuthTime,
     default_max_age: defaultMaxAge,

@@ -21,6 +21,7 @@
 
 /* eslint-disable-next-line no-shadow */
 import { describe, expect, it } from "@jest/globals";
+import { OIDC_CONTEXT } from "../types";
 import generateDocument from "./generateDocument";
 
 const DEFAULT_NAME = "My App";
@@ -38,7 +39,7 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       clientId: DEFAULT_CLIENT_IDENTIFIER,
       clientName: DEFAULT_NAME,
       clientUri: DEFAULT_CLIENT_URI,
-      redirectUris: [DEFAULT_REDIRECT_URI],
+      redirectUris: [`${DEFAULT_REDIRECT_URI}1`, `${DEFAULT_REDIRECT_URI}2`],
       useRefreshTokens: false,
       logoUri: DEFAULT_LOGO_URI,
       tosUri: DEFAULT_TOS_URI,
@@ -46,39 +47,44 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       contact: DEFAULT_CONTACT,
       applicationType: "web",
       requireAuthTime: true,
-      defaultMaxAge: 60 * 60,
+      defaultMaxAge: 3600,
       compact: false,
     });
-    const expected = `{
-  "@context": [
-    "https://www.w3.org/ns/solid/oidc-context.jsonld"
-  ],
-  "client_id": "https://app.example/id",
-  "client_name": "My App",
-  "client_uri": "https://app.example/about",
-  "redirect_uris": [
-    "https://app.example/callback"
-  ],
-  "grant_types": [
-    "authorization_code"
-  ],
-  "scope": "openid webid",
-  "token_endpoint_auth_method": "none",
-  "logo_uri": "https://app.example/logo",
-  "tos_uri": "https://app.example/tos",
-  "policy_uri": "https://app.example/policy",
-  "contacts": [
-    "maintainer@app.example"
-  ],
-  "application_type": "web",
-  "require_auth_time": true,
-  "default_max_age": 3600
-}`;
-    expect(clientIdDocument).toBe(expected);
+
+    const clientIdDocumentJson = JSON.parse(clientIdDocument);
+
+    // essential user fields
+    expect(clientIdDocumentJson.client_id).toBe(DEFAULT_CLIENT_IDENTIFIER);
+    expect(clientIdDocumentJson.client_name).toBe(DEFAULT_NAME);
+    expect(clientIdDocumentJson.client_uri).toBe(DEFAULT_CLIENT_URI);
+    expect(clientIdDocumentJson.redirect_uris).toHaveLength(2);
+    expect(clientIdDocumentJson.redirect_uris[0]).toBe(
+      `${DEFAULT_REDIRECT_URI}1`
+    );
+    expect(clientIdDocumentJson.redirect_uris[1]).toBe(
+      `${DEFAULT_REDIRECT_URI}2`
+    );
+    // optional user fields
+    expect(clientIdDocumentJson.logo_uri).toBe(DEFAULT_LOGO_URI);
+    expect(clientIdDocumentJson.tos_uri).toBe(DEFAULT_TOS_URI);
+    expect(clientIdDocumentJson.policy_uri).toBe(DEFAULT_POLICY_URI);
+    expect(clientIdDocumentJson.contacts).toHaveLength(1);
+    expect(clientIdDocumentJson.contacts[0]).toBe(DEFAULT_CONTACT);
+    // technical fields
+    expect(clientIdDocumentJson["@context"]).toHaveLength(1);
+    expect(clientIdDocumentJson["@context"][0]).toBe(OIDC_CONTEXT);
+    expect(clientIdDocumentJson.grant_types).toHaveLength(1);
+    expect(clientIdDocumentJson.grant_types[0]).toBe("authorization_code");
+    expect(clientIdDocumentJson.scope.split(" ")).toContain("openid");
+    expect(clientIdDocumentJson.scope.split(" ")).toContain("webid");
+    expect(clientIdDocumentJson.token_endpoint_auth_method).toBe("none");
+    expect(clientIdDocumentJson.application_type).toBe("web");
+    expect(clientIdDocumentJson.require_auth_time).toBe(true);
+    expect(clientIdDocumentJson.default_max_age).toBe(3600);
   });
 
   it("creates minimal document", async () => {
-    const clientIdentifierDocument = generateDocument({
+    const clientIdDocument = generateDocument({
       clientId: DEFAULT_CLIENT_IDENTIFIER,
       clientName: DEFAULT_NAME,
       clientUri: DEFAULT_CLIENT_URI,
@@ -90,139 +96,93 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       contact: "",
       applicationType: "web",
     });
-    const expected = `{
-  "@context": [
-    "https://www.w3.org/ns/solid/oidc-context.jsonld"
-  ],
-  "client_id": "https://app.example/id",
-  "client_name": "My App",
-  "client_uri": "https://app.example/about",
-  "redirect_uris": [
-    "https://app.example/callback"
-  ],
-  "grant_types": [
-    "authorization_code"
-  ],
-  "scope": "openid webid",
-  "token_endpoint_auth_method": "none",
-  "logo_uri": "",
-  "tos_uri": "",
-  "policy_uri": "",
-  "contacts": [
-    ""
-  ],
-  "application_type": "web"
-}`;
-    expect(clientIdentifierDocument).toBe(expected);
+    const clientIdDocumentJson = JSON.parse(clientIdDocument);
+
+    // essential user fields
+    expect(clientIdDocumentJson.client_id).toBe(DEFAULT_CLIENT_IDENTIFIER);
+    expect(clientIdDocumentJson.client_name).toBe(DEFAULT_NAME);
+    expect(clientIdDocumentJson.client_uri).toBe(DEFAULT_CLIENT_URI);
+    expect(clientIdDocumentJson.redirect_uris).toHaveLength(1);
+    expect(clientIdDocumentJson.redirect_uris[0]).toBe(DEFAULT_REDIRECT_URI);
+    expect(clientIdDocumentJson.contacts).toHaveLength(0);
+    // technical fields
+    expect(clientIdDocumentJson["@context"]).toHaveLength(1);
+    expect(clientIdDocumentJson["@context"][0]).toBe(OIDC_CONTEXT);
+    expect(clientIdDocumentJson.grant_types).toHaveLength(1);
+    expect(clientIdDocumentJson.grant_types[0]).toBe("authorization_code");
+    expect(clientIdDocumentJson.scope.split(" ")).toContain("openid");
+    expect(clientIdDocumentJson.scope.split(" ")).toContain("webid");
+    expect(clientIdDocumentJson.token_endpoint_auth_method).toBe("none");
+    expect(clientIdDocumentJson.application_type).toBe("web");
   });
 
   it("creates document with refresh token", async () => {
-    const clientIdentifierDocument = generateDocument({
+    const clientIdDocument = generateDocument({
       clientId: DEFAULT_CLIENT_IDENTIFIER,
       clientName: DEFAULT_NAME,
       clientUri: DEFAULT_CLIENT_URI,
       redirectUris: [DEFAULT_REDIRECT_URI],
       useRefreshTokens: true,
-      logoUri: DEFAULT_LOGO_URI,
-      tosUri: DEFAULT_TOS_URI,
-      policyUri: DEFAULT_POLICY_URI,
-      contact: DEFAULT_CONTACT,
+      logoUri: "",
+      tosUri: "",
+      policyUri: "",
+      contact: "",
       applicationType: "web",
-      requireAuthTime: true,
-      defaultMaxAge: 60 * 60,
-      compact: false,
     });
-    const expected = `{
-  "@context": [
-    "https://www.w3.org/ns/solid/oidc-context.jsonld"
-  ],
-  "client_id": "https://app.example/id",
-  "client_name": "My App",
-  "client_uri": "https://app.example/about",
-  "redirect_uris": [
-    "https://app.example/callback"
-  ],
-  "grant_types": [
-    "authorization_code",
-    "refresh_token"
-  ],
-  "scope": "openid webid offline_access",
-  "token_endpoint_auth_method": "none",
-  "logo_uri": "https://app.example/logo",
-  "tos_uri": "https://app.example/tos",
-  "policy_uri": "https://app.example/policy",
-  "contacts": [
-    "maintainer@app.example"
-  ],
-  "application_type": "web",
-  "require_auth_time": true,
-  "default_max_age": 3600
-}`;
-    expect(clientIdentifierDocument).toBe(expected);
+    const clientIdDocumentJson = JSON.parse(clientIdDocument);
+    expect(clientIdDocumentJson.grant_types).toContain("refresh_token");
+    expect(clientIdDocumentJson.scope.split(" ")).toContain("offline_access");
   });
 
   it("creates document with redirectUris parameter as string", async () => {
-    const clientIdentifierDocument = generateDocument({
+    const clientIdDocument = generateDocument({
       clientId: DEFAULT_CLIENT_IDENTIFIER,
       clientName: DEFAULT_NAME,
       clientUri: DEFAULT_CLIENT_URI,
       redirectUris: DEFAULT_REDIRECT_URI,
-      useRefreshTokens: true,
-      logoUri: DEFAULT_LOGO_URI,
-      tosUri: DEFAULT_TOS_URI,
-      policyUri: DEFAULT_POLICY_URI,
-      contact: DEFAULT_CONTACT,
+      useRefreshTokens: false,
+      logoUri: "",
+      tosUri: "",
+      policyUri: "",
+      contact: "",
       applicationType: "web",
-      requireAuthTime: true,
-      defaultMaxAge: 60 * 60,
-      compact: false,
     });
-    const expected = `{
-  "@context": [
-    "https://www.w3.org/ns/solid/oidc-context.jsonld"
-  ],
-  "client_id": "https://app.example/id",
-  "client_name": "My App",
-  "client_uri": "https://app.example/about",
-  "redirect_uris": [
-    "https://app.example/callback"
-  ],
-  "grant_types": [
-    "authorization_code",
-    "refresh_token"
-  ],
-  "scope": "openid webid offline_access",
-  "token_endpoint_auth_method": "none",
-  "logo_uri": "https://app.example/logo",
-  "tos_uri": "https://app.example/tos",
-  "policy_uri": "https://app.example/policy",
-  "contacts": [
-    "maintainer@app.example"
-  ],
-  "application_type": "web",
-  "require_auth_time": true,
-  "default_max_age": 3600
-}`;
-    expect(clientIdentifierDocument).toBe(expected);
+
+    const clientIdDocumentJson = JSON.parse(clientIdDocument);
+    expect(clientIdDocumentJson.redirect_uris).toHaveLength(1);
+    expect(clientIdDocumentJson.redirect_uris[0]).toBe(DEFAULT_REDIRECT_URI);
   });
 
   it("creates compacted document", async () => {
-    const clientIdentifierDocument = generateDocument({
+    const clientIdDocument = generateDocument({
       clientId: DEFAULT_CLIENT_IDENTIFIER,
       clientName: DEFAULT_NAME,
       clientUri: DEFAULT_CLIENT_URI,
       redirectUris: DEFAULT_REDIRECT_URI,
-      useRefreshTokens: true,
-      logoUri: DEFAULT_LOGO_URI,
-      tosUri: DEFAULT_TOS_URI,
-      policyUri: DEFAULT_POLICY_URI,
-      contact: DEFAULT_CONTACT,
+      useRefreshTokens: false,
+      logoUri: "",
+      tosUri: "",
+      policyUri: "",
+      contact: "",
       applicationType: "web",
-      requireAuthTime: true,
-      defaultMaxAge: 60 * 60,
       compact: true,
     });
-    const expected = `{"@context":["https://www.w3.org/ns/solid/oidc-context.jsonld"],"client_id":"https://app.example/id","client_name":"My App","client_uri":"https://app.example/about","redirect_uris":["https://app.example/callback"],"grant_types":["authorization_code","refresh_token"],"scope":"openid webid offline_access","token_endpoint_auth_method":"none","logo_uri":"https://app.example/logo","tos_uri":"https://app.example/tos","policy_uri":"https://app.example/policy","contacts":["maintainer@app.example"],"application_type":"web","require_auth_time":true,"default_max_age":3600}`;
-    expect(clientIdentifierDocument).toBe(expected);
+    const clientIdDocumentJson = JSON.parse(clientIdDocument);
+
+    // essential user fields
+    expect(clientIdDocumentJson.client_id).toBe(DEFAULT_CLIENT_IDENTIFIER);
+    expect(clientIdDocumentJson.client_name).toBe(DEFAULT_NAME);
+    expect(clientIdDocumentJson.client_uri).toBe(DEFAULT_CLIENT_URI);
+    expect(clientIdDocumentJson.redirect_uris).toHaveLength(1);
+    expect(clientIdDocumentJson.redirect_uris[0]).toBe(DEFAULT_REDIRECT_URI);
+    // technical fields
+    expect(clientIdDocumentJson["@context"]).toHaveLength(1);
+    expect(clientIdDocumentJson["@context"][0]).toBe(OIDC_CONTEXT);
+    expect(clientIdDocumentJson.grant_types).toHaveLength(1);
+    expect(clientIdDocumentJson.grant_types[0]).toBe("authorization_code");
+    expect(clientIdDocumentJson.scope.split(" ")).toContain("openid");
+    expect(clientIdDocumentJson.scope.split(" ")).toContain("webid");
+    expect(clientIdDocumentJson.token_endpoint_auth_method).toBe("none");
+    expect(clientIdDocumentJson.application_type).toBe("web");
   });
 });
