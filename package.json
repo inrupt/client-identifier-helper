@@ -29,7 +29,7 @@
     "@inrupt/eslint-config-lib": "^1.1.0",
     "@inrupt/eslint-config-react": "^1.1.0",
     "@jest/globals": "^29.0.3",
-    "@rushstack/eslint-patch": "^1.1.4",
+    "@rushstack/eslint-patch": "^1.2.0",
     "@types/jest": "^28.1.6",
     "@types/react": "^18.0.19",
     "@types/react-dom": "^18.0.6",
