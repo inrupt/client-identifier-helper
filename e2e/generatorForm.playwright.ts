@@ -125,6 +125,10 @@ test.describe("Generator page functionality", () => {
     expect(clientIdentifierDocument.client_uri).toMatch(
       DEFAULT_CLIENT_HOMEPAGE
     );
+    // Recommended fields will be in info-state.
+    await expect(page.locator(`label:has-text("Logo URI")`)).toHaveClass(
+      /Mui-info/
+    );
   });
 
   it("creates document with all user-facing fields", async ({ page }) => {
@@ -133,6 +137,7 @@ test.describe("Generator page functionality", () => {
     await fillUserFacingFieldsWithDefaults(page);
 
     const clientIdentifierDocument = await clickAndGenerateDocument(page);
+
     expect(clientIdentifierDocument.logo_uri).toBe(DEFAULT_CLIENT_LOGO_URI);
     expect(clientIdentifierDocument.policy_uri).toBe(DEFAULT_CLIENT_POLICY_URI);
     expect(clientIdentifierDocument.tos_uri).toBe(DEFAULT_CLIENT_TOS_URI);
@@ -143,6 +148,11 @@ test.describe("Generator page functionality", () => {
     await page.goto("/generator");
     await fillEssentialFieldsWithDefaults(page);
     await fillTechnicalFields(page);
+    // The fillTechnicalFields method set the application type to native,
+    // so we need the redirect URI to be localhost.
+    await page
+      .locator(`[name="redirectUris.0"]`)
+      .fill(`http://localhost/callback1`);
 
     const clientIdentifierDocument = await clickAndGenerateDocument(page);
     expect(clientIdentifierDocument.application_type).toBe("native");
@@ -155,6 +165,11 @@ test.describe("Generator page functionality", () => {
     await fillEssentialFieldsWithDefaults(page);
     await fillUserFacingFieldsWithDefaults(page);
     await fillTechnicalFields(page);
+    // The fillTechnicalFields method set the application type to native,
+    // so we need the redirect URI to be localhost.
+    await page
+      .locator(`[name="redirectUris.0"]`)
+      .fill(`http://localhost/callback1`);
 
     const clientIdentifierDocument = await clickAndGenerateDocument(page);
     expect(clientIdentifierDocument.logo_uri).toBe(DEFAULT_CLIENT_LOGO_URI);
@@ -165,5 +180,40 @@ test.describe("Generator page functionality", () => {
     expect(clientIdentifierDocument.application_type).toBe("native");
     expect(clientIdentifierDocument.default_max_age).toBe(3600);
     expect(clientIdentifierDocument.require_auth_time).toBe(true);
+  });
+
+  it("does not create document with incorrect redirect URI configuration", async ({
+    page,
+  }) => {
+    await page.goto("/generator");
+    await fillEssentialFieldsWithDefaults(page);
+    await fillUserFacingFieldsWithDefaults(page);
+    await fillTechnicalFields(page);
+    // The fillTechnicalFields method set the application type to native.
+    // The fillEssentialFieldsWithDefaults set redirectUri.0 to a remote URI.
+    // This violates a validation rule and we expect the form not to show an error.
+    await page.locator("[name=generateDocument]").click();
+
+    expect(
+      await page.locator(`.redirectUris .MuiTextField-root .Mui-error`).count()
+    ).toBeGreaterThan(0);
+
+    await expect(page.locator("[name=generatedJson]")).not.toBeVisible();
+  });
+
+  it("does not create document with missing Client Identifier", async ({
+    page,
+  }) => {
+    await page.goto("/generator");
+    await fillEssentialFieldsWithDefaults(page);
+    await page.locator("[name=clientId]").fill("");
+
+    await page.locator("[name=generateDocument]").click();
+
+    await expect(
+      page.locator('label:has-text("Client Identifier URI *")')
+    ).toHaveClass(/Mui-error/);
+
+    await expect(page.locator("[name=generatedJson]")).not.toBeVisible();
   });
 });

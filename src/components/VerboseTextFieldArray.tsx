@@ -24,18 +24,19 @@ import {
   FormHelperText,
   FormLabel,
   Grid,
-  TextField,
   TextFieldProps,
 } from "@mui/material";
+import VerboseTextField, { VerboseFieldState } from "./VerboseTextField";
 
 export type VerboseFieldArrayRenderProps = TextFieldProps & {
   /** Label for the individual text fields */
   fieldLabel: string;
   description: string | string[];
   values: string[];
+  fieldStates?: (VerboseFieldState | undefined)[];
 
   pushItem(obj: unknown): void;
-  removeItem<T>(index: number): T | undefined;
+  removeItem(index: number): void;
 };
 
 export default function VerboseTextFieldArray(
@@ -50,10 +51,11 @@ export default function VerboseTextFieldArray(
     fieldLabel,
     description,
     values,
+    fieldStates = undefined,
 
     pushItem,
     removeItem,
-    ...textProps
+    ...textFieldProps
   } = props;
 
   const descriptions = Array.isArray(description) ? description : [description];
@@ -77,13 +79,17 @@ export default function VerboseTextFieldArray(
             // eslint-disable-next-line react/no-array-index-key
             <Grid container item key={index} spacing={1}>
               <Grid item sx={{ flexGrow: 1 }}>
-                <TextField
+                <VerboseTextField
+                  // We pass all props, in order leave the flexibility
+                  // of customizing the text field top level.
                   // eslint-disable-next-line react/jsx-props-no-spreading
-                  {...textProps}
+                  {...textFieldProps}
                   name={`${fieldName}.${index}`}
                   label={fieldLabel}
+                  state={
+                    Array.isArray(fieldStates) ? fieldStates[index] : undefined
+                  }
                   value={value}
-                  fullWidth
                 />
               </Grid>
               <Grid item>
@@ -117,3 +123,7 @@ export default function VerboseTextFieldArray(
     </Grid>
   );
 }
+
+VerboseTextFieldArray.defaultProps = {
+  fieldStates: undefined,
+};

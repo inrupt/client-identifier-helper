@@ -20,6 +20,7 @@
 //
 import { INVALID_LOCAL_JSON_DOCUMENT_RESULT } from "./staticValidationResult";
 import { ValidationResults, ValidationRule } from "./types";
+import { underScoreToCamelCase } from "./helperFunctions";
 
 export default async function validateLocalDocument(
   jsonDocument: string | object,
@@ -46,4 +47,27 @@ export default async function validateLocalDocument(
   });
 
   return (await Promise.all(validationPromises)).flat();
+}
+
+/**
+ * Validates jsonDocument and returns all validation results where the result's
+ * affected fields contain the `validationFieldName`
+ * @param jsonDocument
+ * @param validationFieldName The name of the field name in camelCase notation.
+ * @param rules the rules to validate against
+ * @returns an array of ValidationResult
+ */
+export async function validateField(
+  jsonDocument: string | object,
+  validationFieldName: string,
+  rules: ValidationRule[]
+) {
+  const results = validateLocalDocument(jsonDocument, rules);
+  const rulesWithField = (await results).filter((result) => {
+    return result.affectedFields.some(
+      (affectedField) =>
+        underScoreToCamelCase(affectedField.fieldName) === validationFieldName
+    );
+  });
+  return rulesWithField;
 }
