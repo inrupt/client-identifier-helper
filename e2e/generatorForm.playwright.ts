@@ -54,7 +54,7 @@ async function clickAndGenerateDocument(page: Page) {
 
 async function fillUserFacingFieldsWithDefaults(page: Page) {
   // open user information fields accordion
-  await page.locator(".userInformationFields").click();
+  await page.locator(".UserInformationFieldsHead").click();
 
   // Fill logo URI.
   await page.locator('input[name="logoUri"]').click();
@@ -74,7 +74,7 @@ async function fillUserFacingFieldsWithDefaults(page: Page) {
 }
 
 async function fillTechnicalFields(page: Page) {
-  await page.locator(".advancedFields").click();
+  await page.locator(".AdvancedFieldsHead").click();
 
   // Select application type native.
   await page.locator('div[role="button"]:has-text("Web Application")').click();
@@ -108,15 +108,15 @@ test.describe("Generator page functionality", () => {
     await fillEssentialFieldsWithDefaults(page);
 
     // Add two redirect URIs, delete one.
-    await page.locator("[name=addRedirectUri]").click();
+    await page.locator(".redirectUris .AddNewButton").click();
     await page
       .locator(`[name="redirectUris.1"]`)
       .fill(`${DEFAULT_CLIENT_REDIRECT_URI}2`);
-    await page.locator("[name=addRedirectUri]").click();
+    await page.locator(".redirectUris .AddNewButton").click();
     await page
       .locator(`[name="redirectUris.2"]`)
       .fill(`${DEFAULT_CLIENT_REDIRECT_URI}3`);
-    await page.locator(`[name="removeRedirectUri.1"]`).click();
+    await page.locator(".redirectUris .RemoveItemButton").nth(1).click();
 
     const clientIdentifierDocument = await clickAndGenerateDocument(page);
 
