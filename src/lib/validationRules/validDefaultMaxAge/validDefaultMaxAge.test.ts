@@ -36,6 +36,18 @@ describe("`default_max_age` must be valid, unset, or should be set decently", ()
     );
   });
 
+  it("errors on string max age value", async () => {
+    const resultsForInvalid = await validDefaultMaxAge.check({
+      document: {
+        default_max_age: "60",
+      },
+    });
+    expect(resultsForInvalid).toHaveLength(1);
+    expect(resultsForInvalid[0].title).toMatch(
+      /Invalid `default_max_age` value/
+    );
+  });
+
   it("warns for small max age", async () => {
     const resultsForSmallValue = await validDefaultMaxAge.check({
       document: {

@@ -50,10 +50,10 @@ function TabsComponent() {
         value={currentTab}
         sx={{
           ".MuiTab-root": { textDecoration: "none" },
-          "&.MuiTypography-root": {
+          "& .MuiTypography-root": {
             textTransform: "none",
           },
-          "&.Mui-selected": {
+          "&& .Mui-selected": {
             color: "black",
           },
         }}
@@ -89,7 +89,7 @@ function App() {
         padding={2}
       >
         <BrowserRouter>
-          <Grid container spacing={3}>
+          <Grid container spacing={3} marginTop={-1}>
             <Grid container item flex={1} justifyContent="center">
               <img
                 src={inruptLogoUrl}
@@ -97,13 +97,15 @@ function App() {
                 style={{ maxWidth: "180px" }}
               />
             </Grid>
-            <Grid container item marginBottom={3}>
+            <Grid container item>
               <Typography variant="h1">
                 Client Identifier Document Helper
               </Typography>
             </Grid>
+            <Grid container item>
+              <TabsComponent />
+            </Grid>
           </Grid>
-          <TabsComponent />
 
           <Routes>
             <Route path="*" element={<Navigate replace to="/generator" />} />

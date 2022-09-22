@@ -36,6 +36,13 @@ import {
   DEFAULT_CLIENT_EMAIL,
 } from "./constants";
 
+async function openAccordion(page: Page, selector: string) {
+  if (
+    !(await page.locator(`${selector} .MuiAccordionDetails-root`).isVisible())
+  )
+    await page.locator(`${selector} .AccordionSummary`).click();
+}
+
 async function fillEssentialFieldsWithDefaults(page: Page) {
   await page.locator("[name=clientId]").fill(DEFAULT_CLIENT_ID);
   await page.locator("[name=clientName]").fill(DEFAULT_CLIENT_NAME);
@@ -53,8 +60,7 @@ async function clickAndGenerateDocument(page: Page) {
 }
 
 async function fillUserFacingFieldsWithDefaults(page: Page) {
-  // open user information fields accordion
-  await page.locator(".UserInformationFieldsHead").click();
+  await openAccordion(page, ".MoreFieldsAccordion");
 
   // Fill logo URI.
   await page.locator('input[name="logoUri"]').click();
@@ -74,7 +80,7 @@ async function fillUserFacingFieldsWithDefaults(page: Page) {
 }
 
 async function fillTechnicalFields(page: Page) {
-  await page.locator(".AdvancedFieldsHead").click();
+  await openAccordion(page, ".AdvancedFieldsAccordion");
 
   // Select application type native.
   await page.locator('div[role="button"]:has-text("Web Application")').click();
@@ -127,6 +133,15 @@ test.describe("Generator page functionality", () => {
     );
     // Recommended fields will be in info-state.
     await expect(page.locator(`label:has-text("Logo URI")`)).toHaveClass(
+      /Mui-info/
+    );
+    await expect(page.locator(`label:has-text("Policy URI")`)).toHaveClass(
+      /Mui-info/
+    );
+    await expect(
+      page.locator(`label:has-text("Terms of Service URI")`)
+    ).toHaveClass(/Mui-info/);
+    await expect(page.locator(`label:has-text("Contact")`)).toHaveClass(
       /Mui-info/
     );
   });

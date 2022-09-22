@@ -20,6 +20,7 @@
 //
 
 import { FormHelperText, Grid, Switch, Typography } from "@mui/material";
+import { useRef } from "react";
 
 export default function VerboseCheckBox({
   name: fieldName,
@@ -34,6 +35,8 @@ export default function VerboseCheckBox({
   value: boolean | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
 }) {
+  const componentRef = useRef<HTMLButtonElement>(null);
+
   return (
     <Grid
       item
@@ -44,6 +47,10 @@ export default function VerboseCheckBox({
         "&:hover": { borderColor: "rgba(0, 0, 0, 0.87)" },
       }}
       padding={2}
+      className="VerboseSlider"
+      onClick={(e) => {
+        if (e.target !== componentRef.current) componentRef.current?.click();
+      }}
     >
       <Grid container alignItems="center" sx={{ flexFlow: "row" }}>
         <Grid item flexGrow={1}>
@@ -51,6 +58,7 @@ export default function VerboseCheckBox({
         </Grid>
         <Grid item>
           <Switch
+            inputRef={componentRef}
             sx={{ marginTop: "-8px", marginBottom: "-8px" }}
             name={fieldName}
             value={value}

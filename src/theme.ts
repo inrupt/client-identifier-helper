@@ -32,12 +32,10 @@ const theme = createTheme({
     h2: {
       fontWeight: 800,
       fontSize: 18,
-      marginLeft: "auto",
-      marginRight: "auto",
     },
     h3: {
-      fontWeight: 800,
-      fontSize: 18,
+      fontWeight: 700,
+      fontSize: 16,
     },
     button: {
       fontWeight: 800,

@@ -19,14 +19,15 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Button,
-  Checkbox,
-  FormControlLabel,
+  FormControl,
   FormHelperText,
   Grid,
   InputLabel,
@@ -43,6 +44,7 @@ import VerboseTextField, {
   FieldStatus,
   VerboseFieldState,
 } from "../components/VerboseTextField";
+import VerboseSlider from "../components/VerboseSlider";
 import generateClientIdDocument from "../lib/generateDocument/generateDocument";
 import { statusToNumber } from "../lib/helperFunctions";
 import { validateField } from "../lib/validateLocalDocument";
@@ -127,7 +129,6 @@ export default function ClientIdentifierGenerator() {
     // Generate document from current form state and validate the field.
     const clientIdDocument = generateClientIdDocument({
       ...formValues,
-      compact: false,
     });
     const fieldValidationResults = await validateField(
       clientIdDocument,
@@ -246,23 +247,14 @@ export default function ClientIdentifierGenerator() {
   }, [documentJson]);
 
   return (
-    <Grid
-      container
-      item
-      maxWidth="50em"
-      direction="column"
-      marginLeft="auto"
-      marginRight="auto"
-    >
-      <Grid container item>
-        <Grid container item justifyContent="center">
-          <Grid item>
-            <Typography variant="h4">
-              Generate a Client Identifier Document
-            </Typography>
-          </Grid>
+    <Grid container item>
+      <Grid container item spacing={3}>
+        <Grid container item>
+          <Typography variant="h2">
+            Generate a Client Identifier Document
+          </Typography>
         </Grid>
-        <Grid container item padding={2} spacing={1} marginLeft={2}>
+        <Grid container item spacing={2}>
           <Grid item>
             <Typography variant="body1">
               This generator helps you set up a{" "}
@@ -290,16 +282,11 @@ export default function ClientIdentifierGenerator() {
             </Typography>
           </Grid>
         </Grid>
-        <Grid
-          container
-          paddingLeft={2}
-          paddingRight={2}
-          direction="column"
-          spacing={1}
-        >
+
+        <Grid container item direction="column" spacing={1}>
           <Grid item>
-            <Typography variant="h5">
-              Your app&apos;s (client&apos;s) essential information
+            <Typography variant="h2" marginBottom={1}>
+              Your client&apos;s information
             </Typography>
           </Grid>
           <Grid container item>
@@ -310,230 +297,268 @@ export default function ClientIdentifierGenerator() {
               validateOnChange={false}
               validateOnBlur={false}
             >
-              {(form) => {
-                return (
-                  <Form>
-                    <Grid
-                      container
-                      item
-                      direction="column"
-                      spacing={3}
-                      padding={1}
-                    >
-                      <Grid container item>
-                        <VerboseTextField
-                          name="clientId"
-                          label="Client Identifier URI"
-                          description="The URI where your Client Identifier Document is
+              {(form) => (
+                <Form>
+                  <Grid container item direction="column" spacing={3}>
+                    <Grid container item>
+                      <VerboseTextField
+                        name="clientId"
+                        label="Client Identifier URI"
+                        description="The URI where your Client Identifier Document is
                             located. It identifies your application, the client,
                             to the Solid OIDC Provider. The Client Identifier
                             Document should be a static resource and publicly
                             accessible. Field name: `client_id`"
-                          state={formFieldStates.clientId}
-                          required
-                          value={form.values.clientId}
-                          onChange={form.handleChange}
-                          onBlur={(e) => handleFieldBlur(form, e)}
-                          inputProps={{ inputMode: "url" }}
-                          fullWidth
-                          size="small"
-                        />
-                      </Grid>
-                      <Grid container item>
-                        <VerboseTextField
-                          name="clientName"
-                          label="Client Name"
-                          description="Your application name displayed to the user when
-                              they are authenticating your application at the
-                              Solid OIDC Provider. Field name: `client_name`"
-                          state={formFieldStates.clientName}
-                          required
-                          value={form.values.clientName}
-                          onChange={form.handleChange}
-                          onBlur={(e) => handleFieldBlur(form, e)}
-                          fullWidth
-                          size="small"
-                        />
-                      </Grid>
-                      <Grid container item>
-                        <VerboseTextField
-                          name="clientUri"
-                          label="Client Homepage URI"
-                          description="The URI of your application's homepage.
+                        state={formFieldStates.clientId}
+                        required
+                        value={form.values.clientId}
+                        onChange={form.handleChange}
+                        onBlur={(e) => handleFieldBlur(form, e)}
+                        inputProps={{ inputMode: "url" }}
+                        fullWidth
+                        size="small"
+                      />
+                    </Grid>
+                    <Grid container item>
+                      <VerboseTextField
+                        name="clientName"
+                        label="Client Name"
+                        description="Your application name displayed to the user when
+                            they are authenticating your application at the
+                            Solid OIDC Provider. Field name: `client_name`"
+                        state={formFieldStates.clientName}
+                        required
+                        value={form.values.clientName}
+                        onChange={form.handleChange}
+                        onBlur={(e) => handleFieldBlur(form, e)}
+                        fullWidth
+                        size="small"
+                      />
+                    </Grid>
+                    <Grid container item>
+                      <VerboseTextField
+                        name="clientUri"
+                        label="Client Homepage URI"
+                        description="The URI of your application's homepage.
                               Displayed to the user when they are authenticating
                               your application at the Solid OIDC Provider. Field
                               name: `client_uri`"
-                          state={formFieldStates.clientUri}
-                          required
-                          value={form.values.clientUri}
-                          onChange={form.handleChange}
-                          onBlur={(e) => handleFieldBlur(form, e)}
-                          fullWidth
-                          size="small"
-                        />
-                      </Grid>
+                        state={formFieldStates.clientUri}
+                        required
+                        value={form.values.clientUri}
+                        onChange={form.handleChange}
+                        onBlur={(e) => handleFieldBlur(form, e)}
+                        fullWidth
+                        size="small"
+                      />
+                    </Grid>
 
-                      <Grid item container>
-                        <FieldArray name="redirectUris">
-                          {(props: FieldArrayRenderProps) => (
-                            <VerboseTextFieldArray
-                              label="Redirect URIs"
-                              fieldLabel="Redirect URI"
-                              name="redirectUris"
-                              description={[
-                                "The URIs that the Solid OIDC Provider is allowed to redirect to after the user authenticated at the OIDC Provider.",
-                                "Flow: Your application will send an authentication request to the OIDC Provider with one redirect URI. The OIDC Provider redirects the browser/user agent to the redirect URI after the user authenticated and issues a code to your application that it can use to complete authentication. Field name: `redirect_uris`",
-                              ]}
-                              fieldStates={formFieldStates.redirectUris}
-                              values={form.values.redirectUris}
-                              pushItem={props.push}
-                              removeItem={(index) => {
-                                props.remove(index);
-                                setFormFieldState(
-                                  "redirectUris",
-                                  formFieldStates.redirectUris?.filter(
-                                    (_val, i) => index !== i
-                                  )
-                                );
-                              }}
-                              onChange={form.handleChange}
-                              onBlur={(e) => handleFieldBlur(form, e)}
-                              inputProps={{ inputMode: "url" }}
-                              fullWidth
-                              size="small"
-                              required
-                            />
-                          )}
-                        </FieldArray>
+                    <Grid item container>
+                      <FieldArray name="redirectUris">
+                        {(props: FieldArrayRenderProps) => (
+                          <VerboseTextFieldArray
+                            label="Redirect URIs"
+                            fieldLabel="Redirect URI"
+                            name="redirectUris"
+                            description={[
+                              "The URIs that the Solid OIDC Provider is allowed to redirect to after the user authenticated at the OIDC Provider.",
+                              "Flow: Your application will send an authentication request to the OIDC Provider with one redirect URI. The OIDC Provider redirects the browser/user agent to the redirect URI after the user authenticated and issues a code to your application that it can use to complete authentication. Field name: `redirect_uris`",
+                            ]}
+                            fieldStates={formFieldStates.redirectUris}
+                            values={form.values.redirectUris}
+                            pushItem={props.push}
+                            removeItem={(index) => {
+                              props.remove(index);
+                              setFormFieldState(
+                                "redirectUris",
+                                formFieldStates.redirectUris?.filter(
+                                  (_val, i) => index !== i
+                                )
+                              );
+                            }}
+                            onChange={form.handleChange}
+                            onBlur={(e) => handleFieldBlur(form, e)}
+                            inputProps={{ inputMode: "url" }}
+                            fullWidth
+                            size="small"
+                            required
+                          />
+                        )}
+                      </FieldArray>
+                    </Grid>
+                    <Grid container item spacing={1}>
+                      <Grid item>
+                        <Typography variant="h3">Refresh Tokens</Typography>
                       </Grid>
-                      <Grid container item>
-                        <FormControlLabel
+                      <Grid item>
+                        <VerboseSlider
+                          name="useRefreshTokens"
                           label="Support usage of refresh tokens / offline access"
-                          control={
-                            <Checkbox
-                              name="useRefreshTokens"
-                              value={form.values.useRefreshTokens}
-                              checked={form.values.useRefreshTokens}
-                              onChange={form.handleChange}
-                            />
-                          }
+                          description="Recommended. A refresh token can be used to request new access tokens
+                            after they expire. If not requested, the user will have to
+                            re-authenticate after the access token expires, which will happen
+                            quite frequently (e.g. every 5 minutes or so). Field names: The field
+                            `scope` will have the value `offline_access` set and the field
+                            `grant_types` will have the value `refresh_token` set."
+                          value={form.values.useRefreshTokens}
+                          onChange={form.handleChange}
                         />
-                        <Grid item marginLeft={2} paddingRight={2}>
-                          <FormHelperText>
-                            Recommended. A refresh token can be used to request
-                            new access tokens after they expire. If not
-                            requested, the user will have to re-authenticate
-                            after the access token expires, which will happen
-                            quite frequently (e.g. every 5 minutes or so). Field
-                            names: The field `scope` will have the value
-                            `offline_access` set and the field `grant_types`
-                            will have the value `refresh_token` set.
-                          </FormHelperText>
-                        </Grid>
                       </Grid>
-                      <Grid container item>
-                        <Accordion>
-                          <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            className="UserInformationFieldsHead"
-                          >
-                            Additional information displayed to users
-                          </AccordionSummary>
-                          <AccordionDetails>
-                            <Grid container spacing={2}>
-                              <Grid container item>
-                                <VerboseTextField
-                                  name="logoUri"
-                                  label="Logo URI"
-                                  description="The URI to the logo of your application.
+                    </Grid>
+                    <Grid container item>
+                      <Accordion
+                        sx={{ boxShadow: "none" }}
+                        className="MoreFieldsAccordion"
+                      >
+                        <AccordionSummary
+                          className="AccordionSummary"
+                          sx={{
+                            paddingLeft: 0,
+                            "&.Mui-expanded .ExpandIcon": {
+                              transform: "rotate(-180deg)",
+                            },
+                            ".ExpandIcon": {
+                              transition:
+                                "transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+                            },
+                          }}
+                        >
+                          <Grid container>
+                            <Grid item>
+                              <Typography variant="h2">
+                                Additional client information
+                              </Typography>
+                            </Grid>
+                            <Grid item>
+                              <ExpandMoreIcon className="ExpandIcon" />
+                            </Grid>
+                          </Grid>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ padding: 0 }}>
+                          <Grid container spacing={2}>
+                            <Grid container item>
+                              <VerboseTextField
+                                name="logoUri"
+                                label="Logo URI"
+                                description="The URI to the logo of your application.
                                   This will be displayed by the OIDC Provider while
                                   the user is logging in. Field name: `logo_uri`"
-                                  state={formFieldStates.logoUri}
-                                  value={form.values.logoUri}
-                                  onChange={form.handleChange}
-                                  onBlur={(e) => handleFieldBlur(form, e)}
-                                  inputProps={{ inputMode: "url" }}
-                                  fullWidth
-                                  size="small"
-                                />
-                              </Grid>
-                              <Grid container item>
-                                <VerboseTextField
-                                  name="policyUri"
-                                  label="Policy URI"
-                                  description="The URI to the Policy terms of
+                                state={formFieldStates.logoUri}
+                                value={form.values.logoUri}
+                                onChange={form.handleChange}
+                                onBlur={(e) => handleFieldBlur(form, e)}
+                                inputProps={{ inputMode: "url" }}
+                                fullWidth
+                                size="small"
+                              />
+                            </Grid>
+                            <Grid container item>
+                              <VerboseTextField
+                                name="policyUri"
+                                label="Policy URI"
+                                description="The URI to the Policy terms of
                                     your application. This will be linked to by the
                                     OIDC Provider while the user is logging in.
                                     Field name: `policy_uri`"
-                                  state={formFieldStates.policyUri}
-                                  value={form.values.policyUri}
-                                  onChange={form.handleChange}
-                                  onBlur={(e) => handleFieldBlur(form, e)}
-                                  inputProps={{ inputMode: "url" }}
-                                  fullWidth
-                                  size="small"
-                                />
-                              </Grid>
-                              <Grid container item>
-                                <VerboseTextField
-                                  name="tosUri"
-                                  label="Terms of Service URI"
-                                  description="The URI to the Terms of Service of
+                                state={formFieldStates.policyUri}
+                                value={form.values.policyUri}
+                                onChange={form.handleChange}
+                                onBlur={(e) => handleFieldBlur(form, e)}
+                                inputProps={{ inputMode: "url" }}
+                                fullWidth
+                                size="small"
+                              />
+                            </Grid>
+                            <Grid container item>
+                              <VerboseTextField
+                                name="tosUri"
+                                label="Terms of Service URI"
+                                description="The URI to the Terms of Service of
                                     your application. This will be linked to by the
                                     OIDC Provider while the user is logging in.
                                     Field name: `tos_uri`"
-                                  state={formFieldStates.tosUri}
-                                  value={form.values.tosUri}
-                                  onChange={form.handleChange}
-                                  onBlur={(e) => handleFieldBlur(form, e)}
-                                  inputProps={{ inputMode: "url" }}
-                                  fullWidth
-                                  size="small"
-                                />
-                              </Grid>
-                              <Grid container item>
-                                <VerboseTextField
-                                  name="contact"
-                                  label="Contact"
-                                  description="An email address to reach out to the
+                                state={formFieldStates.tosUri}
+                                value={form.values.tosUri}
+                                onChange={form.handleChange}
+                                onBlur={(e) => handleFieldBlur(form, e)}
+                                inputProps={{ inputMode: "url" }}
+                                fullWidth
+                                size="small"
+                              />
+                            </Grid>
+                            <Grid container item>
+                              <VerboseTextField
+                                name="contact"
+                                label="Contact"
+                                description="An email address to reach out to the
                                     application owners/developers.
                                     Field name: `contacts`"
-                                  state={formFieldStates.tosUri}
-                                  value={form.values.contact}
-                                  onChange={form.handleChange}
-                                  onBlur={(e) => handleFieldBlur(form, e)}
-                                  inputProps={{ inputMode: "url" }}
-                                  fullWidth
-                                  size="small"
-                                />
-                              </Grid>
+                                state={formFieldStates.tosUri}
+                                value={form.values.contact}
+                                onChange={form.handleChange}
+                                onBlur={(e) => handleFieldBlur(form, e)}
+                                inputProps={{ inputMode: "url" }}
+                                fullWidth
+                                size="small"
+                              />
                             </Grid>
-                          </AccordionDetails>
-                        </Accordion>
-                      </Grid>
-                      <Grid container item>
-                        <Accordion>
-                          <AccordionSummary
-                            className="AdvancedFieldsHead"
-                            expandIcon={<ExpandMoreIcon />}
-                          >
-                            Advanced OIDC options
-                          </AccordionSummary>
-                          <AccordionDetails>
-                            <Grid container item spacing={2}>
-                              <Grid item>
+                          </Grid>
+                        </AccordionDetails>
+                      </Accordion>
+                      <Accordion
+                        sx={{
+                          boxShadow: "none",
+                          "&::before": { backgroundColor: "transparent" },
+                        }}
+                        className="AdvancedFieldsAccordion"
+                      >
+                        <AccordionSummary
+                          className="AccordionSummary"
+                          sx={{
+                            paddingLeft: 0,
+                            "&.Mui-expanded .ExpandIcon": {
+                              transform: "rotate(-180deg)",
+                            },
+                            ".ExpandIcon": {
+                              transition:
+                                "transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+                            },
+                          }}
+                        >
+                          <Grid container>
+                            <Grid item>
+                              <Typography variant="h2">
+                                Advanced OIDC options
+                              </Typography>
+                            </Grid>
+                            <Grid item>
+                              <ExpandMoreIcon className="ExpandIcon" />
+                            </Grid>
+                          </Grid>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ padding: 0 }}>
+                          <Grid container spacing={2}>
+                            <Grid item>
+                              <FormControl>
                                 <InputLabel
                                   variant="standard"
                                   id="applicationTypeLabel"
+                                  shrink
+                                  sx={{
+                                    transform:
+                                      "translate(14px, -9px) scale(0.75)",
+                                  }}
                                 >
                                   Application Type
                                 </InputLabel>
                                 <Select
                                   name="applicationType"
-                                  value={form.values.applicationType}
                                   labelId="applicationTypeLabel"
+                                  label="Application Type"
+                                  value={form.values.applicationType}
                                   onChange={form.handleChange}
                                   size="small"
+                                  notched
                                 >
                                   <MenuItem value="web">
                                     Web Application
@@ -542,7 +567,7 @@ export default function ClientIdentifierGenerator() {
                                     Native Application
                                   </MenuItem>
                                 </Select>
-                                <Grid item marginLeft={2} paddingRight={2}>
+                                <Grid item>
                                   <FormHelperText>
                                     Usually, you will develop a Web Application.
                                     With a Client Identifier Document for a
@@ -551,83 +576,86 @@ export default function ClientIdentifierGenerator() {
                                     Field name: `application_type`
                                   </FormHelperText>
                                 </Grid>
-                              </Grid>
-                              <Grid item>
-                                <VerboseTextField
-                                  name="defaultMaxAge"
-                                  label="Default maximum age"
-                                  description="The number of seconds after which the
-                                    user must be actively re-authenticated.
-                                    Field name: `default_max_age`"
-                                  type="number"
-                                  state={formFieldStates.defaultMaxAge}
-                                  value={form.values.defaultMaxAge}
-                                  onChange={form.handleChange}
-                                  onBlur={(e) => handleFieldBlur(form, e)}
-                                  inputProps={{
-                                    inputMode: "numeric",
-                                    pattern: "[0-9]*",
-                                  }}
-                                  fullWidth
-                                  size="small"
-                                />
-                              </Grid>
-                              <Grid item>
-                                <FormControlLabel
-                                  label="Request a time of authentication claim"
-                                  control={
-                                    <Checkbox
-                                      name="requireAuthTime"
-                                      value={form.values.requireAuthTime}
-                                      checked={form.values.requireAuthTime}
-                                      onChange={form.handleChange}
-                                    />
-                                  }
-                                />
-                                <Grid item marginLeft={2} paddingRight={2}>
-                                  <FormHelperText>
-                                    Requests that the ID Token will contain a
-                                    record (claim) with its time of creation,
-                                    i.e. the authentication time. Field name:
-                                    `require_auth_time`
-                                  </FormHelperText>
-                                </Grid>
-                              </Grid>
+                              </FormControl>
                             </Grid>
-                          </AccordionDetails>
-                        </Accordion>
-                      </Grid>
-                      <Grid
-                        item
-                        container
-                        justifyContent="flex-end"
-                        spacing={2}
-                      >
-                        <Typography color="error">{hasFormError}</Typography>
-                        <Grid item>
-                          <Button
-                            color="secondary"
-                            variant="outlined"
-                            type="reset"
-                          >
-                            Reset
-                          </Button>
-                        </Grid>
-                        <Grid item>
-                          <Button
-                            onClick={() => onSubmit(form)}
-                            name="generateDocument"
-                            color="primary"
-                            variant="contained"
-                          >
-                            Generate
-                          </Button>
-                        </Grid>
-                      </Grid>
+                            <Grid container item>
+                              <VerboseTextField
+                                name="defaultMaxAge"
+                                label="Default maximum age"
+                                description="The number of seconds after which the
+                                  user must be actively re-authenticated.
+                                  Field name: `default_max_age`"
+                                state={formFieldStates.defaultMaxAge}
+                                value={form.values.defaultMaxAge}
+                                onChange={form.handleChange}
+                                onBlur={(e) => handleFieldBlur(form, e)}
+                                inputProps={{
+                                  inputMode: "numeric",
+                                  pattern: "[0-9]*",
+                                }}
+                                fullWidth
+                                size="small"
+                              />
+                            </Grid>
+                            <Grid item>
+                              <VerboseSlider
+                                label="Request a time of authentication claim"
+                                name="requireAuthTime"
+                                value={form.values.requireAuthTime}
+                                onChange={form.handleChange}
+                                description="Requests that the ID Token will contain a
+                                  record (claim) with its time of creation, i.e.
+                                  the authentication time. Field name:
+                                  `require_auth_time`"
+                              />
+                            </Grid>
+                          </Grid>
+                        </AccordionDetails>
+                      </Accordion>
                     </Grid>
-                  </Form>
-                );
-              }}
+                  </Grid>
+                  <Grid
+                    item
+                    container
+                    sx={{
+                      backgroundColor: "white",
+                      zIndex: 1,
+                      borderTop: "1px solid",
+                      borderColor: "divider",
+                    }}
+                    position="sticky"
+                    justifyContent="space-between"
+                    bottom={0}
+                    marginTop={2}
+                    paddingBottom={1}
+                    spacing={1}
+                  >
+                    <Grid item>
+                      <Button
+                        variant="text"
+                        type="reset"
+                        sx={{ textDecoration: "underline" }}
+                      >
+                        Reset
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Typography color="error">{hasFormError}</Typography>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        onClick={() => onSubmit(form)}
+                        name="generateDocument"
+                        color="primary"
+                        variant="contained"
+                        size="large"
+                      >
+                        Generate
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Form>
+              )}
             </Formik>
           </Grid>
 
@@ -640,10 +668,15 @@ export default function ClientIdentifierGenerator() {
             justifyContent="space-between"
             spacing={2}
           >
-            <Grid item>
-              <Typography variant="h4" ref={jsonDocumentSectionRef}>
-                Generated Client Identifier Document
-              </Typography>
+            <Grid container item direction="column" alignContent="center">
+              <Grid item marginLeft="auto" marginRight="auto">
+                <CheckCircleOutlineIcon fontSize="large" color="success" />
+              </Grid>
+              <Grid item>
+                <Typography variant="h2" ref={jsonDocumentSectionRef}>
+                  Generated Client Identifier Document
+                </Typography>
+              </Grid>
             </Grid>
             <Grid item>
               You can store this document at the location that your Client
@@ -665,10 +698,12 @@ export default function ClientIdentifierGenerator() {
               <Grid item>
                 <Button
                   color="primary"
-                  variant="contained"
+                  variant="text"
+                  size="small"
                   onClick={onValidateButtonClick}
                 >
-                  Validate Document
+                  Validate
+                  <ArrowForwardIcon />
                 </Button>
               </Grid>
             </Grid>

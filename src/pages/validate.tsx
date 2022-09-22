@@ -93,18 +93,18 @@ function ClientIdentifierValidator() {
       justifyContent="center"
       maxWidth="50em"
     >
-      <Grid container item>
+      <Grid container item spacing={2}>
         <Grid container item>
-          <Grid item>
-            <Typography variant="h4">
+          <Grid container item>
+            <Typography variant="h2">
               Validate a Client Identifier Document
             </Typography>
           </Grid>
         </Grid>
-        <Grid container item padding={2}>
+        <Grid container item>
           <Grid container item direction="column">
             <Grid item>
-              <Typography variant="h5">Validate from URI</Typography>
+              <Typography variant="h3">Validate from URI</Typography>
             </Grid>
             <Typography variant="body1">
               Enter the URI to a Client Identifier Document. Our server will
@@ -156,7 +156,7 @@ function ClientIdentifierValidator() {
                 </Grid>
               </Grid>
               <Grid item>
-                <Typography variant="h5">Validate from JSON text</Typography>
+                <Typography variant="h3">Validate from JSON text</Typography>
               </Grid>
 
               <Grid item container justifyContent="flex-end" spacing={1}>
@@ -205,7 +205,7 @@ function ClientIdentifierValidator() {
         ref={ValidationResultsRef}
       >
         <Grid container item alignContent="center">
-          <Typography variant="h4">Validation Results</Typography>
+          <Typography variant="h2">Validation Results</Typography>
         </Grid>
 
         <Grid item>

@@ -71,7 +71,9 @@ export default function generateClientIdDocument({
     require_auth_time: requireAuthTime,
     default_max_age:
       typeof defaultMaxAge === "string"
-        ? Number(defaultMaxAge) || undefined
+        ? // For non-numbers, default to defaultMaxAge's string value,
+          // which will be caught by the validation.
+          Number(defaultMaxAge) || defaultMaxAge
         : defaultMaxAge,
   };
 
