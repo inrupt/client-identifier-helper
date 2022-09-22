@@ -185,4 +185,49 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
     expect(clientIdDocumentJson.token_endpoint_auth_method).toBe("none");
     expect(clientIdDocumentJson.application_type).toBe("web");
   });
+
+  it("has no unknown fields", async () => {
+    const clientIdDocument = generateDocument({
+      clientId: DEFAULT_CLIENT_IDENTIFIER,
+      clientName: DEFAULT_NAME,
+      clientUri: DEFAULT_CLIENT_URI,
+      redirectUris: [`${DEFAULT_REDIRECT_URI}1`, `${DEFAULT_REDIRECT_URI}2`],
+      useRefreshTokens: false,
+      logoUri: DEFAULT_LOGO_URI,
+      tosUri: DEFAULT_TOS_URI,
+      policyUri: DEFAULT_POLICY_URI,
+      contact: DEFAULT_CONTACT,
+      applicationType: "web",
+      requireAuthTime: true,
+      defaultMaxAge: 3600,
+      compact: false,
+    });
+
+    const knownFields = new Set([
+      "@context",
+      "client_id",
+      "client_name",
+      "client_uri",
+      "logo_uri",
+      "policy_uri",
+      "tos_uri",
+      "redirect_uris",
+      "require_auth_time",
+      "default_max_age",
+      "application_type",
+      "contacts",
+      "grant_types",
+      "response_types",
+      "scope",
+      "token_endpoint_auth_method",
+    ]);
+
+    const clientIdDocumentJson = JSON.parse(clientIdDocument);
+    const presentFields = Object.keys(clientIdDocumentJson);
+    const unknownFields = presentFields.filter(
+      (fieldName) => !knownFields.has(fieldName)
+    );
+
+    expect(unknownFields).toHaveLength(0);
+  });
 });
