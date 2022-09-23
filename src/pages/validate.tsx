@@ -53,8 +53,10 @@ function ClientIdentifierValidator() {
 
   const fetchAndValidate = async () => {
     setIsValidatingRemotely(true);
-    const remoteResults = await validateRemoteDocument(clientIdentifierUri);
+    const { validationResults: remoteResults, document: remoteDocument } =
+      await validateRemoteDocument(clientIdentifierUri);
     setValidationResults(remoteResults);
+    if (remoteDocument) setDocumentJson(remoteDocument);
     setIsValidatingRemotely(false);
   };
 
