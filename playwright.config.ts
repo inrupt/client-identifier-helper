@@ -66,7 +66,7 @@ const config: PlaywrightTestConfig = {
 
   webServer: {
     cwd: "./",
-    command: "vercel dev",
+    command: `vercel dev --token ${process.env.VERCEL_TOKEN} --yes`,
     port: 3000,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
