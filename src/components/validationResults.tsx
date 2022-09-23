@@ -129,7 +129,7 @@ export default function ValidationResults({
       (result2.rule.type === "remote" ? -100 : 0)
   );
   return (
-    <Grid container direction="column" margin={2}>
+    <Grid container direction="column" margin={2} className="validationResults">
       {sortedResults.map((result) => (
         <ResultCard result={result} key={result.title + result.description} />
       ))}

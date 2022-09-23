@@ -6,6 +6,7 @@
     "src/**/*.tsx",
     "src/**/*.test.tsx",
     "api/**/*.ts",
+    "e2e/**/*.ts",
     "**/*.md"
   ],
   "exclude": ["**/node_modules", "**/dist/**"]

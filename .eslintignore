@@ -1,3 +1,6 @@
 .eslintrc.cjs
-vite.config.ts
+jest.config.cjs
+jest.e2e.config.cjs
+playwright.config.ts
 src/vite-env.d.ts
+vite.config.ts
