@@ -19,7 +19,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { ClientIdDocument } from "./types";
+import { ClientIdDocument } from "../types";
 
 export interface GenerateClientIdDocumentParameters {
   clientId: string;
@@ -34,7 +34,7 @@ export interface GenerateClientIdDocumentParameters {
   applicationType: "web" | "native";
   requireAuthTime?: boolean;
   defaultMaxAge?: number;
-  compact: boolean;
+  compact?: boolean;
 }
 
 export default function generateClientIdDocument({
@@ -66,7 +66,7 @@ export default function generateClientIdDocument({
     logo_uri: logoUri,
     tos_uri: tosUri,
     policy_uri: policyUri,
-    contacts: [contact],
+    contacts: contact ? [contact] : [],
     application_type: applicationType,
     require_auth_time: requireAuthTime,
     default_max_age: defaultMaxAge,

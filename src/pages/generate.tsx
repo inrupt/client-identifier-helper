@@ -40,7 +40,7 @@ import type { FieldArrayRenderProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import generateClientIdDocument from "../lib/generateDocument";
+import generateClientIdDocument from "../lib/generateDocument/generateDocument";
 
 function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
   if (!props) {
