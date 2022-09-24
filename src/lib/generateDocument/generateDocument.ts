@@ -33,7 +33,7 @@ export interface GenerateClientIdDocumentParameters {
   contact: string;
   applicationType: "web" | "native";
   requireAuthTime?: boolean;
-  defaultMaxAge?: number;
+  defaultMaxAge?: number | string;
   compact?: boolean;
 }
 
@@ -69,7 +69,10 @@ export default function generateClientIdDocument({
     contacts: contact ? [contact] : [],
     application_type: applicationType,
     require_auth_time: requireAuthTime,
-    default_max_age: defaultMaxAge,
+    default_max_age:
+      typeof defaultMaxAge === "string"
+        ? Number(defaultMaxAge) || undefined
+        : defaultMaxAge,
   };
 
   return JSON.stringify(
