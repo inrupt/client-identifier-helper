@@ -134,7 +134,7 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
     expect(clientIdDocumentJson.scope.split(" ")).toContain("offline_access");
   });
 
-  it("creates document with redirectUris parameter as string", async () => {
+  it("creates document with redirectUris and defaultMaxAge parameter as string", async () => {
     const clientIdDocument = generateDocument({
       clientId: DEFAULT_CLIENT_IDENTIFIER,
       clientName: DEFAULT_NAME,
@@ -146,11 +146,32 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       policyUri: "",
       contact: "",
       applicationType: "web",
+      defaultMaxAge: "3600",
     });
 
     const clientIdDocumentJson = JSON.parse(clientIdDocument);
     expect(clientIdDocumentJson.redirect_uris).toHaveLength(1);
     expect(clientIdDocumentJson.redirect_uris[0]).toBe(DEFAULT_REDIRECT_URI);
+    expect(clientIdDocumentJson.default_max_age).toBe(3600);
+  });
+
+  it("ignores invalid defaultMaxAge string parameter", async () => {
+    const clientIdDocument = generateDocument({
+      clientId: DEFAULT_CLIENT_IDENTIFIER,
+      clientName: DEFAULT_NAME,
+      clientUri: DEFAULT_CLIENT_URI,
+      redirectUris: DEFAULT_REDIRECT_URI,
+      useRefreshTokens: false,
+      logoUri: "",
+      tosUri: "",
+      policyUri: "",
+      contact: "",
+      applicationType: "web",
+      defaultMaxAge: "not a number",
+    });
+
+    const clientIdDocumentJson = JSON.parse(clientIdDocument);
+    expect(clientIdDocumentJson.default_max_age).toBeUndefined();
   });
 
   it("creates compacted document", async () => {
