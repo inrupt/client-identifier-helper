@@ -28,7 +28,6 @@ import {
   Checkbox,
   FormControlLabel,
   FormHelperText,
-  FormLabel,
   Grid,
   InputLabel,
   MenuItem,
@@ -40,67 +39,10 @@ import type { FieldArrayRenderProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import VerboseTextFieldArray from "../components/VerboseTextFieldArray";
 import generateClientIdDocument from "../lib/generateDocument/generateDocument";
 
-function RedirectUrisComponent(props: FieldArrayRenderProps | void) {
-  if (!props) {
-    return <Grid container item spacing={1} />;
-  }
-  const { push, remove, form } = props;
-  return (
-    <Grid container item spacing={1}>
-      {form.values.redirectUris.map((redirectUri: string, index: number) => {
-        return (
-          // index={key}, taken from https://formik.org/docs/examples/field-arrays
-          // This seems fine in this context.
-          // eslint-disable-next-line react/no-array-index-key
-          <Grid container item key={index} spacing={1}>
-            <Grid item sx={{ flexGrow: 1 }}>
-              <TextField
-                label="Redirect URI"
-                name={`redirectUris.${index}`}
-                value={redirectUri}
-                onChange={form.handleChange}
-                onBlur={form.handleBlur}
-                inputProps={{ inputMode: "url" }}
-                variant="outlined"
-                required
-                fullWidth
-                size="small"
-              />
-            </Grid>
-            <Grid item>
-              <Button
-                type="button"
-                name={`removeRedirectUri.${index}`}
-                title="Remove Redirect URI of this row"
-                onClick={() => remove(index)}
-                color="secondary"
-                variant="outlined"
-                sx={{ height: 40, width: 40 }}
-                disabled={form.values.redirectUris.length === 1}
-              >
-                x
-              </Button>
-            </Grid>
-          </Grid>
-        );
-      })}
-      <Grid container item marginLeft={2}>
-        <Button
-          type="button"
-          variant="outlined"
-          name="addRedirectUri"
-          onClick={() => push("")}
-        >
-          Add new
-        </Button>
-      </Grid>
-    </Grid>
-  );
-}
-
-type FormParameters = {
+export type FormParameters = {
   clientId: string;
   clientName: string;
   clientUri: string;
@@ -275,32 +217,29 @@ export default function ClientIdentifierGenerator() {
                         Field name: `client_uri`"
                       />
                     </Grid>
-                    <Grid container item>
-                      <FormLabel>Redirect URIs</FormLabel>
-                      <Grid container>
-                        <Grid item marginLeft={2} paddingRight={2}>
-                          <FormHelperText>
-                            The URIs that the Solid OIDC Provider is allowed to
-                            redirect to after the user authenticated at the OIDC
-                            Provider.
-                          </FormHelperText>
-                          <FormHelperText>
-                            Flow: Your application will send an authentication
-                            request to the OIDC Provider with one redirect URI.
-                            The OIDC Provider redirects the browser/user agent
-                            to the redirect URI after the user authenticated and
-                            issues a code to your application that it can use to
-                            complete authentication. Field name: `redirect_uris`
-                          </FormHelperText>
-                        </Grid>
-                      </Grid>
-                    </Grid>
 
                     <Grid item container>
-                      <FieldArray
-                        name="redirectUris"
-                        component={RedirectUrisComponent}
-                      />
+                      <FieldArray name="redirectUris">
+                        {(props: FieldArrayRenderProps) => (
+                          <VerboseTextFieldArray
+                            label="Redirect URIs"
+                            fieldLabel="Redirect URI"
+                            name="redirectUris"
+                            description={[
+                              "The URIs that the Solid OIDC Provider is allowed to redirect to after the user authenticated at the OIDC Provider.",
+                              "Flow: Your application will send an authentication request to the OIDC Provider with one redirect URI. The OIDC Provider redirects the browser/user agent to the redirect URI after the user authenticated and issues a code to your application that it can use to complete authentication. Field name: `redirect_uris`",
+                            ]}
+                            values={form.values.redirectUris}
+                            pushItem={props.push}
+                            removeItem={props.remove}
+                            onChange={form.handleChange}
+                            inputProps={{ inputMode: "url" }}
+                            fullWidth
+                            size="small"
+                            required
+                          />
+                        )}
+                      </FieldArray>
                     </Grid>
                     <Grid container item>
                       <FormControlLabel
@@ -331,7 +270,7 @@ export default function ClientIdentifierGenerator() {
                       <Accordion>
                         <AccordionSummary
                           expandIcon={<ExpandMoreIcon />}
-                          className="userInformationFields"
+                          className="UserInformationFieldsHead"
                         >
                           Additional information displayed to users
                         </AccordionSummary>
@@ -402,8 +341,8 @@ export default function ClientIdentifierGenerator() {
                     <Grid container item>
                       <Accordion>
                         <AccordionSummary
+                          className="AdvancedFieldsHead"
                           expandIcon={<ExpandMoreIcon />}
-                          className="advancedFields"
                         >
                           Advanced OIDC options
                         </AccordionSummary>
