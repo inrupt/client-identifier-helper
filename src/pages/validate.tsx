@@ -22,6 +22,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Typography, Grid, TextField, Button } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
+import { useSearchParams } from "react-router-dom";
 import ValidationResults from "../components/validationResults";
 import { localRules } from "../lib/validationRules";
 import validateRemoteDocument from "../lib/validateRemoteDocument";
@@ -30,12 +31,9 @@ import { ValidationResult } from "../lib/types";
 
 function ClientIdentifierValidator() {
   // Get the document from search parameter, if supplied.
-  const searchParamsDocument = new URLSearchParams(window.location.search).get(
-    "document"
-  );
-  const searchParamsDocumentIri = new URLSearchParams(
-    window.location.search
-  ).get("documentIri");
+  const [searchParams] = useSearchParams();
+  const searchParamsDocument = searchParams.get("document");
+  const searchParamsDocumentIri = searchParams.get("documentIri");
 
   const [documentJson, setDocumentJson] = useState(searchParamsDocument || "");
   const [clientIdentifierUri, setClientIdentifierUri] = useState(

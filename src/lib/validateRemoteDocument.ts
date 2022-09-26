@@ -28,9 +28,9 @@ import { localRules } from "./validationRules";
 
 export default async function validateRemoteDocument(
   documentIri: string
-): Promise<{ validationResults: ValidationResults; document: string }> {
+): Promise<{ validationResults: ValidationResults; document?: string }> {
   if (!documentIri) {
-    return { validationResults: [NO_GIVEN_DOCUMENT_IRI_RESULT], document: "" };
+    return { validationResults: [NO_GIVEN_DOCUMENT_IRI_RESULT] };
   }
   let validationResponse: RemoteValidationResponse;
   try {
@@ -45,7 +45,7 @@ export default async function validateRemoteDocument(
     );
     validationResponse = await fetchResponse.json();
   } catch (error) {
-    return { validationResults: [UNAVAILABLE_API_RESULT], document: "" };
+    return { validationResults: [UNAVAILABLE_API_RESULT] };
   }
 
   const remoteResults = validationResponse.results;
@@ -63,6 +63,8 @@ export default async function validateRemoteDocument(
   const validationResults = [...remoteResults, ...localResults];
   return {
     validationResults,
-    document: JSON.stringify(validationResponse.document, undefined, 2),
+    document: validationResponse.document
+      ? JSON.stringify(validationResponse.document, undefined, 2)
+      : undefined,
   };
 }
