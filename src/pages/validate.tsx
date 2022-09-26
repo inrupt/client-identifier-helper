@@ -133,6 +133,9 @@ function ClientIdentifierValidator() {
                     label="Client Identifier URI"
                     value={clientIdentifierUri}
                     onChange={(e) => setClientIdentifierUri(e.target.value)}
+                    onKeyUp={async (e) => {
+                      if (e.key === "Enter") await fetchAndValidate();
+                    }}
                     size="small"
                     fullWidth
                   />
@@ -172,6 +175,10 @@ function ClientIdentifierValidator() {
                     spellCheck="false"
                     value={documentJson}
                     onChange={(e) => setDocumentJson(e.target.value)}
+                    onKeyUp={async (e) => {
+                      if (e.key === "Enter" && e.ctrlKey)
+                        await onValidateBtnClick();
+                    }}
                   />
                 </Grid>
                 <Grid
