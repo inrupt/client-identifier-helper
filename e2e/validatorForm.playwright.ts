@@ -39,9 +39,7 @@ async function goToValidatorFormAndValidateFromString(
 ) {
   await openValidatorPage(page);
 
-  // Click and fill jsonDocument paste Area
-  await page.locator("[name=jsonDocument]").click();
-  // fill with a basic valid document
+  // Fill jsonDocument paste area with a basic valid document
   await page.locator("[name=jsonDocument]").fill(clientIdentifierDocument);
 
   // Click validate button
@@ -57,7 +55,6 @@ async function goToValidatorPageAndValidateFromDocumentIri(
   await openValidatorPage(page);
 
   // enter Client Identifier URI
-  await page.locator('input[name="clientIdentifierUri"]').click();
   await page.locator('input[name="clientIdentifierUri"]').fill(documentIri);
 
   // Click button Fetch & Validate
@@ -137,7 +134,6 @@ test.describe("Validator page", () => {
     await openValidatorPage(page);
 
     // enter Client Identifier URI
-    await page.locator('input[name="clientIdentifierUri"]').click();
     await page
       .locator('input[name="clientIdentifierUri"]')
       .fill(VALID_CLIENT_IDENTIFIER_DOCUMENT_URI);
@@ -149,5 +145,81 @@ test.describe("Validator page", () => {
     // as the document validation is being requested remotely
     await expect(page.locator("[name=fetchDocument]")).toBeDisabled();
     await expect(page.locator("[name=validateDocument]")).toBeDisabled();
+  });
+
+  test("pastes fetched documents into the document text field", async ({
+    page,
+  }) => {
+    await openValidatorPage(page);
+
+    // Fill document text field with text to be overwritten.
+    await page.locator("[name=jsonDocument]").fill("Placeholder");
+
+    // Fill Client Identifier URI.
+    await page
+      .locator('input[name="clientIdentifierUri"]')
+      .fill(VALID_CLIENT_IDENTIFIER_DOCUMENT_URI);
+
+    // Fetch document
+    await page.locator("text=Fetch & Validate").click();
+
+    // Wait until remote validation is finished.
+    await page.locator(".MuiLoadingButton-root:enabled");
+
+    // Expect document text area to be overwritten (with Client Identifier Document).
+    await expect(page.locator("[name=jsonDocument]")).not.toHaveText(
+      "Placeholder"
+    );
+  });
+
+  test("does not replace document text field on failed remote fetch", async ({
+    page,
+  }) => {
+    await openValidatorPage(page);
+
+    // Fill document text field with data to be overwritten.
+    await page.locator("[name=jsonDocument]").fill("Placeholder");
+
+    // Fill Client Identifier URI.
+    await page
+      .locator('input[name="clientIdentifierUri"]')
+      .fill("https://not-a-client-id.example/");
+
+    // Fetch document
+    await page.locator("text=Fetch & Validate").click();
+
+    // Wait until remote validation is finished.
+    await page.locator(".MuiLoadingButton-root:enabled");
+
+    // Expect document text field to not have been overwritten.
+    await expect(page.locator("[name=jsonDocument]")).toHaveText("Placeholder");
+  });
+
+  test("starts remote validation on enter", async ({ page }) => {
+    await openValidatorPage(page);
+
+    // Fill Client Identifier URI.
+    await page
+      .locator('input[name="clientIdentifierUri"]')
+      .fill(VALID_CLIENT_IDENTIFIER_DOCUMENT_URI);
+
+    // Hit Enter.
+    await page.keyboard.press("Enter");
+
+    // Expect validation to have been initiated.
+    await expect(page.locator("[name=fetchDocument]")).toBeDisabled();
+  });
+
+  test("starts local validation on shift+enter key", async ({ page }) => {
+    await openValidatorPage(page);
+
+    // Fill Client Identifier text area.
+    await page.locator("[name=jsonDocument]").fill("{}");
+
+    // Hit Control+Enter.
+    await page.keyboard.press("Control+Enter");
+
+    // Expect validation results to be shown.
+    await expect(page.locator("text=Validation Results")).toBeVisible();
   });
 });
