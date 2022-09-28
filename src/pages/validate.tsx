@@ -22,6 +22,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Typography, Grid, TextField, Button } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
+import { useSearchParams } from "react-router-dom";
 import ValidationResults from "../components/validationResults";
 import { localRules } from "../lib/validationRules";
 import validateRemoteDocument from "../lib/validateRemoteDocument";
@@ -30,12 +31,9 @@ import { ValidationResult } from "../lib/types";
 
 function ClientIdentifierValidator() {
   // Get the document from search parameter, if supplied.
-  const searchParamsDocument = new URLSearchParams(window.location.search).get(
-    "document"
-  );
-  const searchParamsDocumentIri = new URLSearchParams(
-    window.location.search
-  ).get("documentIri");
+  const [searchParams] = useSearchParams();
+  const searchParamsDocument = searchParams.get("document");
+  const searchParamsDocumentIri = searchParams.get("documentIri");
 
   const [documentJson, setDocumentJson] = useState(searchParamsDocument || "");
   const [clientIdentifierUri, setClientIdentifierUri] = useState(
@@ -53,8 +51,10 @@ function ClientIdentifierValidator() {
 
   const fetchAndValidate = async () => {
     setIsValidatingRemotely(true);
-    const remoteResults = await validateRemoteDocument(clientIdentifierUri);
+    const { validationResults: remoteResults, document: remoteDocument } =
+      await validateRemoteDocument(clientIdentifierUri);
     setValidationResults(remoteResults);
+    if (remoteDocument) setDocumentJson(remoteDocument);
     setIsValidatingRemotely(false);
   };
 
@@ -131,6 +131,9 @@ function ClientIdentifierValidator() {
                     label="Client Identifier URI"
                     value={clientIdentifierUri}
                     onChange={(e) => setClientIdentifierUri(e.target.value)}
+                    onKeyUp={async (e) => {
+                      if (e.key === "Enter") await fetchAndValidate();
+                    }}
                     size="small"
                     fullWidth
                   />
@@ -170,6 +173,10 @@ function ClientIdentifierValidator() {
                     spellCheck="false"
                     value={documentJson}
                     onChange={(e) => setDocumentJson(e.target.value)}
+                    onKeyUp={async (e) => {
+                      if (e.key === "Enter" && e.ctrlKey)
+                        await onValidateBtnClick();
+                    }}
                   />
                 </Grid>
                 <Grid
