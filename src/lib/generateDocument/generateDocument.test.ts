@@ -155,7 +155,9 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
     expect(clientIdDocumentJson.default_max_age).toBe(3600);
   });
 
-  it("ignores invalid defaultMaxAge string parameter", async () => {
+  it("passes invalid defaultMaxAge string parameter", async () => {
+    // Invalid defaultMaxAge string parameters are passed,
+    // to be able to be caught by validation.
     const clientIdDocument = generateDocument({
       clientId: DEFAULT_CLIENT_IDENTIFIER,
       clientName: DEFAULT_NAME,
@@ -167,11 +169,13 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       policyUri: "",
       contact: "",
       applicationType: "web",
-      defaultMaxAge: "not a number",
+      defaultMaxAge: "invalid string is passed",
     });
 
     const clientIdDocumentJson = JSON.parse(clientIdDocument);
-    expect(clientIdDocumentJson.default_max_age).toBeUndefined();
+    expect(clientIdDocumentJson.default_max_age).toBe(
+      "invalid string is passed"
+    );
   });
 
   it("creates compacted document", async () => {
