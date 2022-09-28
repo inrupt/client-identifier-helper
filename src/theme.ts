@@ -20,14 +20,28 @@
 //
 import { createTheme } from "@mui/material/styles";
 
-const theme = createTheme();
-if (
-  theme.components &&
-  theme.components.MuiFormLabel &&
-  theme.components.MuiFormLabel.defaultProps &&
-  theme.components.MuiFormLabel.defaultProps.sx
-) {
-  // theme.components.MuiFormLabel.defaultProps.sx.color = "black";
-}
+const theme = createTheme({
+  typography: {
+    fontFamily: `"Raleway", "Roboto", "sans-serif"`,
+    h1: {
+      fontWeight: 800,
+      fontSize: 22,
+      marginLeft: "auto",
+      marginRight: "auto",
+    },
+    h2: {
+      fontWeight: 800,
+      fontSize: 18,
+    },
+    h3: {
+      fontWeight: 700,
+      fontSize: 16,
+    },
+    button: {
+      fontWeight: 800,
+    },
+  },
+  palette: { primary: { main: "#7C4DFF" } },
+});
 
 export default theme;

@@ -19,12 +19,13 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+import AddIcon from "@mui/icons-material/Add";
 import {
   Button,
   FormHelperText,
-  FormLabel,
   Grid,
   TextFieldProps,
+  Typography,
 } from "@mui/material";
 import VerboseTextField, { VerboseFieldState } from "./VerboseTextField";
 
@@ -63,8 +64,8 @@ export default function VerboseTextFieldArray(
   return (
     <Grid container item className="VerboseTextFieldArray">
       <Grid container item>
-        <FormLabel>{textFieldArrayLabel}</FormLabel>
-        <Grid item marginLeft={2} paddingRight={2}>
+        <Typography variant="h3">{textFieldArrayLabel}</Typography>
+        <Grid item>
           {descriptions.map((descriptionParagraph) => (
             <FormHelperText>{descriptionParagraph}</FormHelperText>
           ))}
@@ -77,8 +78,8 @@ export default function VerboseTextFieldArray(
             // index={key}, taken from https://formik.org/docs/examples/field-arrays
             // This seems fine in this context.
             // eslint-disable-next-line react/no-array-index-key
-            <Grid container item key={index} spacing={1}>
-              <Grid item sx={{ flexGrow: 1 }}>
+            <Grid container item key={index} spacing={1} sx={{ mt: 1 }}>
+              <Grid item flexGrow={1}>
                 <VerboseTextField
                   // We pass all props, in order leave the flexibility
                   // of customizing the text field top level.
@@ -112,11 +113,14 @@ export default function VerboseTextFieldArray(
         <Grid container item marginLeft={2}>
           <Button
             type="button"
-            variant="outlined"
+            variant="text"
             onClick={() => pushItem("")}
             className="AddNewButton"
           >
-            Add new
+            <AddIcon />
+            <Typography variant="button" sx={{ textDecoration: "underline" }}>
+              Add Redirect URI
+            </Typography>
           </Button>
         </Grid>
       </Grid>
