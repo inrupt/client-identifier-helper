@@ -57,7 +57,7 @@ export const checkUrlSyntax = (
       {
         status: "error",
         title: `URI of \`${fieldName}\` malformed`,
-        description: "The field could not be parsed as URI.",
+        description: "The field is not a valid URI.",
         affectedFields: [{ fieldName, fieldValue: uri }],
       },
     ];

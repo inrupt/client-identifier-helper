@@ -72,7 +72,9 @@ const validRedirectUris: ValidationRule = {
             status: "error",
             title: "Redirect URI is malformed",
             description: "The redirect URI does not have a correct URI syntax.",
-            affectedFields: [{ fieldName: "redirect_uris", fieldValue: uri }],
+            affectedFields: [
+              { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
+            ],
           },
         ];
       }
