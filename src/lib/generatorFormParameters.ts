@@ -42,32 +42,24 @@ export type FormParameters = {
  * @returns FormParameters key
  */
 export function getFormParametersKey(key: string): keyof FormParameters {
-  switch (key) {
-    case "clientId":
-      return "clientId";
-    case "clientName":
-      return "clientName";
-    case "clientUri":
-      return "clientUri";
-    case "redirectUris":
-      return "redirectUris";
-    case "useRefreshTokens":
-      return "useRefreshTokens";
-    case "logoUri":
-      return "logoUri";
-    case "tosUri":
-      return "tosUri";
-    case "policyUri":
-      return "policyUri";
-    case "contact":
-      return "contact";
-    case "applicationType":
-      return "applicationType";
-    case "requireAuthTime":
-      return "requireAuthTime";
-    case "defaultMaxAge":
-      return "defaultMaxAge";
-    default:
-      throw new Error(`The key \`${key}\` is not a member of FormParameters`);
+  const parameterMap: Record<string, keyof FormParameters> = {
+    clientId: "clientId",
+    clientName: "clientName",
+    clientUri: "clientUri",
+    redirectUris: "redirectUris",
+    useRefreshTokens: "useRefreshTokens",
+    logoUri: "logoUri",
+    tosUri: "tosUri",
+    policyUri: "policyUri",
+    contact: "contact",
+    applicationType: "applicationType",
+    requireAuthTime: "requireAuthTime",
+    defaultMaxAge: "defaultMaxAge",
+  };
+
+  if (Object.hasOwn(parameterMap, key)) {
+    return parameterMap[key];
   }
+
+  throw new Error(`The key \`${key}\` is not a member of FormParameters`);
 }

@@ -20,30 +20,28 @@
 //
 
 export const underScoreToCamelCase = (str: string) => {
-  const parts = str.split("_");
-  const partsCaps = parts
-    .slice(1)
-    .map((part) => part.substring(0, 1).toUpperCase() + part.substring(1));
-  return [parts[0], partsCaps].join("");
+  return str
+    .split("_")
+    .map((part, idx) =>
+      idx === 0 ? part : part.substring(0, 1).toUpperCase() + part.substring(1)
+    )
+    .join("");
 };
 
 export const statusToNumber = (
   state: undefined | "default" | "success" | "info" | "warning" | "error"
 ): number => {
-  switch (state) {
-    case "error":
-      return 50;
-    case "warning":
-      return 40;
-    case "info":
-      return 30;
-    case "success":
-      return 20;
-    case "default":
-      return 10;
-    case undefined:
-      return 0;
-    default:
-      return 0;
+  const statusToNumberMap = {
+    error: 50,
+    warning: 40,
+    info: 30,
+    success: 20,
+    default: 10,
+    undefined: 0,
+  };
+
+  if (state && Object.hasOwn(statusToNumberMap, state)) {
+    return statusToNumberMap[state];
   }
+  return 0;
 };

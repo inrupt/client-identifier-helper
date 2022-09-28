@@ -62,8 +62,8 @@ export async function validateField(
   validationFieldName: string,
   rules: ValidationRule[]
 ) {
-  const results = validateLocalDocument(jsonDocument, rules);
-  const rulesWithField = (await results).filter((result) => {
+  const results = await validateLocalDocument(jsonDocument, rules);
+  const rulesWithField = results.filter((result) => {
     return result.affectedFields.some(
       (affectedField) =>
         underScoreToCamelCase(affectedField.fieldName) === validationFieldName
