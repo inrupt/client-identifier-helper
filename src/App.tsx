@@ -32,7 +32,7 @@ import {
 import ClientIdentifierGenerator from "./pages/generate";
 import ClientIdentifierValidator from "./pages/validate";
 import theme from "./theme";
-import inruptLogoUrl from "./inruptLogo.svg";
+import inruptLogoUrl from "../static/inruptLogo.svg";
 
 function TabsComponent() {
   const currentTab = useLocation().pathname;
