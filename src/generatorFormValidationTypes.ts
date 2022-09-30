@@ -98,3 +98,52 @@ export interface VerboseFieldState {
   statusDescription: string;
   statusValue: FieldStatus;
 }
+
+export async function validateField<FormParameters, ValidationResultType>(
+  formValues: FormParameters,
+  fieldName: string,
+  keyForFieldName: (
+    field: string
+  ) => [keyof FormParameters, number | undefined],
+  validationFn: (values: FormParameters, field: string) => ValidationResultType,
+  setFormFieldState: (
+    field: keyof FormParameters,
+    results: ValidationResultType
+  ) => void,
+  setFormArrayFieldState: (
+    field: keyof FormParameters,
+    index: number,
+    results: ValidationResultType
+  ) => void
+): Promise<ValidationResultType[]> {
+  const [targetFieldName, arrayFieldIndex] = keyForFieldName(fieldName);
+
+  if (!targetFieldName) return [];
+
+  // If the field is an array field w/o a given index, validate all children.
+  const targetField = formValues[targetFieldName];
+  if (Array.isArray(targetField) && arrayFieldIndex === undefined) {
+    const validationPromises = targetField.map((value, index) =>
+      validateField(
+        formValues,
+        `${String(targetFieldName)}.${index}`,
+        keyForFieldName,
+        validationFn,
+        setFormFieldState,
+        setFormArrayFieldState
+      )
+    );
+    const results = await Promise.all(validationPromises);
+    return results.flatMap((i) => i);
+  }
+
+  const results = validationFn(formValues, fieldName);
+
+  // Set the fields' states.
+  if (arrayFieldIndex === undefined) {
+    setFormFieldState(targetFieldName, results);
+  } else {
+    setFormArrayFieldState(targetFieldName, arrayFieldIndex, results);
+  }
+  return [results];
+}

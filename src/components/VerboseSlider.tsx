@@ -22,23 +22,26 @@
 import { FormHelperText, Grid, Switch, Typography } from "@mui/material";
 import { useRef } from "react";
 
+export interface VerboseSliderProps {
+  name: string;
+  label: string;
+  description: string;
+  value: boolean | undefined;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
+}
+
 export default function VerboseCheckBox({
   name: fieldName,
   label,
   description,
   value,
   onChange,
-}: {
-  name: string;
-  label: string;
-  description: string;
-  value: boolean | undefined;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
-}) {
+}: VerboseSliderProps) {
   const componentRef = useRef<HTMLButtonElement>(null);
 
   return (
     <Grid
+      container
       item
       sx={{
         borderRadius: "4px",

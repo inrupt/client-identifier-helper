@@ -27,7 +27,8 @@ import { statusColors } from "../theme";
 import VerboseHelperText from "./VerboseHelperText";
 import { VerboseFieldState } from "../generatorFormValidationTypes";
 
-export interface FormTextFieldProps extends OutlinedTextFieldProps {
+export interface VerboseTextFieldProps
+  extends Omit<OutlinedTextFieldProps, "variant"> {
   state?: VerboseFieldState;
   description?: string;
   formDescriptionTextProps?: FormHelperTextProps;
@@ -41,9 +42,7 @@ export interface FormTextFieldProps extends OutlinedTextFieldProps {
  * @param props.state The status color of the text field.
  * @returns
  */
-export default function VerboseTextField(
-  props: Omit<FormTextFieldProps, "variant">
-) {
+export default function VerboseTextField(props: VerboseTextFieldProps) {
   const {
     state = undefined,
     description = undefined,
@@ -79,3 +78,9 @@ export default function VerboseTextField(
     </>
   );
 }
+
+VerboseTextField.defaultProps = {
+  state: undefined,
+  description: undefined,
+  formDescriptionTextProps: undefined,
+};
