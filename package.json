@@ -29,7 +29,7 @@
   "devDependencies": {
     "@inrupt/eslint-config-lib": "^1.1.0",
     "@inrupt/eslint-config-react": "^1.1.0",
-    "@jest/globals": "^29.1.1",
+    "@jest/globals": "^29.1.2",
     "@rushstack/eslint-patch": "^1.2.0",
     "@playwright/test": "^1.26.1",
     "@types/jest": "^28.1.6",
