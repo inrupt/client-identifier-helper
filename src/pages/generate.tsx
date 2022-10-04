@@ -41,23 +41,23 @@ import { FieldArray, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FieldNameLabel from "../components/FieldNameLabel";
-import {
-  getEmptyFormState,
-  FormParameters,
-  getFormParametersKey,
-} from "../lib/generatorFormParameters";
 import VerboseSlider from "../components/VerboseSlider";
+import VerboseTextField from "../components/VerboseTextField";
 import VerboseTextFieldArray from "../components/VerboseTextFieldArray";
 import generateClientIdDocument from "../lib/generateDocument/generateDocument";
-import { statusToNumber } from "../lib/helperFunctions";
-import { validateField } from "../lib/validateLocalDocument";
-import { localRules } from "../lib/validationRules";
+import {
+  FormParameters,
+  getEmptyFormState,
+  getFormParametersKey,
+} from "../lib/generatorFormParameters";
 import {
   FieldStatus,
   useFieldStates,
   VerboseFieldState,
-} from "../generatorFormValidationTypes";
-import VerboseTextField from "../components/VerboseTextField";
+} from "../lib/formValidationTypes";
+import { statusToNumber } from "../lib/helperFunctions";
+import { validateField } from "../lib/validateLocalDocument";
+import { localRules } from "../lib/validationRules";
 
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");

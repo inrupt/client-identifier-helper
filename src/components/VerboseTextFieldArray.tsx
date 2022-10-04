@@ -27,7 +27,7 @@ import {
   TextFieldProps,
   Typography,
 } from "@mui/material";
-import { VerboseFieldState } from "../generatorFormValidationTypes";
+import { VerboseFieldState } from "../lib/formValidationTypes";
 import FieldNameLabel from "./FieldNameLabel";
 import VerboseHelperText from "./VerboseHelperText";
 import VerboseTextField from "./VerboseTextField";

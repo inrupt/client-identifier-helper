@@ -32,7 +32,7 @@ export interface VerboseSliderProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
 }
 
-export default function VerboseCheckBox({
+export default function VerboseSlider({
   name: componentName,
   fieldName,
   label,

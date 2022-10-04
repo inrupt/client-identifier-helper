@@ -25,7 +25,7 @@ import TextField, { OutlinedTextFieldProps } from "@mui/material/TextField";
 import { FormHelperText, FormHelperTextProps, Grid } from "@mui/material";
 import { statusColors } from "../theme";
 import VerboseHelperText from "./VerboseHelperText";
-import { VerboseFieldState } from "../generatorFormValidationTypes";
+import { VerboseFieldState } from "../lib/formValidationTypes";
 import FieldNameLabel from "./FieldNameLabel";
 
 export interface VerboseTextFieldProps

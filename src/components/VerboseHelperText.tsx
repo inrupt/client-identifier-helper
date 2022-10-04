@@ -21,7 +21,7 @@
 
 import { FormHelperText } from "@mui/material";
 import { statusColors } from "../theme";
-import { VerboseFieldState } from "../generatorFormValidationTypes";
+import { VerboseFieldState } from "../lib/formValidationTypes";
 
 export default function VerboseHelperText({
   state,

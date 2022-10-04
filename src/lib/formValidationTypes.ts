@@ -46,18 +46,18 @@ export declare type FormFieldHelperTexts<Values> = FormFieldStates<
  * @param initialValues
  * @returns [states, setStates, setFieldState, setArrayFieldState]
  */
-export function useFieldStates<FormParameters, T>(
-  initialValues: FormFieldStates<FormParameters, T>
+export function useFieldStates<IFormParameters, V>(
+  initialValues: FormFieldStates<IFormParameters, V>
 ): [
-  FormFieldStates<FormParameters, T>,
-  React.Dispatch<React.SetStateAction<FormFieldStates<FormParameters, T>>>,
-  (fieldName: keyof FormParameters, value: T) => void,
-  (fieldName: keyof FormParameters, value: T, index: number) => void,
-  (fieldName: keyof FormParameters, value: T[]) => void
+  FormFieldStates<IFormParameters, V>,
+  React.Dispatch<React.SetStateAction<FormFieldStates<IFormParameters, V>>>,
+  (fieldName: keyof IFormParameters, value: V) => void,
+  (fieldName: keyof IFormParameters, value: V, index: number) => void,
+  (fieldName: keyof IFormParameters, value: V[]) => void
 ] {
   const [states, setStates] = useState(initialValues);
 
-  const setFieldState = (fieldName: keyof FormParameters, value: T) => {
+  const setFieldState = (fieldName: keyof IFormParameters, value: V) => {
     setStates((previousState) => {
       const target = previousState[fieldName];
       target.state = value;
@@ -65,8 +65,8 @@ export function useFieldStates<FormParameters, T>(
     });
   };
   const setChildState = (
-    fieldName: keyof FormParameters,
-    value: T,
+    fieldName: keyof IFormParameters,
+    value: V,
     index: number
   ) => {
     setStates((previousState) => {
@@ -81,7 +81,7 @@ export function useFieldStates<FormParameters, T>(
     });
   };
 
-  const setChildStates = (fieldName: keyof FormParameters, value: T[]) => {
+  const setChildStates = (fieldName: keyof IFormParameters, value: V[]) => {
     setStates((previousState) => {
       const target = previousState[fieldName];
       target.childStates = value;
@@ -95,55 +95,6 @@ export function useFieldStates<FormParameters, T>(
 export type FieldStatus = "error" | "warning" | "info" | "success" | undefined;
 
 export interface VerboseFieldState {
-  statusDescription: string;
-  statusValue: FieldStatus;
-}
-
-export async function validateField<FormParameters, ValidationResultType>(
-  formValues: FormParameters,
-  fieldName: string,
-  keyForFieldName: (
-    field: string
-  ) => [keyof FormParameters, number | undefined],
-  validationFn: (values: FormParameters, field: string) => ValidationResultType,
-  setFormFieldState: (
-    field: keyof FormParameters,
-    results: ValidationResultType
-  ) => void,
-  setFormArrayFieldState: (
-    field: keyof FormParameters,
-    index: number,
-    results: ValidationResultType
-  ) => void
-): Promise<ValidationResultType[]> {
-  const [targetFieldName, arrayFieldIndex] = keyForFieldName(fieldName);
-
-  if (!targetFieldName) return [];
-
-  // If the field is an array field w/o a given index, validate all children.
-  const targetField = formValues[targetFieldName];
-  if (Array.isArray(targetField) && arrayFieldIndex === undefined) {
-    const validationPromises = targetField.map((value, index) =>
-      validateField(
-        formValues,
-        `${String(targetFieldName)}.${index}`,
-        keyForFieldName,
-        validationFn,
-        setFormFieldState,
-        setFormArrayFieldState
-      )
-    );
-    const results = await Promise.all(validationPromises);
-    return results.flatMap((i) => i);
-  }
-
-  const results = validationFn(formValues, fieldName);
-
-  // Set the fields' states.
-  if (arrayFieldIndex === undefined) {
-    setFormFieldState(targetFieldName, results);
-  } else {
-    setFormArrayFieldState(targetFieldName, arrayFieldIndex, results);
-  }
-  return [results];
+  statusDescription?: string;
+  statusValue?: FieldStatus;
 }
