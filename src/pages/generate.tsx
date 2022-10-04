@@ -40,6 +40,7 @@ import type { FieldArrayRenderProps, FormikProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FieldNameLabel from "../components/FieldNameLabel";
 import {
   getEmptyFormState,
   FormParameters,
@@ -57,7 +58,6 @@ import {
   VerboseFieldState,
 } from "../generatorFormValidationTypes";
 import VerboseTextField from "../components/VerboseTextField";
-import FieldNamedTextField from "../components/FieldNamedTextField";
 
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");
@@ -312,7 +312,7 @@ export default function ClientIdentifierGenerator() {
                 <Form>
                   <Grid container item direction="column" spacing={2}>
                     <Grid container item>
-                      <FieldNamedTextField
+                      <VerboseTextField
                         name="clientId"
                         fieldName="client_id"
                         label="Client Identifier URI"
@@ -332,7 +332,7 @@ export default function ClientIdentifierGenerator() {
                       />
                     </Grid>
                     <Grid container item>
-                      <FieldNamedTextField
+                      <VerboseTextField
                         name="clientName"
                         fieldName="client_name"
                         label="Client Name"
@@ -349,7 +349,7 @@ export default function ClientIdentifierGenerator() {
                       />
                     </Grid>
                     <Grid container item>
-                      <FieldNamedTextField
+                      <VerboseTextField
                         name="clientUri"
                         fieldName="client_uri"
                         label="Client Homepage URI"
@@ -412,13 +412,28 @@ export default function ClientIdentifierGenerator() {
                       <Grid item>
                         <Typography variant="h3">Refresh Tokens</Typography>
                       </Grid>
-                      <Grid item marginTop={-3}>
+                      <Grid
+                        item
+                        sx={{
+                          marginTop: -3,
+                          // Prevent colliding caption.
+                          "@media (max-width: 480px)": {
+                            marginTop: 0,
+                          },
+                        }}
+                      >
                         <Grid
                           container
                           item
                           direction="row"
                           spacing={1}
                           justifyContent="end"
+                          sx={{
+                            // Put the "Field name" label to the left for very small screens.
+                            "@media (max-width: 330px)": {
+                              justifyContent: "start",
+                            },
+                          }}
                         >
                           <Grid item>
                             <Typography fontSize={12}>Field names:</Typography>
@@ -441,6 +456,7 @@ export default function ClientIdentifierGenerator() {
                         </Grid>
                         <VerboseSlider
                           name="useRefreshTokens"
+                          fieldName={undefined}
                           label="Support usage of refresh tokens / offline access"
                           description="Recommended. A refresh token can be used to request new access tokens
                             after they expire. If not requested, the user will have to
@@ -485,7 +501,7 @@ export default function ClientIdentifierGenerator() {
                         <AccordionDetails sx={{ padding: 0 }}>
                           <Grid container spacing={2} paddingTop={-1}>
                             <Grid container item>
-                              <FieldNamedTextField
+                              <VerboseTextField
                                 name="logoUri"
                                 fieldName="logo_uri"
                                 label="Logo URI"
@@ -502,7 +518,7 @@ export default function ClientIdentifierGenerator() {
                               />
                             </Grid>
                             <Grid container item>
-                              <FieldNamedTextField
+                              <VerboseTextField
                                 name="policyUri"
                                 fieldName="policy_uri"
                                 label="Policy URI"
@@ -519,7 +535,7 @@ export default function ClientIdentifierGenerator() {
                               />
                             </Grid>
                             <Grid container item>
-                              <FieldNamedTextField
+                              <VerboseTextField
                                 name="tosUri"
                                 fieldName="tos_uri"
                                 label="Terms of Service URI"
@@ -613,26 +629,8 @@ export default function ClientIdentifierGenerator() {
                         <AccordionDetails sx={{ padding: 0 }}>
                           <Grid container spacing={2} paddingTop={-1}>
                             <Grid item>
-                              <Grid
-                                container
-                                item
-                                direction="row"
-                                spacing={1}
-                                justifyContent="end"
-                              >
-                                <Grid item>
-                                  <Typography fontSize={12}>
-                                    Field name:
-                                  </Typography>
-                                </Grid>
-                                <Grid item>
-                                  <Typography
-                                    fontSize={12}
-                                    fontFamily="Courier Prime"
-                                  >
-                                    require_auth_time
-                                  </Typography>
-                                </Grid>
+                              <Grid container item justifyContent="end">
+                                <FieldNameLabel fieldName="application_type" />
                               </Grid>
                               <FormControl>
                                 <InputLabel
@@ -673,13 +671,13 @@ export default function ClientIdentifierGenerator() {
                               </FormControl>
                             </Grid>
                             <Grid container item>
-                              <FieldNamedTextField
+                              <VerboseTextField
                                 name="defaultMaxAge"
                                 fieldName="default_max_age"
                                 label="Default maximum age"
                                 description="The number of seconds after which the
                                   user must be actively re-authenticated."
-                                state={formFieldStates.defaultMaxAge.state}
+                                state={formFieldStates.defaultMaxAge?.state}
                                 value={form.values.defaultMaxAge}
                                 onChange={form.handleChange}
                                 onBlur={(e) => handleFieldBlur(form, e)}
@@ -692,30 +690,10 @@ export default function ClientIdentifierGenerator() {
                               />
                             </Grid>
                             <Grid item>
-                              <Grid
-                                container
-                                item
-                                direction="row"
-                                spacing={1}
-                                justifyContent="end"
-                              >
-                                <Grid item>
-                                  <Typography fontSize={12}>
-                                    Field name:
-                                  </Typography>
-                                </Grid>
-                                <Grid item>
-                                  <Typography
-                                    fontSize={12}
-                                    fontFamily="Courier Prime"
-                                  >
-                                    require_auth_time
-                                  </Typography>
-                                </Grid>
-                              </Grid>
                               <VerboseSlider
                                 label="Request a time of authentication claim"
                                 name="requireAuthTime"
+                                fieldName="require_auth_time"
                                 value={form.values.requireAuthTime}
                                 onChange={form.handleChange}
                                 description="Requests that the ID Token will contain a

@@ -19,33 +19,23 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { Grid, Typography } from "@mui/material";
-import VerboseTextField, { VerboseTextFieldProps } from "./VerboseTextField";
+import { Typography } from "@mui/material";
 
-export interface FieldNamedTextFieldProps extends VerboseTextFieldProps {
-  fieldName: string;
-}
-
-export default function FieldNamedTextField(props: FieldNamedTextFieldProps) {
-  const { fieldName, ...restProps } = props;
+export default function FieldNameLabel(props: { fieldName: string }) {
+  const { fieldName } = props;
   return (
-    <Grid container item>
-      <Grid container item direction="row" spacing={1} justifyContent="end">
-        <Grid item>
-          <Typography fontSize={12}>Field name:</Typography>
-        </Grid>
-        <Grid item>
-          <Typography fontSize={12} fontFamily="Courier Prime">
+    <>
+      <span>
+        <Typography fontSize={12}>Field Name:</Typography>
+      </span>
+      &nbsp;
+      <span>
+        <code>
+          <Typography fontSize={13} fontFamily="Courier Prime">
             {fieldName}
           </Typography>
-        </Grid>
-      </Grid>
-
-      <VerboseTextField
-        // Pass all remaining props down to the text field.
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...restProps}
-      />
-    </Grid>
+        </code>
+      </span>
+    </>
   );
 }

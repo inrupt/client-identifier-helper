@@ -28,6 +28,7 @@ import {
   Typography,
 } from "@mui/material";
 import { VerboseFieldState } from "../generatorFormValidationTypes";
+import FieldNameLabel from "./FieldNameLabel";
 import VerboseHelperText from "./VerboseHelperText";
 import VerboseTextField from "./VerboseTextField";
 
@@ -94,16 +95,11 @@ export default function VerboseTextFieldArray(
 
       {/* Field name label */}
       <Grid container item spacing={1}>
-        {componentFieldName === undefined ? null : (
-          <Grid container item direction="row" spacing={1} justifyContent="end">
-            <Grid item>
-              <Typography fontSize={12}>Field Name:</Typography>
-            </Grid>
-            <Grid item>
-              <Typography fontSize={12} fontFamily="Courier Prime">
-                {componentFieldName}
-              </Typography>
-            </Grid>
+        {componentFieldName === undefined ? (
+          <> </>
+        ) : (
+          <Grid container item justifyContent="end" marginBottom={1}>
+            <FieldNameLabel fieldName={componentFieldName} />
           </Grid>
         )}
 
@@ -112,15 +108,22 @@ export default function VerboseTextFieldArray(
           container
           item
           spacing={2}
-          classes={[componentName, "TextFieldArrayRows"]}
+          className={`${componentName} TextFieldArrayRows`}
         >
           {values.map((value: string, index: number) => {
             return (
-              // index={key}, taken from https://formik.org/docs/examples/field-arrays
-              // This seems fine in this context.
-              // eslint-disable-next-line react/no-array-index-key
-              <Grid container item key={index} spacing={1} sx={{ mt: 1 }}>
-                <Grid item flexGrow={1}>
+              <Grid
+                container
+                item
+                // Example with index={key}, taken from https://formik.org/docs/examples/field-arrays
+                // This seems fine in this context.
+                // eslint-disable-next-line react/no-array-index-key
+                key={index}
+                spacing={1}
+                sx={{ pt: "0 !important" }}
+                flexWrap="nowrap"
+              >
+                <Grid item flexGrow={1} className="test">
                   <VerboseTextField
                     // We pass all props, in order leave the flexibility
                     // of customizing the text field top level.
