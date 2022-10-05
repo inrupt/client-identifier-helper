@@ -33,7 +33,6 @@ import rightAuthenticationMethod from "./validationRules/rightAuthenticationMeth
 import noUnknownFields from "./validationRules/noUnknownFields/noUnknownFields";
 import validScope from "./validationRules/validScope/validScope";
 import validGrantTypes from "./validationRules/validGrantTypes/validGrantTypes";
-import noUnsetClientUri from "./validationRules/noUnsetClientUri/noUnsetClientUri";
 
 import { RemoteValidationRule, ValidationRule } from "./types";
 import remoteDocumentAsJsonLd from "./validationRules/remoteDocumentAsJsonLd/remoteDocumentAsJsonLd";
@@ -45,7 +44,6 @@ export const localRules: ValidationRule[] = [
   decentClientName,
   noMixedRedirectUrls,
   noUnknownFields,
-  noUnsetClientUri,
   redirectUrisApplicationTypeRule,
   refreshTokenRule,
   rightAuthenticationMethod,
