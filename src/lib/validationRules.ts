@@ -48,7 +48,6 @@ export const localRules: ValidationRule[] = [
   refreshTokenRule,
   rightAuthenticationMethod,
   sameDomainForRedirectUris,
-  staticClientIdUri,
   validApplicationType,
   validContext,
   validDefaultMaxAge,
