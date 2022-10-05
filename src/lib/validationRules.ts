@@ -33,11 +33,11 @@ import rightAuthenticationMethod from "./validationRules/rightAuthenticationMeth
 import noUnknownFields from "./validationRules/noUnknownFields/noUnknownFields";
 import validScope from "./validationRules/validScope/validScope";
 import validGrantTypes from "./validationRules/validGrantTypes/validGrantTypes";
+import validContactsField from "./validationRules/validContactsField/validContactsField";
 
 import { RemoteValidationRule, ValidationRule } from "./types";
 import remoteDocumentAsJsonLd from "./validationRules/remoteDocumentAsJsonLd/remoteDocumentAsJsonLd";
 import remoteMatchingClientId from "./validationRules/remoteMatchingClientId/remoteMatchingClientId";
-import staticClientIdUri from "./validationRules/staticClientIdUri/staticClientIdUri";
 import redirectUrisApplicationTypeRule from "./validationRules/redirectUrisApplicationTypeRule/redirectUrisApplicationTypeRule";
 
 export const localRules: ValidationRule[] = [
@@ -49,6 +49,7 @@ export const localRules: ValidationRule[] = [
   rightAuthenticationMethod,
   sameDomainForRedirectUris,
   validApplicationType,
+  validContactsField,
   validContext,
   validDefaultMaxAge,
   validGrantTypes,

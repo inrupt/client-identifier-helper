@@ -26,7 +26,7 @@ const validScope: ValidationRule = {
     type: "local",
     name: "`scope` field must be valid",
     description:
-      "The field `scope` must contain `openid` and `webid`. For additional unknown values, info.",
+      "The field `scope` must contain `openid` and `webid` and no unknown values. Values are stored in a space-separated string.",
   },
   check: async (context: ValidationContext) => {
     if (

@@ -25,7 +25,7 @@ const validGrantTypes: ValidationRule = {
     type: "local",
     name: "Valid `grant_type` field",
     description:
-      "The field `authorization_code` should be set and must not have value `implicit` set (implicit workflow is not supported).",
+      "The field `authorization_code` should be set and must not have value `implicit` set (implicit OIDC workflow is not supported).",
   },
   check: async (context: ValidationContext) => {
     if (typeof context.document.grant_types === "undefined") {

@@ -25,7 +25,7 @@ const validDefaultMaxAge: ValidationRule = {
     type: "local",
     name: "If set, `default_max_age` should have reasonable integer values.",
     description:
-      "If set, the optional field `default_max_age` (expressed in seconds) needs to be a positive integer. Very small numbers are discouraged.",
+      "If set, the optional field `default_max_age` (expressed in seconds) needs to be a positive integer. The user has to re-authenticate every time, the time span is expired. Therefore, small values are discouraged.",
   },
   check: async (context: ValidationContext) => {
     if (

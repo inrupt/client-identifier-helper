@@ -20,40 +20,42 @@
 //
 import { ValidationContext, ValidationRule } from "../../types";
 
+const knownFields = new Set([
+  "@context",
+  "client_id",
+  "client_name",
+  "client_uri",
+  "logo_uri",
+  "policy_uri",
+  "tos_uri",
+  "redirect_uris",
+  "require_auth_time",
+  "default_max_age",
+  "application_type",
+  "contacts",
+  "grant_types",
+  "response_types",
+  "scope",
+  "token_endpoint_auth_method",
+]);
+
+const knownLocalizableFields = [
+  "client_name",
+  "client_uri",
+  "logo_uri",
+  "tos_uri",
+  "policy_uri",
+];
+
 const noUnknownFields: ValidationRule = {
   rule: {
     type: "local",
     name: "Unknown fields might be ignored.",
-    description:
-      "If a field is not recognized, it might perhaps be misspelled is not going to be recognized by the OIDC Provider.",
+    description: `If a field is not recognized, it might perhaps be misspelled and is not going to be recognized by the OIDC Provider. Known fields are: "${[
+      ...knownFields,
+    ].join('", "')}".`,
   },
   check: async (context: ValidationContext) => {
-    const knownFields = new Set([
-      "@context",
-      "client_id",
-      "client_name",
-      "client_uri",
-      "logo_uri",
-      "policy_uri",
-      "tos_uri",
-      "redirect_uris",
-      "require_auth_time",
-      "default_max_age",
-      "application_type",
-      "contacts",
-      "grant_types",
-      "response_types",
-      "scope",
-      "token_endpoint_auth_method",
-    ]);
-    const knownLocalizableFields = [
-      "client_name",
-      "client_uri",
-      "logo_uri",
-      "tos_uri",
-      "policy_uri",
-    ];
-
     const remainingFields = Object.keys(context.document).filter(
       (field) => !knownFields.has(field)
     );

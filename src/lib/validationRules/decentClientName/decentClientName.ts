@@ -34,7 +34,7 @@ const decentClientName: ValidationRule = {
           status: "warning",
           title: "No Client Name present",
           description:
-            "The document has no Client Name set. It should be set for authentication providers to display useful information to the end-user.",
+            "The document has no Client Name set. It should be set for authentication providers to display the name to the end-user.",
           affectedFields: [{ fieldName: "client_name", fieldValue: undefined }],
         },
       ];

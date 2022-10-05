@@ -24,9 +24,9 @@ import { ValidationRule, RuleResult, ValidationContext } from "../../types";
 const redirectUrisApplicationTypeRule: ValidationRule = {
   rule: {
     type: "local",
-    name: "Redirect URI scheme/destination must align application type",
+    name: "Redirect URI scheme / destination must align with application type",
     description:
-      "Apps with `application_type` `web` must use http(s), apps with `native` must only use http(s) on localhost or a custom scheme.",
+      "Apps with `application_type` `web` must use https protocol for remote hosts or at least http for localhost clients. Clients with `application_type` `native` must use a custom scheme or http(s) on localhost.",
   },
   check: async (context: ValidationContext) => {
     const isUrlLocalhost = (url: URL): boolean => {
@@ -56,7 +56,7 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
             status: "error",
             title: "Insecure http for Redirect URI",
             description:
-              "Redirect URIs must use https for application type `web`.",
+              "Redirect URIs must use https for application type `web`, unless on localhost.",
             affectedFields: [
               { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
               {
@@ -78,7 +78,7 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
             status: "error",
             title: "Wrong protocol for Redirect URI",
             description:
-              "Redirect URIs must use http(s) for application type `web` on localhost (for remote URis https).",
+              "Redirect URIs must use http(s) for application type `web` on localhost (for remote URIs https).",
             affectedFields: [
               { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
               {
@@ -98,8 +98,9 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
         return [
           {
             status: "error",
-            title: "No remote http(s) allowed for `native` apps Redirect URIs",
-            description: `For \`application_type\` \`native\`, the Redirect URI \`${uri}\` must not use non-localhost http(s).`,
+            title:
+              "No remote http(s) allowed for `native` client's redirect URIs",
+            description: `For \`application_type\` \`native\`, the redirect URIs must not use non-localhost http(s).`,
             affectedFields: [
               { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
               {
