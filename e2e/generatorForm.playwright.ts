@@ -141,9 +141,6 @@ test.describe("Generator page functionality", () => {
     await expect(
       page.locator(`label:has-text("Terms of Service URI")`)
     ).toHaveClass(/Mui-info/);
-    await expect(page.locator(`label:has-text("Contact")`)).toHaveClass(
-      /Mui-info/
-    );
   });
 
   it("creates document with all user-facing fields", async ({ page }) => {

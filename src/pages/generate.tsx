@@ -493,7 +493,7 @@ export default function ClientIdentifierGenerator() {
                                 description="An email address to reach out to the
                                     application owners/developers.
                                     Field name: `contacts`"
-                                state={formFieldStates.tosUri}
+                                state={formFieldStates.contact}
                                 value={form.values.contact}
                                 onChange={form.handleChange}
                                 onBlur={(e) => handleFieldBlur(form, e)}
