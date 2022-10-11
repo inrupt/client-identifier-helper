@@ -28,7 +28,7 @@ export type FormParameters = {
   logoUri: string;
   tosUri: string;
   policyUri: string;
-  contact: string;
+  contacts: string[];
   applicationType: "web" | "native";
   requireAuthTime?: boolean;
   defaultMaxAge?: number;
@@ -70,7 +70,7 @@ export function getFormParametersKey(key: string): keyof FormParameters {
     logoUri: "logoUri",
     tosUri: "tosUri",
     policyUri: "policyUri",
-    contact: "contact",
+    contacts: "contacts",
     applicationType: "applicationType",
     requireAuthTime: "requireAuthTime",
     defaultMaxAge: "defaultMaxAge",

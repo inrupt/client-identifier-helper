@@ -40,6 +40,7 @@ import type { FieldArrayRenderProps, FormikProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Contacts } from "@mui/icons-material";
 import VerboseTextField, {
   FieldStatus,
   VerboseFieldState,
@@ -79,7 +80,7 @@ export default function ClientIdentifierGenerator() {
     logoUri: "",
     tosUri: "",
     policyUri: "",
-    contact: "",
+    contacts: [""],
     applicationType: "web",
     requireAuthTime: false,
     defaultMaxAge: undefined,
@@ -212,8 +213,8 @@ export default function ClientIdentifierGenerator() {
             return Promise.all(
               value.map(async (_, index) =>
                 validateFormField(`${key}.${index}`, form.values)
-      )
-    );
+              )
+            );
           }
           return validateFormField(key, form.values);
         })
@@ -239,6 +240,7 @@ export default function ClientIdentifierGenerator() {
 
     const clientIdDocument = generateClientIdDocument({
       ...form.values,
+      contacts: form.values.contacts.filter((contact) => contact !== ""),
       compact: false,
     });
     setDocumentJson(clientIdDocument);
@@ -309,10 +311,10 @@ export default function ClientIdentifierGenerator() {
                         name="clientId"
                         label="Client Identifier URI"
                         description="The URI where your Client Identifier Document is
-                            located. It identifies your application, the client,
-                            to the Solid OIDC Provider. The Client Identifier
-                            Document should be a static resource and publicly
-                            accessible. Field name: `client_id`"
+                          located. It identifies your application, the client,
+                          to the Solid OIDC Provider. The Client Identifier
+                          Document should be a static resource and publicly
+                          accessible. Field name: `client_id`"
                         state={formFieldStates.clientId.state}
                         required
                         value={form.values.clientId}
@@ -328,8 +330,8 @@ export default function ClientIdentifierGenerator() {
                         name="clientName"
                         label="Client Name"
                         description="Your application name displayed to the user when
-                            they are authenticating your application at the
-                            Solid OIDC Provider. Field name: `client_name`"
+                          they are authenticating your application at the
+                          Solid OIDC Provider. Field name: `client_name`"
                         state={formFieldStates.clientName.state}
                         required
                         value={form.values.clientName}
@@ -344,9 +346,9 @@ export default function ClientIdentifierGenerator() {
                         name="clientUri"
                         label="Client Homepage URI"
                         description="The URI of your application's homepage.
-                              Displayed to the user when they are authenticating
-                              your application at the Solid OIDC Provider. Field
-                              name: `client_uri`"
+                          Displayed to the user when they are authenticating
+                          your application at the Solid OIDC Provider. Field
+                          name: `client_uri`"
                         state={formFieldStates.clientUri.state}
                         required
                         value={form.values.clientUri}
@@ -468,9 +470,9 @@ export default function ClientIdentifierGenerator() {
                                 name="policyUri"
                                 label="Policy URI"
                                 description="The URI to the Policy terms of
-                                    your application. This will be linked to by the
-                                    OIDC Provider while the user is logging in.
-                                    Field name: `policy_uri`"
+                                  your application. This will be linked to by the
+                                  OIDC Provider while the user is logging in.
+                                  Field name: `policy_uri`"
                                 state={formFieldStates.policyUri.state}
                                 value={form.values.policyUri}
                                 onChange={form.handleChange}
@@ -485,9 +487,9 @@ export default function ClientIdentifierGenerator() {
                                 name="tosUri"
                                 label="Terms of Service URI"
                                 description="The URI to the Terms of Service of
-                                    your application. This will be linked to by the
-                                    OIDC Provider while the user is logging in.
-                                    Field name: `tos_uri`"
+                                  your application. This will be linked to by the
+                                  OIDC Provider while the user is logging in.
+                                  Field name: `tos_uri`"
                                 state={formFieldStates.tosUri.state}
                                 value={form.values.tosUri}
                                 onChange={form.handleChange}
@@ -498,20 +500,43 @@ export default function ClientIdentifierGenerator() {
                               />
                             </Grid>
                             <Grid container item>
-                              <VerboseTextField
-                                name="contact"
-                                label="Contact"
-                                description="An email address to reach out to the
-                                    application owners/developers.
-                                    Field name: `contacts`"
-                                state={formFieldStates.contact}
-                                value={form.values.contact}
-                                onChange={form.handleChange}
-                                onBlur={(e) => handleFieldBlur(form, e)}
-                                inputProps={{ inputMode: "url" }}
-                                fullWidth
-                                size="small"
-                              />
+                              <FieldArray name="contacts">
+                                {(props: FieldArrayRenderProps) => (
+                                  <VerboseTextFieldArray
+                                    label="Maintainer contacts"
+                                    fieldLabel="Email"
+                                    name="contacts"
+                                    description={[
+                                      "Contact information for reaching out to the maintainers of the application.",
+                                    ]}
+                                    state={formFieldStates.contacts.state}
+                                    childStates={
+                                      formFieldStates.contacts.childStates
+                                    }
+                                    values={form.values.contacts}
+                                    pushItem={props.push}
+                                    removeItem={(index) => {
+                                      props.remove(index);
+                                      if (
+                                        formFieldStates.contacts.childStates
+                                      ) {
+                                        setFormArrayFieldStates(
+                                          "contacts",
+                                          formFieldStates.contacts.childStates.filter(
+                                            (_val, i) => index !== i
+                                          )
+                                        );
+                                      }
+                                    }}
+                                    onChange={form.handleChange}
+                                    onBlur={(e) => handleFieldBlur(form, e)}
+                                    inputProps={{ inputMode: "email" }}
+                                    fullWidth
+                                    size="small"
+                                    allowEmpty
+                                  />
+                                )}
+                              </FieldArray>
                             </Grid>
                           </Grid>
                         </AccordionDetails>
