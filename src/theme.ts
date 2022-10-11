@@ -44,4 +44,35 @@ const theme = createTheme({
   palette: { primary: { main: "#7C4DFF" } },
 });
 
+/**
+ * Useful for text components's sx property.
+ * Targets both, the parent and child components.
+ */
+export const statusColors = {
+  "& .Mui-error": {
+    color: theme.palette.error.main,
+  },
+  "& .Mui-warning": {
+    color: theme.palette.warning.main,
+  },
+  "& .Mui-info": {
+    color: theme.palette.info.dark,
+  },
+  "& .Mui-success": {
+    color: theme.palette.success.main,
+  },
+  "&.Mui-error": {
+    color: theme.palette.error.main,
+  },
+  "&.Mui-warning": {
+    color: theme.palette.warning.main,
+  },
+  "&.Mui-info": {
+    color: theme.palette.info.dark,
+  },
+  "&.Mui-success": {
+    color: theme.palette.success.main,
+  },
+};
+
 export default theme;

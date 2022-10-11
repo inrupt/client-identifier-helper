@@ -23,6 +23,7 @@
 
 import TextField, { OutlinedTextFieldProps } from "@mui/material/TextField";
 import { FormHelperText, FormHelperTextProps, styled } from "@mui/material";
+import { statusColors } from "../theme";
 
 export type FieldStatus = "error" | "warning" | "info" | "success" | undefined;
 
@@ -37,19 +38,8 @@ export interface FormTextFieldProps extends OutlinedTextFieldProps {
   formDescriptionTextProps?: FormHelperTextProps;
 }
 
-const StyledTextField = styled(TextField)<FormTextFieldProps>(({ theme }) => ({
-  "& .Mui-error": {
-    color: theme.palette.error.main,
-  },
-  "& .Mui-warning": {
-    color: theme.palette.warning.main,
-  },
-  "& .Mui-info": {
-    color: theme.palette.info.dark,
-  },
-  "& .Mui-success": {
-    color: theme.palette.success.main,
-  },
+const StyledTextField = styled(TextField)<FormTextFieldProps>(() => ({
+  ...statusColors,
 }));
 
 /**
