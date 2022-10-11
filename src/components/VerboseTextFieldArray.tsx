@@ -27,6 +27,7 @@ import {
   TextFieldProps,
   Typography,
 } from "@mui/material";
+import { statusColors } from "../theme";
 import VerboseTextField, { VerboseFieldState } from "./VerboseTextField";
 
 export type VerboseFieldArrayRenderProps = TextFieldProps & {
@@ -34,7 +35,9 @@ export type VerboseFieldArrayRenderProps = TextFieldProps & {
   fieldLabel: string;
   description: string | string[];
   values: string[];
-  fieldStates?: (VerboseFieldState | undefined)[];
+  state?: VerboseFieldState | undefined;
+  childStates?: (VerboseFieldState | undefined)[];
+  allowEmpty?: boolean;
 
   pushItem(obj: unknown): void;
   removeItem(index: number): void;
@@ -52,7 +55,9 @@ export default function VerboseTextFieldArray(
     fieldLabel,
     description,
     values,
-    fieldStates = undefined,
+    state = undefined,
+    childStates = undefined,
+    allowEmpty = false,
 
     pushItem,
     removeItem,
@@ -63,7 +68,8 @@ export default function VerboseTextFieldArray(
 
   return (
     <Grid container item className="VerboseTextFieldArray">
-      <Grid container item>
+      {/* Heading + Description */}
+      <Grid container item direction="column">
         <Typography variant="h3">{textFieldArrayLabel}</Typography>
         <Grid item>
           {descriptions.map((descriptionParagraph) => (
@@ -72,6 +78,17 @@ export default function VerboseTextFieldArray(
         </Grid>
       </Grid>
 
+      {/* If the whole field is in a state, show a description text here. */}
+      {state ? (
+        <FormHelperText
+          className={`Mui-${state.statusValue}`}
+          sx={statusColors}
+        >
+          {state.statusDescription}
+        </FormHelperText>
+      ) : undefined}
+
+      {/* Field rows */}
       <Grid container item spacing={1} className={fieldName}>
         {values.map((value: string, index: number) => {
           return (
@@ -88,7 +105,7 @@ export default function VerboseTextFieldArray(
                   name={`${fieldName}.${index}`}
                   label={fieldLabel}
                   state={
-                    Array.isArray(fieldStates) ? fieldStates[index] : undefined
+                    Array.isArray(childStates) ? childStates[index] : undefined
                   }
                   value={value}
                 />
@@ -102,7 +119,7 @@ export default function VerboseTextFieldArray(
                   color="secondary"
                   variant="outlined"
                   sx={{ height: 40, width: 40 }}
-                  disabled={values.length === 1}
+                  disabled={values.length === 1 && !allowEmpty}
                 >
                   x
                 </Button>
@@ -119,7 +136,7 @@ export default function VerboseTextFieldArray(
           >
             <AddIcon />
             <Typography variant="button" sx={{ textDecoration: "underline" }}>
-              Add Redirect URI
+              Add
             </Typography>
           </Button>
         </Grid>
@@ -129,5 +146,7 @@ export default function VerboseTextFieldArray(
 }
 
 VerboseTextFieldArray.defaultProps = {
-  fieldStates: undefined,
+  state: undefined,
+  childStates: undefined,
+  allowEmpty: false,
 };

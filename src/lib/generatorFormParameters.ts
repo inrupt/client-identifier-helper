@@ -34,6 +34,25 @@ export type FormParameters = {
   defaultMaxAge?: number;
 };
 
+const emptyFormState: Record<keyof FormParameters, object> = {
+  clientId: {},
+  clientName: {},
+  clientUri: {},
+  redirectUris: {},
+  useRefreshTokens: {},
+  logoUri: {},
+  tosUri: {},
+  policyUri: {},
+  contacts: {},
+  applicationType: {},
+  requireAuthTime: {},
+  defaultMaxAge: {},
+};
+
+export function getEmptyFormState() {
+  return structuredClone(emptyFormState);
+}
+
 /**
  * Return the FormParameters typed key for the string key.
  * Throws an error if the key is not a member of FormParameters .

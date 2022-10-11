@@ -44,17 +44,18 @@ import VerboseTextField, {
   FieldStatus,
   VerboseFieldState,
 } from "../components/VerboseTextField";
+import {
+  getEmptyFormState,
+  FormParameters,
+  getFormParametersKey,
+} from "../lib/generatorFormParameters";
 import VerboseSlider from "../components/VerboseSlider";
+import VerboseTextFieldArray from "../components/VerboseTextFieldArray";
 import generateClientIdDocument from "../lib/generateDocument/generateDocument";
 import { statusToNumber } from "../lib/helperFunctions";
 import { validateField } from "../lib/validateLocalDocument";
 import { localRules } from "../lib/validationRules";
 import { useFieldStates } from "../components/generatorFormValidation";
-import VerboseTextFieldArray from "../components/VerboseTextFieldArray";
-import {
-  FormParameters,
-  getFormParametersKey,
-} from "../lib/generatorFormParameters";
 
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");
@@ -63,10 +64,11 @@ export default function ClientIdentifierGenerator() {
     formFieldStates,
     setFormFieldStates,
     setFormFieldState,
+    setFormArrayFieldState,
     setFormArrayFieldStates,
-  ] = useFieldStates<FormParameters, VerboseFieldState | undefined>({
-    redirectUris: [],
-  });
+  ] = useFieldStates<FormParameters, VerboseFieldState | undefined>(
+    getEmptyFormState()
+  );
 
   const initialFormValues: FormParameters = {
     clientId: "",
@@ -86,9 +88,7 @@ export default function ClientIdentifierGenerator() {
   const onReset = () => {
     setDocumentJson("");
     setHasFormError("");
-    setFormFieldStates({
-      redirectUris: [],
-    });
+    setFormFieldStates(getEmptyFormState());
   };
 
   const navigate = useNavigate();
@@ -101,30 +101,19 @@ export default function ClientIdentifierGenerator() {
     fieldName: string,
     formValues: FormParameters
   ): Promise<FieldStatus> => {
-    // In case, the field is in a text field array,
-    // it will have an index separated by a `.`.
+    // In case, the field is in a text field array, it will have an index separated by a `.`.
     const [targetFieldName, arrayFieldIndexStr] = fieldName.split(".");
     const arrayFieldIndex =
       arrayFieldIndexStr && Number.isInteger(Number(arrayFieldIndexStr))
         ? Number(arrayFieldIndexStr)
         : undefined;
 
-    const targetFieldKey = getFormParametersKey(targetFieldName);
-
-    // If the field is an array field and no index was given, validate all children.
-    const targetField = formValues[targetFieldKey];
-    if (Array.isArray(targetField) && arrayFieldIndex === undefined) {
-      const validationStatusPromises = targetField.map((value, index) =>
-        validateFormField(`${targetFieldKey}.${index}`, formValues)
-      );
-      const resultStatusesSorted = (
-        await Promise.all(validationStatusPromises)
-      ).sort(
-        (status1, status2) => statusToNumber(status2) - statusToNumber(status1)
-      );
-      // Return most severe status.
-      return resultStatusesSorted[0];
+    // If validating an array field's child, validate the parent as well.
+    if (arrayFieldIndex !== undefined) {
+      await validateFormField(targetFieldName, formValues);
     }
+
+    const targetFieldKey = getFormParametersKey(targetFieldName);
 
     // Generate document from current form state and validate the field.
     const clientIdDocument = generateClientIdDocument({
@@ -150,7 +139,7 @@ export default function ClientIdentifierGenerator() {
         ? (state?: VerboseFieldState) =>
             setFormFieldState(targetFieldKey, state)
         : (state?: VerboseFieldState) =>
-            setFormArrayFieldStates(targetFieldKey, state, arrayFieldIndex);
+            setFormArrayFieldState(targetFieldKey, state, arrayFieldIndex);
 
     // Omit showing success messages on fields.
     if (mostSevereStatus !== "success") {
@@ -170,11 +159,13 @@ export default function ClientIdentifierGenerator() {
   };
 
   const formHasErrors = () => {
-    const hasErrors = Object.entries(formFieldStates).some(([, state]) => {
-      if (Array.isArray(state)) {
-        return state.some((stat) => stat?.statusValue === "error");
+    const hasErrors = Object.entries(formFieldStates).some(([, fieldState]) => {
+      if (Array.isArray(fieldState.childStates)) {
+        return fieldState.childStates.some(
+          (state) => state?.statusValue === "error"
+        );
       }
-      return state.statusValue === "error";
+      return fieldState?.state?.statusValue === "error";
     });
     return hasErrors;
   };
@@ -210,11 +201,24 @@ export default function ClientIdentifierGenerator() {
    * @returns true, if form has errors.
    */
   const validateAll = async (form: FormikProps<FormParameters>) => {
-    const fieldStatuses = await Promise.all(
-      Object.keys(form.values).map((parameter) =>
-        validateFormField(parameter, form.values)
+    const fieldStatuses = (
+      await Promise.all(
+        Object.keys(formFieldStates).map(async (key) => {
+          const formKey = getFormParametersKey(key);
+          const value = form.values[formKey];
+
+          // If the field is an array field, validate each child.
+          if (Array.isArray(value) && value.length > 0) {
+            return Promise.all(
+              value.map(async (_, index) =>
+                validateFormField(`${key}.${index}`, form.values)
       )
     );
+          }
+          return validateFormField(key, form.values);
+        })
+      )
+    ).flat();
 
     // set all fields to touched
     Object.keys(form.values).forEach((field) =>
@@ -309,7 +313,7 @@ export default function ClientIdentifierGenerator() {
                             to the Solid OIDC Provider. The Client Identifier
                             Document should be a static resource and publicly
                             accessible. Field name: `client_id`"
-                        state={formFieldStates.clientId}
+                        state={formFieldStates.clientId.state}
                         required
                         value={form.values.clientId}
                         onChange={form.handleChange}
@@ -326,7 +330,7 @@ export default function ClientIdentifierGenerator() {
                         description="Your application name displayed to the user when
                             they are authenticating your application at the
                             Solid OIDC Provider. Field name: `client_name`"
-                        state={formFieldStates.clientName}
+                        state={formFieldStates.clientName.state}
                         required
                         value={form.values.clientName}
                         onChange={form.handleChange}
@@ -343,7 +347,7 @@ export default function ClientIdentifierGenerator() {
                               Displayed to the user when they are authenticating
                               your application at the Solid OIDC Provider. Field
                               name: `client_uri`"
-                        state={formFieldStates.clientUri}
+                        state={formFieldStates.clientUri.state}
                         required
                         value={form.values.clientUri}
                         onChange={form.handleChange}
@@ -364,14 +368,20 @@ export default function ClientIdentifierGenerator() {
                               "The URIs that the Solid OIDC Provider is allowed to redirect to after the user authenticated at the OIDC Provider.",
                               "Flow: Your application will send an authentication request to the OIDC Provider with one redirect URI. The OIDC Provider redirects the browser/user agent to the redirect URI after the user authenticated and issues a code to your application that it can use to complete authentication. Field name: `redirect_uris`",
                             ]}
-                            fieldStates={formFieldStates.redirectUris}
+                            state={formFieldStates.redirectUris.state}
+                            childStates={
+                              formFieldStates.redirectUris.childStates
+                            }
                             values={form.values.redirectUris}
                             pushItem={props.push}
                             removeItem={(index) => {
                               props.remove(index);
-                              setFormFieldState(
+                              if (!formFieldStates.redirectUris.childStates) {
+                                return;
+                              }
+                              setFormArrayFieldStates(
                                 "redirectUris",
-                                formFieldStates.redirectUris?.filter(
+                                formFieldStates.redirectUris.childStates.filter(
                                   (_val, i) => index !== i
                                 )
                               );
@@ -386,6 +396,7 @@ export default function ClientIdentifierGenerator() {
                         )}
                       </FieldArray>
                     </Grid>
+
                     <Grid container item spacing={1}>
                       <Grid item>
                         <Typography variant="h3">Refresh Tokens</Typography>
@@ -443,7 +454,7 @@ export default function ClientIdentifierGenerator() {
                                 description="The URI to the logo of your application.
                                   This will be displayed by the OIDC Provider while
                                   the user is logging in. Field name: `logo_uri`"
-                                state={formFieldStates.logoUri}
+                                state={formFieldStates.logoUri.state}
                                 value={form.values.logoUri}
                                 onChange={form.handleChange}
                                 onBlur={(e) => handleFieldBlur(form, e)}
@@ -460,7 +471,7 @@ export default function ClientIdentifierGenerator() {
                                     your application. This will be linked to by the
                                     OIDC Provider while the user is logging in.
                                     Field name: `policy_uri`"
-                                state={formFieldStates.policyUri}
+                                state={formFieldStates.policyUri.state}
                                 value={form.values.policyUri}
                                 onChange={form.handleChange}
                                 onBlur={(e) => handleFieldBlur(form, e)}
@@ -477,7 +488,7 @@ export default function ClientIdentifierGenerator() {
                                     your application. This will be linked to by the
                                     OIDC Provider while the user is logging in.
                                     Field name: `tos_uri`"
-                                state={formFieldStates.tosUri}
+                                state={formFieldStates.tosUri.state}
                                 value={form.values.tosUri}
                                 onChange={form.handleChange}
                                 onBlur={(e) => handleFieldBlur(form, e)}
@@ -585,7 +596,7 @@ export default function ClientIdentifierGenerator() {
                                 description="The number of seconds after which the
                                   user must be actively re-authenticated.
                                   Field name: `default_max_age`"
-                                state={formFieldStates.defaultMaxAge}
+                                state={formFieldStates.defaultMaxAge?.state}
                                 value={form.values.defaultMaxAge}
                                 onChange={form.handleChange}
                                 onBlur={(e) => handleFieldBlur(form, e)}
