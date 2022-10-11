@@ -52,8 +52,8 @@ export default async function validateLocalDocument(
 /**
  * Validates jsonDocument and returns all validation results where the result's
  * affected fields contain the `validationFieldName`
- * @param jsonDocument
- * @param validationFieldName The field name in camelCase notation.
+ * @param jsonDocument the Client Identifier Document to validate
+ * @param validationFieldName the field name in camelCase notation
  * @param rules the rules to validate against
  * @returns an array of ValidationResult
  */
