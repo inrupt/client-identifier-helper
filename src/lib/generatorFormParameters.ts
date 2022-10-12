@@ -28,11 +28,30 @@ export type FormParameters = {
   logoUri: string;
   tosUri: string;
   policyUri: string;
-  contact: string;
+  contacts: string[];
   applicationType: "web" | "native";
   requireAuthTime?: boolean;
   defaultMaxAge?: number;
 };
+
+const emptyFormState: Record<keyof FormParameters, object> = {
+  clientId: {},
+  clientName: {},
+  clientUri: {},
+  redirectUris: {},
+  useRefreshTokens: {},
+  logoUri: {},
+  tosUri: {},
+  policyUri: {},
+  contacts: {},
+  applicationType: {},
+  requireAuthTime: {},
+  defaultMaxAge: {},
+};
+
+export function getEmptyFormState() {
+  return structuredClone(emptyFormState);
+}
 
 /**
  * Return the FormParameters typed key for the string key.
@@ -51,7 +70,7 @@ export function getFormParametersKey(key: string): keyof FormParameters {
     logoUri: "logoUri",
     tosUri: "tosUri",
     policyUri: "policyUri",
-    contact: "contact",
+    contacts: "contacts",
     applicationType: "applicationType",
     requireAuthTime: "requireAuthTime",
     defaultMaxAge: "defaultMaxAge",

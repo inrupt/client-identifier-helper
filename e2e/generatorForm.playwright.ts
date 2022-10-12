@@ -76,7 +76,7 @@ async function fillUserFacingFieldsWithDefaults(page: Page) {
 
   // Fill contact mail.
   await page.locator('input[name="tosUri"]').press("Tab");
-  await page.locator('input[name="contact"]').fill(DEFAULT_CLIENT_EMAIL);
+  await page.locator('input[name="contacts.0"]').fill(DEFAULT_CLIENT_EMAIL);
 }
 
 async function fillTechnicalFields(page: Page) {

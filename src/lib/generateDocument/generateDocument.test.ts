@@ -44,7 +44,7 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       logoUri: DEFAULT_LOGO_URI,
       tosUri: DEFAULT_TOS_URI,
       policyUri: DEFAULT_POLICY_URI,
-      contact: DEFAULT_CONTACT,
+      contacts: [DEFAULT_CONTACT],
       applicationType: "web",
       requireAuthTime: true,
       defaultMaxAge: 3600,
@@ -93,7 +93,7 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       logoUri: "",
       tosUri: "",
       policyUri: "",
-      contact: "",
+      contacts: [],
       applicationType: "web",
     });
     const clientIdDocumentJson = JSON.parse(clientIdDocument);
@@ -126,7 +126,7 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       logoUri: "",
       tosUri: "",
       policyUri: "",
-      contact: "",
+      contacts: [],
       applicationType: "web",
     });
     const clientIdDocumentJson = JSON.parse(clientIdDocument);
@@ -144,7 +144,7 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       logoUri: "",
       tosUri: "",
       policyUri: "",
-      contact: "",
+      contacts: [],
       applicationType: "web",
       defaultMaxAge: "3600",
     });
@@ -167,7 +167,7 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       logoUri: "",
       tosUri: "",
       policyUri: "",
-      contact: "",
+      contacts: [],
       applicationType: "web",
       defaultMaxAge: "invalid string is passed",
     });
@@ -188,7 +188,7 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       logoUri: "",
       tosUri: "",
       policyUri: "",
-      contact: "",
+      contacts: [],
       applicationType: "web",
       compact: true,
     });
@@ -221,7 +221,7 @@ describe("generateDocument creates correct Client Identifier Documents", () => {
       logoUri: DEFAULT_LOGO_URI,
       tosUri: DEFAULT_TOS_URI,
       policyUri: DEFAULT_POLICY_URI,
-      contact: DEFAULT_CONTACT,
+      contacts: [DEFAULT_CONTACT],
       applicationType: "web",
       requireAuthTime: true,
       defaultMaxAge: 3600,

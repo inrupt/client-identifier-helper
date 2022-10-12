@@ -27,13 +27,7 @@ import { useState } from "react";
  * Inspired by `FormikErrors<Values>` type.
  */
 export declare type FormFieldStates<Values, State> = {
-  [K in keyof Values]?: Values[K] extends unknown[]
-    ? Values[K][number] extends object
-      ? FormFieldStates<Values[K][number], State>[] | State[]
-      : State[]
-    : Values[K] extends object
-    ? FormFieldStates<Values[K], State>
-    : State;
+  [K in keyof Values]: { state?: State; childStates?: State[] };
 };
 
 /**
@@ -49,7 +43,7 @@ export declare type FormFieldHelperTexts<Values> = FormFieldStates<
 /**
  * Helper function to manage field values of verbose forms.
  *
- * @param initialValues Expects array fields to not be undefined.
+ * @param initialValues
  * @returns [states, setStates, setFieldState, setArrayFieldState]
  */
 export function useFieldStates<FormParameters, T>(
@@ -57,32 +51,50 @@ export function useFieldStates<FormParameters, T>(
 ): [
   FormFieldStates<FormParameters, T>,
   React.Dispatch<React.SetStateAction<FormFieldStates<FormParameters, T>>>,
-  (fieldName: keyof FormParameters, value: T | T[]) => void,
-  (fieldName: keyof FormParameters, value: T | T[], index: number) => void
+  (fieldName: keyof FormParameters, value: T) => void,
+  (fieldName: keyof FormParameters, value: T, index: number) => void,
+  (fieldName: keyof FormParameters, value: T[]) => void
 ] {
   const [states, setStates] = useState(initialValues);
 
-  const setFieldState = (fieldName: keyof FormParameters, value: T | T[]) => {
-    setStates((previous) => {
-      return { ...previous, [fieldName]: value };
+  const setFieldState = (fieldName: keyof FormParameters, value: T) => {
+    setStates((previousState) => {
+      const target = previousState[fieldName];
+      target.state = value;
+      return { ...previousState, [fieldName]: target };
     });
   };
-  const setArrayFieldState = (
+  const setChildState = (
     fieldName: keyof FormParameters,
-    value: T | T[],
+    value: T,
     index: number
   ) => {
     setStates((previousState) => {
-      const targetArray = previousState[fieldName];
+      const target = previousState[fieldName];
 
-      if (!Array.isArray(targetArray)) {
-        throw new Error(`The field ${String(fieldName)} is not an array.`);
+      if (!Array.isArray(target?.childStates)) {
+        target.childStates = [];
       }
+      target.childStates[index] = value;
 
-      targetArray[index] = value;
-      return { ...previousState, [fieldName]: targetArray };
+      return { ...previousState, [fieldName]: target };
     });
   };
 
-  return [states, setStates, setFieldState, setArrayFieldState];
+  const setChildStates = (fieldName: keyof FormParameters, value: T[]) => {
+    setStates((previousState) => {
+      const target = previousState[fieldName];
+      target.childStates = value;
+      return { ...previousState, [fieldName]: target };
+    });
+  };
+
+  return [states, setStates, setFieldState, setChildState, setChildStates];
+}
+
+export type FieldStatus = "error" | "warning" | "info" | "success" | undefined;
+
+export interface VerboseFieldState {
+  statusDescription: string;
+  statusValue: FieldStatus;
 }

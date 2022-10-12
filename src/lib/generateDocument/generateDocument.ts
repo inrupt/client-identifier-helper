@@ -30,7 +30,7 @@ export interface GenerateClientIdDocumentParameters {
   logoUri: string;
   tosUri: string;
   policyUri: string;
-  contact: string;
+  contacts: string[];
   applicationType: "web" | "native";
   requireAuthTime?: boolean;
   defaultMaxAge?: number | string;
@@ -46,7 +46,7 @@ export default function generateClientIdDocument({
   logoUri,
   tosUri,
   policyUri,
-  contact,
+  contacts,
   applicationType,
   requireAuthTime,
   defaultMaxAge,
@@ -66,7 +66,7 @@ export default function generateClientIdDocument({
     logo_uri: logoUri,
     tos_uri: tosUri,
     policy_uri: policyUri,
-    contacts: contact ? [contact] : [],
+    contacts,
     application_type: applicationType,
     require_auth_time: requireAuthTime,
     default_max_age:
