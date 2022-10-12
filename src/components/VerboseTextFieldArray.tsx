@@ -27,8 +27,9 @@ import {
   TextFieldProps,
   Typography,
 } from "@mui/material";
-import { statusColors } from "../theme";
-import VerboseTextField, { VerboseFieldState } from "./VerboseTextField";
+import { VerboseFieldState } from "../generatorFormValidationTypes";
+import VerboseHelperText from "./VerboseHelperText";
+import VerboseTextField from "./VerboseTextField";
 
 export type VerboseFieldArrayRenderProps = TextFieldProps & {
   /** Label for the individual text fields */
@@ -78,15 +79,7 @@ export default function VerboseTextFieldArray(
         </Grid>
       </Grid>
 
-      {/* If the whole field is in a state, show a description text here. */}
-      {state ? (
-        <FormHelperText
-          className={`Mui-${state.statusValue}`}
-          sx={statusColors}
-        >
-          {state.statusDescription}
-        </FormHelperText>
-      ) : undefined}
+      <VerboseHelperText state={state} />
 
       {/* Field rows */}
       <Grid container item spacing={1} className={fieldName}>

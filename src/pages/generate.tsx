@@ -40,11 +40,6 @@ import type { FieldArrayRenderProps, FormikProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Contacts } from "@mui/icons-material";
-import VerboseTextField, {
-  FieldStatus,
-  VerboseFieldState,
-} from "../components/VerboseTextField";
 import {
   getEmptyFormState,
   FormParameters,
@@ -56,7 +51,12 @@ import generateClientIdDocument from "../lib/generateDocument/generateDocument";
 import { statusToNumber } from "../lib/helperFunctions";
 import { validateField } from "../lib/validateLocalDocument";
 import { localRules } from "../lib/validationRules";
-import { useFieldStates } from "../components/generatorFormValidation";
+import {
+  FieldStatus,
+  useFieldStates,
+  VerboseFieldState,
+} from "../generatorFormValidationTypes";
+import VerboseTextField from "../components/VerboseTextField";
 
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");

@@ -91,3 +91,10 @@ export function useFieldStates<FormParameters, T>(
 
   return [states, setStates, setFieldState, setChildState, setChildStates];
 }
+
+export type FieldStatus = "error" | "warning" | "info" | "success" | undefined;
+
+export interface VerboseFieldState {
+  statusDescription: string;
+  statusValue: FieldStatus;
+}

@@ -22,25 +22,16 @@
 /* eslint-disable react/jsx-props-no-spreading */
 
 import TextField, { OutlinedTextFieldProps } from "@mui/material/TextField";
-import { FormHelperText, FormHelperTextProps, styled } from "@mui/material";
+import { FormHelperText, FormHelperTextProps, Grid } from "@mui/material";
 import { statusColors } from "../theme";
-
-export type FieldStatus = "error" | "warning" | "info" | "success" | undefined;
-
-export interface VerboseFieldState {
-  statusDescription: string;
-  statusValue: FieldStatus;
-}
+import VerboseHelperText from "./VerboseHelperText";
+import { VerboseFieldState } from "../generatorFormValidationTypes";
 
 export interface FormTextFieldProps extends OutlinedTextFieldProps {
   state?: VerboseFieldState;
   description?: string;
   formDescriptionTextProps?: FormHelperTextProps;
 }
-
-const StyledTextField = styled(TextField)<FormTextFieldProps>(() => ({
-  ...statusColors,
-}));
 
 /**
  * Text field with an additional description field used to give additional information
@@ -63,18 +54,21 @@ export default function VerboseTextField(
 
   return (
     <>
-      <StyledTextField
-        helperText={state?.statusDescription}
+      <TextField
         InputLabelProps={{ className: `Mui-${labelColor}` }}
         size="small"
         variant="outlined"
+        sx={statusColors}
         {...props}
-        FormHelperTextProps={{
-          className: `Mui-${labelColor}`,
-        }}
       />
 
-      {!description ? null : (
+      <Grid item sx={{ paddingLeft: 2, marginTop: 0 }}>
+        <VerboseHelperText state={state} />
+      </Grid>
+
+      {!description ? (
+        <> </>
+      ) : (
         <FormHelperText
           sx={{ paddingLeft: 2, marginTop: 0 }}
           {...formDescriptionTextProps}
