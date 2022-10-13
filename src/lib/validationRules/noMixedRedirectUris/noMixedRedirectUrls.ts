@@ -23,9 +23,8 @@ import { ValidationContext, ValidationRule } from "../../types";
 const noMixedRedirectUrls: ValidationRule = {
   rule: {
     type: "local",
-    name: "Must not have redirect URLs that contain both localhost and other domain names",
-    description:
-      "Redirect URIs must must not contain localhost _and_ remote URIs.",
+    name: "Redirect URIs must not contain both localhost and other domain names",
+    description: "Redirect URIs must not contain localhost _and_ remote URIs.",
   },
   check: async (context: ValidationContext) => {
     if (!Array.isArray(context.document.redirect_uris)) {

@@ -67,7 +67,7 @@ export const checkUrlSyntax = (
       {
         status: "warning",
         title: `URI of \`${fieldName}\` does not use https`,
-        description: `URIs should use the more secure https protocol.`,
+        description: `URIs should use the https protocol.`,
         affectedFields: [{ fieldName, fieldValue: uri }],
       },
     ];
@@ -90,7 +90,7 @@ const validUriFields: ValidationRule = {
   rule: {
     type: "local",
     name: "URIs must be syntactically correct",
-    description: "Validate, that all URIs are well-formed (no redirect URIs).",
+    description: "URI fields must follow the URI .",
   },
   check: async (context: ValidationContext) => {
     const results: RuleResult[] = [

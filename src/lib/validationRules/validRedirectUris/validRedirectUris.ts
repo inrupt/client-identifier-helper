@@ -26,7 +26,7 @@ const validRedirectUris: ValidationRule = {
     type: "local",
     name: "Well-formed correct Redirect URIs",
     description:
-      "Redirect URIs must be well-formed (syntax, explicit path, no search parameters).",
+      "Redirect URIs must be well-formed. They should have an explicit path, as they are compared for string equality. Search parameters are discouraged.",
   },
   check: async (context: ValidationContext) => {
     if (!Array.isArray(context.document.redirect_uris)) {
@@ -63,6 +63,18 @@ const validRedirectUris: ValidationRule = {
     }
 
     const validateRedirectUri = (uri: string, index: number): RuleResult[] => {
+      if (!uri) {
+        return [
+          {
+            status: "error",
+            title: "Redirect URI not set",
+            description: "The redirect URI is not set.",
+            affectedFields: [
+              { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
+            ],
+          },
+        ];
+      }
       let url: URL;
       try {
         url = new URL(uri);
@@ -97,7 +109,7 @@ const validRedirectUris: ValidationRule = {
         results.push({
           status: "warning",
           title: "Redirect URI has search parameters",
-          description: `The redirect URI "${uri}" has search parameters attached. The redirect URI must be static. To store state, use the localStorage instead.`,
+          description: `The redirect URI "${uri}" has search parameters attached. The redirect URI must be static. To maintain state, use the localStorage instead.`,
           affectedFields: [
             { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
           ],

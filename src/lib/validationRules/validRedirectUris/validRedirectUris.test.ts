@@ -58,6 +58,18 @@ describe("redirect URIs must be syntactically correct and should be static", () 
     );
   });
 
+  it("errors on empty redirect URI", async () => {
+    const resultsForMalformedRedirectUri = await validRedirectUris.check({
+      document: {
+        redirect_uris: ["https://my-app.example/callback", ""],
+      },
+    });
+    expect(resultsForMalformedRedirectUri).toHaveLength(1);
+    expect(resultsForMalformedRedirectUri[0].title).toMatch(
+      /Redirect URI not set/
+    );
+  });
+
   it("warns for missing URI path", async () => {
     const resultsForMissingRedirectUriPath = await validRedirectUris.check({
       document: {
