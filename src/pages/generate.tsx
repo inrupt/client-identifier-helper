@@ -202,27 +202,31 @@ export default function ClientIdentifierGenerator() {
    * @returns true, if form has errors.
    */
   const validateAll = async (form: FormikProps<FormParameters>) => {
+    const formValues = {
+      ...form.values,
+      contacts: form.values.contacts.filter((contact) => contact !== ""),
+    };
     const fieldStatuses = (
       await Promise.all(
         Object.keys(formFieldStates).map(async (key) => {
           const formKey = getFormParametersKey(key);
-          const value = form.values[formKey];
+          const value = formValues[formKey];
 
           // If the field is an array field, validate each child.
           if (Array.isArray(value) && value.length > 0) {
             return Promise.all(
               value.map(async (_, index) =>
-                validateFormField(`${key}.${index}`, form.values)
+                validateFormField(`${key}.${index}`, formValues)
               )
             );
           }
-          return validateFormField(key, form.values);
+          return validateFormField(key, formValues);
         })
       )
     ).flat();
 
     // set all fields to touched
-    Object.keys(form.values).forEach((field) =>
+    Object.keys(formValues).forEach((field) =>
       form.setFieldTouched(field, true)
     );
 
