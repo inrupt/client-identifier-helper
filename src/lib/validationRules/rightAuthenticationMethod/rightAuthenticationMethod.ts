@@ -25,7 +25,7 @@ const rightAuthenticationMethod: ValidationRule = {
     type: "local",
     name: "Field `token_endpoint_auth_method` must be `none`.",
     description:
-      "Solid OIDC connect does only support `token_endpoint_auth_method` set to `none`. This must be made explicit to comply with the OIDC specification.",
+      "Authentication with Client Identifier Documents is only supported with `token_endpoint_auth_method` set to `none`. This must be made explicit to comply with the Solid OIDC specification.",
   },
   check: async (context: ValidationContext) => {
     // Emits warning, if unset, as this is not spec-compliant but would probably work with a solid OIDC server
@@ -35,7 +35,7 @@ const rightAuthenticationMethod: ValidationRule = {
           status: "error",
           title: "Field `token_endpoint_auth_method` unset.",
           description:
-            "The field `token_endpoint_auth_method` should be explicitly set to `none`. As per the OpenID spec, the default value is `client_secret_basic` which is not valid for Solid OpenID. For a solid authentication server, an unset value might work but as of the spec, it is undefined behavior.",
+            "The field `token_endpoint_auth_method` should be explicitly set to `none`. As per the OpenID spec, the default value is `client_secret_basic` which is not valid for using Client Identifier Documents. For a solid authentication server, an unset value might work but as of the spec, it is undefined behavior.",
           affectedFields: [
             {
               fieldName: "token_endpoint_auth_method",
@@ -52,7 +52,7 @@ const rightAuthenticationMethod: ValidationRule = {
           status: "error",
           title: "Field `token_endpoint_auth_method` must be set to `none`.",
           description:
-            "The field `token_endpoint_auth_method` must be set to `none`.",
+            "The field `token_endpoint_auth_method` must be set to `none` for authentication with Client Identifier Documents.",
           affectedFields: [
             {
               fieldName: "token_endpoint_auth_method",
