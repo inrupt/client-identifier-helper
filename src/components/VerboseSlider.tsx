@@ -21,56 +21,72 @@
 
 import { FormHelperText, Grid, Switch, Typography } from "@mui/material";
 import { useRef } from "react";
+import FieldNameLabel from "./FieldNameLabel";
 
-export default function VerboseCheckBox({
-  name: fieldName,
-  label,
-  description,
-  value,
-  onChange,
-}: {
+export interface VerboseSliderProps {
   name: string;
+  fieldName: string | undefined;
   label: string;
   description: string;
   value: boolean | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
-}) {
+}
+
+export default function VerboseSlider({
+  name: componentName,
+  fieldName,
+  label,
+  description,
+  value,
+  onChange,
+}: VerboseSliderProps) {
   const componentRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <Grid
-      item
-      sx={{
-        borderRadius: "4px",
-        border: 1,
-        borderColor: "rgba(0,0,0,0.23)",
-        "&:hover": { borderColor: "rgba(0, 0, 0, 0.87)" },
-      }}
-      padding={2}
-      className="VerboseSlider"
-      onClick={(e) => {
-        if (e.target !== componentRef.current) componentRef.current?.click();
-      }}
-    >
-      <Grid container alignItems="center" sx={{ flexFlow: "row" }}>
-        <Grid item flexGrow={1}>
-          <Typography>{label}</Typography>
+    <>
+      {fieldName ? (
+        <Grid container item justifyContent="end">
+          <FieldNameLabel fieldName={fieldName} />
         </Grid>
-        <Grid item>
-          <Switch
-            inputRef={componentRef}
-            sx={{ marginTop: "-8px", marginBottom: "-8px" }}
-            name={fieldName}
-            value={value}
-            checked={value}
-            onChange={onChange}
-          />
-        </Grid>
-      </Grid>
+      ) : (
+        <> </>
+      )}
 
-      <Grid item>
-        <FormHelperText>{description}</FormHelperText>
+      <Grid
+        container
+        item
+        sx={{
+          borderRadius: "4px",
+          border: 1,
+          borderColor: "rgba(0,0,0,0.23)",
+          "&:hover": { borderColor: "rgba(0, 0, 0, 0.87)" },
+        }}
+        padding={2}
+        className="VerboseSlider"
+        onClick={(e) => {
+          if (e.target !== componentRef.current) componentRef.current?.click();
+        }}
+      >
+        <Grid container alignItems="center" sx={{ flexFlow: "row" }}>
+          <Grid item flexGrow={1}>
+            <Typography>{label}</Typography>
+          </Grid>
+          <Grid item>
+            <Switch
+              inputRef={componentRef}
+              sx={{ marginTop: "-8px", marginBottom: "-8px" }}
+              name={componentName}
+              value={value}
+              checked={value}
+              onChange={onChange}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid item>
+          <FormHelperText>{description}</FormHelperText>
+        </Grid>
       </Grid>
-    </Grid>
+    </>
   );
 }

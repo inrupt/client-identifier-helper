@@ -114,15 +114,15 @@ test.describe("Generator page functionality", () => {
     await fillEssentialFieldsWithDefaults(page);
 
     // Add two redirect URIs, delete one.
-    await page.locator(".redirectUris .AddNewButton").click();
+    await page.locator("#redirectUris .AddNewButton").click();
     await page
       .locator(`[name="redirectUris.1"]`)
       .fill(`${DEFAULT_CLIENT_REDIRECT_URI}2`);
-    await page.locator(".redirectUris .AddNewButton").click();
+    await page.locator("#redirectUris .AddNewButton").click();
     await page
       .locator(`[name="redirectUris.2"]`)
       .fill(`${DEFAULT_CLIENT_REDIRECT_URI}3`);
-    await page.locator(".redirectUris .RemoveItemButton").nth(1).click();
+    await page.locator("#redirectUris .RemoveItemButton").nth(1).click();
 
     const clientIdentifierDocument = await clickAndGenerateDocument(page);
 
@@ -207,7 +207,7 @@ test.describe("Generator page functionality", () => {
     await page.locator("[name=generateDocument]").click();
 
     expect(
-      await page.locator(`.redirectUris .MuiTextField-root .Mui-error`).count()
+      await page.locator(`#redirectUris .MuiTextField-root .Mui-error`).count()
     ).toBeGreaterThan(0);
 
     await expect(page.locator("[name=generatedJson]")).not.toBeVisible();

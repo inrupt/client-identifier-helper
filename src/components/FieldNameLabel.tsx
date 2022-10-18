@@ -19,20 +19,23 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { FormHelperText } from "@mui/material";
-import { statusColors } from "../theme";
-import { VerboseFieldState } from "../lib/formValidationTypes";
+import { Typography } from "@mui/material";
 
-export default function VerboseHelperText({
-  state,
-}: {
-  state: VerboseFieldState | undefined;
-}) {
-  return state ? (
-    <FormHelperText className={`Mui-${state.statusValue}`} sx={statusColors}>
-      {state.statusDescription}
-    </FormHelperText>
-  ) : (
-    <> </>
+export default function FieldNameLabel(props: { fieldName: string }) {
+  const { fieldName } = props;
+  return (
+    <>
+      <span>
+        <Typography fontSize={12}>Field Name:</Typography>
+      </span>
+      &nbsp;
+      <span>
+        <code>
+          <Typography fontSize={13} fontFamily="Courier Prime">
+            {fieldName}
+          </Typography>
+        </code>
+      </span>
+    </>
   );
 }

@@ -22,7 +22,7 @@ import { RemoteValidationResponse, ValidationResults } from "./types";
 import {
   UNAVAILABLE_API_RESULT,
   NO_GIVEN_DOCUMENT_IRI_RESULT,
-} from "./staticValidationResult";
+} from "./staticValidationResults";
 import validateLocalDocument from "./validateLocalDocument";
 import { localRules } from "./validationRules";
 

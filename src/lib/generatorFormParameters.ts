@@ -19,6 +19,8 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+import { FormFieldStates, VerboseFieldState } from "./formValidationTypes";
+
 export type FormParameters = {
   clientId: string;
   clientName: string;
@@ -34,7 +36,10 @@ export type FormParameters = {
   defaultMaxAge?: number;
 };
 
-const emptyFormState: Record<keyof FormParameters, object> = {
+const emptyFormState: FormFieldStates<
+  FormParameters,
+  VerboseFieldState | undefined
+> = {
   clientId: {},
   clientName: {},
   clientUri: {},

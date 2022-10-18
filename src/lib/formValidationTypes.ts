@@ -46,18 +46,18 @@ export declare type FormFieldHelperTexts<Values> = FormFieldStates<
  * @param initialValues
  * @returns [states, setStates, setFieldState, setArrayFieldState]
  */
-export function useFieldStates<FormParameters, T>(
-  initialValues: FormFieldStates<FormParameters, T>
+export function useFieldStates<IFormParameters, V>(
+  initialValues: FormFieldStates<IFormParameters, V>
 ): [
-  FormFieldStates<FormParameters, T>,
-  React.Dispatch<React.SetStateAction<FormFieldStates<FormParameters, T>>>,
-  (fieldName: keyof FormParameters, value: T) => void,
-  (fieldName: keyof FormParameters, value: T, index: number) => void,
-  (fieldName: keyof FormParameters, value: T[]) => void
+  FormFieldStates<IFormParameters, V>,
+  React.Dispatch<React.SetStateAction<FormFieldStates<IFormParameters, V>>>,
+  (fieldName: keyof IFormParameters, value: V) => void,
+  (fieldName: keyof IFormParameters, value: V, index: number) => void,
+  (fieldName: keyof IFormParameters, value: V[]) => void
 ] {
   const [states, setStates] = useState(initialValues);
 
-  const setFieldState = (fieldName: keyof FormParameters, value: T) => {
+  const setFieldState = (fieldName: keyof IFormParameters, value: V) => {
     setStates((previousState) => {
       const target = previousState[fieldName];
       target.state = value;
@@ -65,8 +65,8 @@ export function useFieldStates<FormParameters, T>(
     });
   };
   const setChildState = (
-    fieldName: keyof FormParameters,
-    value: T,
+    fieldName: keyof IFormParameters,
+    value: V,
     index: number
   ) => {
     setStates((previousState) => {
@@ -81,7 +81,7 @@ export function useFieldStates<FormParameters, T>(
     });
   };
 
-  const setChildStates = (fieldName: keyof FormParameters, value: T[]) => {
+  const setChildStates = (fieldName: keyof IFormParameters, value: V[]) => {
     setStates((previousState) => {
       const target = previousState[fieldName];
       target.childStates = value;
@@ -95,6 +95,6 @@ export function useFieldStates<FormParameters, T>(
 export type FieldStatus = "error" | "warning" | "info" | "success" | undefined;
 
 export interface VerboseFieldState {
-  statusDescription: string;
-  statusValue: FieldStatus;
+  statusDescription?: string;
+  statusValue?: FieldStatus;
 }

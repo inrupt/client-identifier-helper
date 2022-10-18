@@ -23,7 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { Typography, Grid, TextField, Button } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { useSearchParams } from "react-router-dom";
-import ValidationResults from "../components/validationResults";
+import ValidationResults from "../components/ValidationResults";
 import { localRules } from "../lib/validationRules";
 import validateRemoteDocument from "../lib/validateRemoteDocument";
 import validateLocalDocument from "../lib/validateLocalDocument";

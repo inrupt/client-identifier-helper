@@ -18,7 +18,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { INVALID_LOCAL_JSON_DOCUMENT_RESULT } from "./staticValidationResult";
+import { INVALID_LOCAL_JSON_DOCUMENT_RESULT } from "./staticValidationResults";
 import { ValidationResults, ValidationRule } from "./types";
 import { underScoreToCamelCase } from "./helperFunctions";
 

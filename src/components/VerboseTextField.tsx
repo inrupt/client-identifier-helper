@@ -25,11 +25,14 @@ import TextField, { OutlinedTextFieldProps } from "@mui/material/TextField";
 import { FormHelperText, FormHelperTextProps, Grid } from "@mui/material";
 import { statusColors } from "../theme";
 import VerboseHelperText from "./VerboseHelperText";
-import { VerboseFieldState } from "../generatorFormValidationTypes";
+import { VerboseFieldState } from "../lib/formValidationTypes";
+import FieldNameLabel from "./FieldNameLabel";
 
-export interface FormTextFieldProps extends OutlinedTextFieldProps {
+export interface VerboseTextFieldProps
+  extends Omit<OutlinedTextFieldProps, "variant"> {
   state?: VerboseFieldState;
   description?: string;
+  fieldName?: string;
   formDescriptionTextProps?: FormHelperTextProps;
 }
 
@@ -41,12 +44,11 @@ export interface FormTextFieldProps extends OutlinedTextFieldProps {
  * @param props.state The status color of the text field.
  * @returns
  */
-export default function VerboseTextField(
-  props: Omit<FormTextFieldProps, "variant">
-) {
+export default function VerboseTextField(props: VerboseTextFieldProps) {
   const {
     state = undefined,
     description = undefined,
+    fieldName = undefined,
     formDescriptionTextProps = {},
   } = props;
 
@@ -54,6 +56,12 @@ export default function VerboseTextField(
 
   return (
     <>
+      {fieldName && (
+        <Grid container item justifyContent="end">
+          <FieldNameLabel fieldName={fieldName} />
+        </Grid>
+      )}
+
       <TextField
         InputLabelProps={{ className: `Mui-${labelColor}` }}
         size="small"
@@ -79,3 +87,10 @@ export default function VerboseTextField(
     </>
   );
 }
+
+VerboseTextField.defaultProps = {
+  state: undefined,
+  description: undefined,
+  fieldName: undefined,
+  formDescriptionTextProps: undefined,
+};

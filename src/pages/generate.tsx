@@ -40,23 +40,24 @@ import type { FieldArrayRenderProps, FormikProps } from "formik";
 import { FieldArray, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getEmptyFormState,
-  FormParameters,
-  getFormParametersKey,
-} from "../lib/generatorFormParameters";
+import FieldNameLabel from "../components/FieldNameLabel";
 import VerboseSlider from "../components/VerboseSlider";
+import VerboseTextField from "../components/VerboseTextField";
 import VerboseTextFieldArray from "../components/VerboseTextFieldArray";
 import generateClientIdDocument from "../lib/generateDocument/generateDocument";
-import { statusToNumber } from "../lib/helperFunctions";
-import { validateField } from "../lib/validateLocalDocument";
-import { localRules } from "../lib/validationRules";
+import {
+  FormParameters,
+  getEmptyFormState,
+  getFormParametersKey,
+} from "../lib/generatorFormParameters";
 import {
   FieldStatus,
   useFieldStates,
   VerboseFieldState,
-} from "../generatorFormValidationTypes";
-import VerboseTextField from "../components/VerboseTextField";
+} from "../lib/formValidationTypes";
+import { statusToNumber } from "../lib/helperFunctions";
+import { validateField } from "../lib/validateLocalDocument";
+import { localRules } from "../lib/validationRules";
 
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");
@@ -309,16 +310,17 @@ export default function ClientIdentifierGenerator() {
             >
               {(form) => (
                 <Form>
-                  <Grid container item direction="column" spacing={3}>
+                  <Grid container item direction="column" spacing={2}>
                     <Grid container item>
                       <VerboseTextField
                         name="clientId"
+                        fieldName="client_id"
                         label="Client Identifier URI"
                         description="The URI where your Client Identifier Document is
                           located. It identifies your application, the client,
                           to the Solid OIDC Provider. The Client Identifier
                           Document should be a static resource and publicly
-                          accessible. Field name: `client_id`"
+                          accessible."
                         state={formFieldStates.clientId.state}
                         required
                         value={form.values.clientId}
@@ -332,10 +334,11 @@ export default function ClientIdentifierGenerator() {
                     <Grid container item>
                       <VerboseTextField
                         name="clientName"
+                        fieldName="client_name"
                         label="Client Name"
                         description="Your application name displayed to the user when
                           they are authenticating your application at the
-                          Solid OIDC Provider. Field name: `client_name`"
+                          Solid OIDC Provider."
                         state={formFieldStates.clientName.state}
                         required
                         value={form.values.clientName}
@@ -348,11 +351,11 @@ export default function ClientIdentifierGenerator() {
                     <Grid container item>
                       <VerboseTextField
                         name="clientUri"
+                        fieldName="client_uri"
                         label="Client Homepage URI"
                         description="The URI of your application's homepage.
                           Displayed to the user when they are authenticating
-                          your application at the Solid OIDC Provider. Field
-                          name: `client_uri`"
+                          your application at the Solid OIDC Provider."
                         state={formFieldStates.clientUri.state}
                         required
                         value={form.values.clientUri}
@@ -363,16 +366,18 @@ export default function ClientIdentifierGenerator() {
                       />
                     </Grid>
 
-                    <Grid item container>
+                    <Grid item container marginTop={3}>
                       <FieldArray name="redirectUris">
                         {(props: FieldArrayRenderProps) => (
                           <VerboseTextFieldArray
                             label="Redirect URIs"
-                            fieldLabel="Redirect URI"
+                            rowLabel="Redirect URI"
+                            addRowLabel="Add Redirect URI"
+                            componentFieldName="redirect_uris"
                             name="redirectUris"
                             description={[
                               "The URIs that the Solid OIDC Provider is allowed to redirect to after the user authenticated at the OIDC Provider.",
-                              "Flow: Your application will send an authentication request to the OIDC Provider with one redirect URI. The OIDC Provider redirects the browser/user agent to the redirect URI after the user authenticated and issues a code to your application that it can use to complete authentication. Field name: `redirect_uris`",
+                              "Flow: Your application will send an authentication request to the OIDC Provider with one redirect URI. The OIDC Provider redirects the browser/user agent to the redirect URI after the user authenticated and issues a code to your application that it can use to complete authentication.",
                             ]}
                             state={formFieldStates.redirectUris.state}
                             childStates={
@@ -403,20 +408,62 @@ export default function ClientIdentifierGenerator() {
                       </FieldArray>
                     </Grid>
 
-                    <Grid container item spacing={1}>
+                    <Grid container item spacing={1} marginTop={1}>
                       <Grid item>
                         <Typography variant="h3">Refresh Tokens</Typography>
                       </Grid>
-                      <Grid item>
+                      <Grid
+                        item
+                        sx={{
+                          marginTop: -3,
+                          // Prevent colliding caption.
+                          "@media (max-width: 480px)": {
+                            marginTop: 0,
+                          },
+                        }}
+                      >
+                        <Grid
+                          container
+                          item
+                          direction="row"
+                          spacing={1}
+                          justifyContent="end"
+                          sx={{
+                            // Put the "Field name" label to the left for very small screens.
+                            "@media (max-width: 330px)": {
+                              justifyContent: "start",
+                            },
+                          }}
+                        >
+                          <Grid item>
+                            <Typography fontSize={12}>Field names:</Typography>
+                          </Grid>
+                          <Grid item>
+                            <Typography
+                              fontSize={12}
+                              fontFamily="Courier Prime"
+                            >
+                              grant_types = [&quot;refresh_token&quot;]
+                            </Typography>
+
+                            <Typography
+                              fontSize={12}
+                              fontFamily="Courier Prime"
+                            >
+                              scope = &quot;offline_access&quot;
+                            </Typography>
+                          </Grid>
+                        </Grid>
                         <VerboseSlider
                           name="useRefreshTokens"
+                          fieldName={undefined}
                           label="Support usage of refresh tokens / offline access"
                           description="Recommended. A refresh token can be used to request new access tokens
                             after they expire. If not requested, the user will have to
                             re-authenticate after the access token expires, which will happen
-                            quite frequently (e.g. every 5 minutes or so). Field names: The field
-                            `scope` will have the value `offline_access` set and the field
-                            `grant_types` will have the value `refresh_token` set."
+                            quite frequently (e.g. every 5 minutes or so). The field `scope`
+                            will have the value `offline_access` set and the field `grant_types`
+                            will have the value `refresh_token` set."
                           value={form.values.useRefreshTokens}
                           onChange={form.handleChange}
                         />
@@ -452,14 +499,15 @@ export default function ClientIdentifierGenerator() {
                           </Grid>
                         </AccordionSummary>
                         <AccordionDetails sx={{ padding: 0 }}>
-                          <Grid container spacing={2}>
+                          <Grid container spacing={2} paddingTop={-1}>
                             <Grid container item>
                               <VerboseTextField
                                 name="logoUri"
+                                fieldName="logo_uri"
                                 label="Logo URI"
                                 description="The URI to the logo of your application.
                                   This will be displayed by the OIDC Provider while
-                                  the user is logging in. Field name: `logo_uri`"
+                                  the user is logging in."
                                 state={formFieldStates.logoUri.state}
                                 value={form.values.logoUri}
                                 onChange={form.handleChange}
@@ -472,11 +520,11 @@ export default function ClientIdentifierGenerator() {
                             <Grid container item>
                               <VerboseTextField
                                 name="policyUri"
+                                fieldName="policy_uri"
                                 label="Policy URI"
                                 description="The URI to the Policy terms of
                                   your application. This will be linked to by the
-                                  OIDC Provider while the user is logging in.
-                                  Field name: `policy_uri`"
+                                  OIDC Provider while the user is logging in."
                                 state={formFieldStates.policyUri.state}
                                 value={form.values.policyUri}
                                 onChange={form.handleChange}
@@ -489,11 +537,11 @@ export default function ClientIdentifierGenerator() {
                             <Grid container item>
                               <VerboseTextField
                                 name="tosUri"
+                                fieldName="tos_uri"
                                 label="Terms of Service URI"
                                 description="The URI to the Terms of Service of
                                   your application. This will be linked to by the
-                                  OIDC Provider while the user is logging in.
-                                  Field name: `tos_uri`"
+                                  OIDC Provider while the user is logging in."
                                 state={formFieldStates.tosUri.state}
                                 value={form.values.tosUri}
                                 onChange={form.handleChange}
@@ -508,8 +556,10 @@ export default function ClientIdentifierGenerator() {
                                 {(props: FieldArrayRenderProps) => (
                                   <VerboseTextFieldArray
                                     label="Maintainer contacts"
-                                    fieldLabel="Email"
+                                    rowLabel="Email"
+                                    addRowLabel="Add Email"
                                     name="contacts"
+                                    componentFieldName="contacts"
                                     description={[
                                       "Contact information for reaching out to the maintainers of the application.",
                                     ]}
@@ -577,8 +627,11 @@ export default function ClientIdentifierGenerator() {
                           </Grid>
                         </AccordionSummary>
                         <AccordionDetails sx={{ padding: 0 }}>
-                          <Grid container spacing={2}>
+                          <Grid container spacing={2} paddingTop={-1}>
                             <Grid item>
+                              <Grid container item justifyContent="end">
+                                <FieldNameLabel fieldName="application_type" />
+                              </Grid>
                               <FormControl>
                                 <InputLabel
                                   variant="standard"
@@ -613,7 +666,6 @@ export default function ClientIdentifierGenerator() {
                                     With a Client Identifier Document for a
                                     native application, your redirect urls will
                                     go to local host or use a non-http protocol.
-                                    Field name: `application_type`
                                   </FormHelperText>
                                 </Grid>
                               </FormControl>
@@ -621,10 +673,10 @@ export default function ClientIdentifierGenerator() {
                             <Grid container item>
                               <VerboseTextField
                                 name="defaultMaxAge"
+                                fieldName="default_max_age"
                                 label="Default maximum age"
                                 description="The number of seconds after which the
-                                  user must be actively re-authenticated.
-                                  Field name: `default_max_age`"
+                                  user must be actively re-authenticated."
                                 state={formFieldStates.defaultMaxAge?.state}
                                 value={form.values.defaultMaxAge}
                                 onChange={form.handleChange}
@@ -641,12 +693,12 @@ export default function ClientIdentifierGenerator() {
                               <VerboseSlider
                                 label="Request a time of authentication claim"
                                 name="requireAuthTime"
+                                fieldName="require_auth_time"
                                 value={form.values.requireAuthTime}
                                 onChange={form.handleChange}
                                 description="Requests that the ID Token will contain a
                                   record (claim) with its time of creation, i.e.
-                                  the authentication time. Field name:
-                                  `require_auth_time`"
+                                  the authentication time."
                               />
                             </Grid>
                           </Grid>
