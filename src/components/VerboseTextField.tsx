@@ -56,16 +56,13 @@ export default function VerboseTextField(props: VerboseTextFieldProps) {
 
   return (
     <>
-      {fieldName ? (
+      {fieldName && (
         <Grid container item justifyContent="end">
           <FieldNameLabel fieldName={fieldName} />
         </Grid>
-      ) : (
-        <> </>
       )}
 
       <TextField
-        helperText={state?.statusDescription}
         InputLabelProps={{ className: `Mui-${labelColor}` }}
         size="small"
         variant="outlined"
