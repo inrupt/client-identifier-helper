@@ -42,6 +42,18 @@ describe("well-formed client name check", () => {
     expect(resultsForInvalidClientName[0].title).toMatch(/Invalid Client Name/);
   });
 
+  it("warns on whitespace client name", async () => {
+    const resultsForLongClientName = await decentClientName.check({
+      document: {
+        client_name: " \n\t\v\r\f",
+      },
+    });
+    expect(resultsForLongClientName).toHaveLength(1);
+    expect(resultsForLongClientName[0].description).toMatch(
+      /The Client Name consists of whitespace only/
+    );
+  });
+
   it("warns on long client name", async () => {
     const resultsForLongClientName = await decentClientName.check({
       document: {
