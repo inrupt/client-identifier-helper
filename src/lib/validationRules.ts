@@ -39,9 +39,11 @@ import { RemoteValidationRule, ValidationRule } from "./types";
 import remoteDocumentAsJsonLd from "./validationRules/remoteDocumentAsJsonLd/remoteDocumentAsJsonLd";
 import remoteMatchingClientId from "./validationRules/remoteMatchingClientId/remoteMatchingClientId";
 import redirectUrisApplicationTypeRule from "./validationRules/redirectUrisApplicationTypeRule/redirectUrisApplicationTypeRule";
+import noLocalhostClientId from "./validationRules/noLocalhostClientId/noLocalhostClientId";
 
 export const localRules: ValidationRule[] = [
   decentClientName,
+  noLocalhostClientId,
   noMixedRedirectUrls,
   noUnknownFields,
   redirectUrisApplicationTypeRule,
