@@ -45,3 +45,24 @@ export const statusToNumber = (
   }
   return 0;
 };
+
+export const isHostnameLocal = (hostname: string) => {
+  if (hostname === "localhost" || hostname === "[::1]") {
+    return true;
+  }
+  if (hostname.startsWith("127.0.0.") && hostname.length <= 11) {
+    const lastBlock = Number(hostname.split("127.0.0.")[1]);
+    if (Number.isInteger(lastBlock) && Number(lastBlock) < 256) {
+      return true;
+    }
+  }
+  return false;
+};
+
+export const isUriLocalhost = (uri: string) => {
+  try {
+    return isHostnameLocal(new URL(uri).hostname);
+  } catch (error) {
+    return undefined;
+  }
+};

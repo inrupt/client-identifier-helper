@@ -18,6 +18,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+import { isHostnameLocal, isUriLocalhost } from "../../helperFunctions";
 import { ValidationContext, ValidationRule } from "../../types";
 
 const noMixedRedirectUrls: ValidationRule = {
@@ -30,18 +31,9 @@ const noMixedRedirectUrls: ValidationRule = {
     if (!Array.isArray(context.document.redirect_uris)) {
       return [];
     }
-    const localHostCount = context.document.redirect_uris.filter((uri) => {
-      try {
-        const url = new URL(uri);
-        return (
-          url.hostname === "localhost" ||
-          url.hostname === "[::1]" ||
-          (url.hostname.startsWith("127.0.0.") && url.hostname.length <= 11)
-        );
-      } catch {
-        return false;
-      }
-    }).length;
+    const localHostCount = context.document.redirect_uris.filter((uri) =>
+      isUriLocalhost(uri)
+    ).length;
 
     if (
       localHostCount !== 0 &&
