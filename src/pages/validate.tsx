@@ -112,8 +112,10 @@ function ClientIdentifierValidator() {
               be authorized to do so itself) and validate it.
             </Typography>
             <Typography variant="body1">
-              We will also check if the correct accept headers are set and if
-              the remote Client Identifier matches the one you enter here.
+              This will check if there is a client identifier document located
+              at the given URL, if it is served with the correct content-type
+              header as application/ld+json, and that it was not served via a
+              redirect (i.e., a 200 status code).
             </Typography>
             <Grid
               marginTop={2}

@@ -46,21 +46,21 @@ function AffectedField({
   return (
     <Typography variant="body2">
       <Box component="span" color="text.primary">
-        <code>
-          <Typography fontSize={13} fontFamily="Courier Prime">
-            {fieldName}
-          </Typography>
-        </code>
+        <Typography fontSize={13} fontFamily="Courier Prime" component="code">
+          {fieldName}
+        </Typography>
       </Box>
       {fieldValue ? (
         <Box component="span">
           : &nbsp;
           <Box component="span" color="text.secondary">
-            <code>
-              <Typography fontSize={13} fontFamily="Courier Prime">
-                {JSON.stringify(fieldValue)}
-              </Typography>
-            </code>
+            <Typography
+              fontSize={13}
+              fontFamily="Courier Prime"
+              component="code"
+            >
+              {JSON.stringify(fieldValue)}
+            </Typography>
           </Box>
         </Box>
       ) : (
