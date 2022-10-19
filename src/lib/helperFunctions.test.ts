@@ -108,13 +108,13 @@ describe("helper functions", () => {
     it("returns false for 'http://127.0.0.500/'", async () => {
       // In Firefox, this will parse as URL,
       // Chromium and the jest environment throw.
-      expect(isUriLocalhost("http://127.0.0.500/")).toBeFalsy();
+      expect(isUriLocalhost("http://127.0.0.500/")).toBe(false);
     });
     it("returns false for 'tel:12345'", async () => {
       expect(isUriLocalhost("tel:12345")).toBe(false);
     });
     it("returns undefined for 'invalid uri'", async () => {
-      expect(isUriLocalhost("invalid uri")).toBeUndefined();
+      expect(isUriLocalhost("invalid uri")).toBe(false);
     });
   });
 });

@@ -64,6 +64,6 @@ export const isUriLocalhost = (uri: string) => {
   try {
     return isHostnameLocal(new URL(uri).hostname);
   } catch (error) {
-    return undefined;
+    return false;
   }
 };
