@@ -14,17 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: echo "node_version=$(cat .nvmrc)" >> $GITHUB_ENV
       - uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.node_version }}
+          node-version-file: .nvmrc
           cache: "npm"
       - run: npm ci --ignore-scripts
       - run: npm test
       # Upload coverage for sonarcube (only matching OS and one node version required)
       - uses: actions/upload-artifact@v3
         with:
-          name: code-coverage-ubuntu-latest-${{ env.node_version }}
+          name: code-coverage-report
           path: coverage/
 
   e2e-browser:
@@ -64,10 +63,9 @@ jobs:
           # Sonar analysis needs the full history for features like automatic assignment of bugs. If the following step
           # is not included the project will show a warning about incomplete information.
           fetch-depth: 0
-      - run: echo "node_version=$(cat .nvmrc)" >> $GITHUB_ENV
       - uses: actions/download-artifact@v3
         with:
-          name: code-coverage-ubuntu-latest-${{ env.node_version }}
+          name: code-coverage-report
           path: coverage/
       - uses: SonarSource/sonarcloud-github-action@v1.6
         env:
