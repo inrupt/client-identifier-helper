@@ -35,7 +35,12 @@ const decentClientName: ValidationRule = {
           title: "No Client Name present",
           description:
             "The document has no Client Name set. It should be set for authentication providers to display the name to the end-user.",
-          affectedFields: [{ fieldName: "client_name", fieldValue: undefined }],
+          affectedFields: [
+            {
+              fieldName: "client_name",
+              fieldValue: context.document.client_name,
+            },
+          ],
         },
       ];
     }
@@ -63,7 +68,12 @@ const decentClientName: ValidationRule = {
           title: "Invalid Client Name",
           description:
             "The Client Name consists of whitespace only. It should be set for authentication providers to display the name to the end-user.",
-          affectedFields: [{ fieldName: "client_name", fieldValue: undefined }],
+          affectedFields: [
+            {
+              fieldName: "client_name",
+              fieldValue: context.document.client_name,
+            },
+          ],
         },
       ];
     }
