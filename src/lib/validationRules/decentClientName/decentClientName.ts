@@ -60,7 +60,7 @@ const decentClientName: ValidationRule = {
       return [
         {
           status: "warning",
-          title: "Client Name is whitespace only",
+          title: "Invalid Client Name",
           description:
             "The Client Name consists of whitespace only. It should be set for authentication providers to display the name to the end-user.",
           affectedFields: [{ fieldName: "client_name", fieldValue: undefined }],

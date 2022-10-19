@@ -45,7 +45,7 @@ describe("well-formed client name check", () => {
   it("warns on whitespace client name", async () => {
     const resultsForLongClientName = await decentClientName.check({
       document: {
-        client_name: " \n\t\v\r\f",
+        client_name: "   ",
       },
     });
     expect(resultsForLongClientName).toHaveLength(1);

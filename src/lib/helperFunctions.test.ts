@@ -72,11 +72,17 @@ describe("helper functions", () => {
     it("returns true for '127.0.0.1'", async () => {
       expect(isHostnameLocal("127.0.0.1")).toBe(true);
     });
-    it("returns true for '127.0.0.100'", async () => {
-      expect(isHostnameLocal("127.0.0.100")).toBe(true);
+    it("returns true for '127.255.15.255'", async () => {
+      expect(isHostnameLocal("127.255.15.255")).toBe(true);
     });
     it("returns false for '127.0.0.1000'", async () => {
       expect(isHostnameLocal("127.0.0.1000")).toBe(false);
+    });
+    it("returns false for '127.0.0.-5'", async () => {
+      expect(isHostnameLocal("127.0.0.-5")).toBe(false);
+    });
+    it("returns false for '127.0.0.256.3'", async () => {
+      expect(isHostnameLocal("127.0.0.256.3")).toBe(false);
     });
     it("returns false for '127.0.0.1.2'", async () => {
       expect(isHostnameLocal("127.0.0.1.2")).toBe(false);
@@ -97,7 +103,7 @@ describe("helper functions", () => {
       expect(isUriLocalhost("http://127.0.0.5/")).toBe(true);
     });
     it("returns true for 'http://127.0.0.2.3/'", async () => {
-      expect(isUriLocalhost("http://127.0.2.3/")).toBe(false);
+      expect(isUriLocalhost("http://127.0.2.3/")).toBe(true);
     });
     it("returns false for 'http://127.0.0.500/'", async () => {
       // In Firefox, this will parse as URL,

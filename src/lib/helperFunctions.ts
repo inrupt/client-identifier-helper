@@ -50,11 +50,12 @@ export const isHostnameLocal = (hostname: string) => {
   if (hostname === "localhost" || hostname === "[::1]") {
     return true;
   }
-  if (hostname.startsWith("127.0.0.") && hostname.length <= 11) {
-    const lastBlock = Number(hostname.split("127.0.0.")[1]);
-    if (Number.isInteger(lastBlock) && Number(lastBlock) < 256) {
-      return true;
-    }
+  // Test 127.0.0.0/8 range.
+  const blocks = hostname.split(".");
+  if (blocks.length === 4 && blocks[0] === "127") {
+    return blocks
+      .slice(1)
+      .every((block) => Number(block) >= 0 && Number(block) < 256);
   }
   return false;
 };
