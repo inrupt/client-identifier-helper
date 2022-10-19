@@ -30,7 +30,7 @@ describe("well-formed client name check", () => {
     });
     expect(resultsForLocalhostClientId).toHaveLength(1);
     expect(resultsForLocalhostClientId[0].title).toMatch(
-      /Localhost Client Identifier/
+      /Client Identifier uses localhost/
     );
   });
 
