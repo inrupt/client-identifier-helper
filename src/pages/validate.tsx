@@ -112,7 +112,7 @@ function ClientIdentifierValidator() {
               be authorized to do so itself) and validate it.
             </Typography>
             <Typography variant="body1">
-              This will also check, if the REST resource is set up correctly and
+              We will also check if the correct accept headers are set and if
               the remote Client Identifier matches the one you enter here.
             </Typography>
             <Grid
