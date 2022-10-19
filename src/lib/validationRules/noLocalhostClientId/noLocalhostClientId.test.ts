@@ -21,11 +21,11 @@
 
 /* eslint-disable-next-line no-shadow */
 import { describe, expect, it } from "@jest/globals";
-import decentClientName from "./noLocalhostClientId";
+import noLocalhostClientId from "./noLocalhostClientId";
 
 describe("well-formed client name check", () => {
   it("warns on localhost client_id", async () => {
-    const resultsForLocalhostClientId = await decentClientName.check({
+    const resultsForLocalhostClientId = await noLocalhostClientId.check({
       document: { client_id: "http://localhost:1234" },
     });
     expect(resultsForLocalhostClientId).toHaveLength(1);
@@ -35,14 +35,14 @@ describe("well-formed client name check", () => {
   });
 
   it("passes on valid client_id", async () => {
-    const resultsForLocalhostClientId = await decentClientName.check({
+    const resultsForLocalhostClientId = await noLocalhostClientId.check({
       document: { client_id: "http://app.example" },
     });
     expect(resultsForLocalhostClientId).toHaveLength(0);
   });
 
   it("passes on invalid client_id", async () => {
-    const resultsForLocalhostClientId = await decentClientName.check({
+    const resultsForLocalhostClientId = await noLocalhostClientId.check({
       document: { client_id: "not a uri" },
     });
     expect(resultsForLocalhostClientId).toHaveLength(0);
