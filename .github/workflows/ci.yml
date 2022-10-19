@@ -13,11 +13,11 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "node_version=`cat .nvmrc`" >> $GITHUB_ENV
       - uses: actions/checkout@v3
+      - run: echo "node_version=$(cat .nvmrc)" >> $GITHUB_ENV
       - uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.node_version}}
+          node-version: ${{ env.node_version }}
           cache: "npm"
       - run: npm ci --ignore-scripts
       - run: npm test
@@ -59,12 +59,12 @@ jobs:
     needs: [ci]
     runs-on: ubuntu-latest
     steps:
-      - run: echo "node_version=`cat .nvmrc`" >> $GITHUB_ENV
       - uses: actions/checkout@v3
         with:
           # Sonar analysis needs the full history for features like automatic assignment of bugs. If the following step
           # is not included the project will show a warning about incomplete information.
           fetch-depth: 0
+      - run: echo "node_version=$(cat .nvmrc)" >> $GITHUB_ENV
       - uses: actions/download-artifact@v3
         with:
           name: code-coverage-ubuntu-latest-${{ env.node_version }}
