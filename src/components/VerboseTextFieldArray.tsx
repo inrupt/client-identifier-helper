@@ -40,6 +40,7 @@ export type VerboseFieldArrayRenderProps = TextFieldProps & {
   description: string | string[];
   values: string[];
   state?: VerboseFieldState | undefined;
+  necessity?: "recommended" | "required";
   childStates?: (VerboseFieldState | undefined)[];
   allowEmpty?: boolean;
   pushItem(obj: unknown): void;
@@ -61,6 +62,7 @@ export default function VerboseTextFieldArray(
     description,
     values,
     state = undefined,
+    necessity = undefined,
     childStates = undefined,
     allowEmpty = false,
 
@@ -89,6 +91,11 @@ export default function VerboseTextFieldArray(
             <FormHelperText>{descriptionParagraph}</FormHelperText>
           ))}
         </Grid>
+        {necessity && (
+          <FormHelperText sx={{ fontWeight: 800 }}>
+            * {necessity === "recommended" ? "Recommended" : "Required"}
+          </FormHelperText>
+        )}
       </Grid>
 
       <VerboseHelperText state={state} />
@@ -177,6 +184,7 @@ export default function VerboseTextFieldArray(
 
 VerboseTextFieldArray.defaultProps = {
   state: undefined,
+  necessity: undefined,
   childStates: undefined,
   componentFieldName: undefined,
   addRowLabel: "Add row",

@@ -31,6 +31,7 @@ import FieldNameLabel from "./FieldNameLabel";
 export interface VerboseTextFieldProps
   extends Omit<OutlinedTextFieldProps, "variant"> {
   state?: VerboseFieldState;
+  necessity?: "required" | "recommended";
   description?: string;
   fieldName?: string;
   formDescriptionTextProps?: FormHelperTextProps;
@@ -47,6 +48,7 @@ export interface VerboseTextFieldProps
 export default function VerboseTextField(props: VerboseTextFieldProps) {
   const {
     state = undefined,
+    necessity = undefined,
     description = undefined,
     fieldName = undefined,
     formDescriptionTextProps = {},
@@ -66,6 +68,7 @@ export default function VerboseTextField(props: VerboseTextFieldProps) {
         InputLabelProps={{ className: `Mui-${labelColor}` }}
         size="small"
         variant="outlined"
+        required={!!necessity}
         sx={statusColors}
         {...props}
       />
@@ -81,6 +84,11 @@ export default function VerboseTextField(props: VerboseTextFieldProps) {
           sx={{ paddingLeft: 2, marginTop: 0 }}
           {...formDescriptionTextProps}
         >
+          {necessity && (
+            <span style={{ fontWeight: 800 }}>
+              * {necessity === "recommended" ? "Recommended" : "Required"}.{" "}
+            </span>
+          )}
           {description}
         </FormHelperText>
       )}
@@ -90,6 +98,7 @@ export default function VerboseTextField(props: VerboseTextFieldProps) {
 
 VerboseTextField.defaultProps = {
   state: undefined,
+  necessity: undefined,
   description: undefined,
   fieldName: undefined,
   formDescriptionTextProps: undefined,
