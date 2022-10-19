@@ -46,16 +46,15 @@ export const statusToNumber = (
   return 0;
 };
 
+const LOCALHOST_IP_REGEX = /^127.\d{1,3}.\d{1,3}.\d{1,3}$/;
+
 export const isHostnameLocal = (hostname: string) => {
   if (hostname === "localhost" || hostname === "[::1]") {
     return true;
   }
   // Test 127.0.0.0/8 range.
-  const blocks = hostname.split(".");
-  if (blocks.length === 4 && blocks[0] === "127") {
-    return blocks
-      .slice(1)
-      .every((block) => Number(block) >= 0 && Number(block) < 256);
+  if (LOCALHOST_IP_REGEX.test(hostname)) {
+    return true;
   }
   return false;
 };
