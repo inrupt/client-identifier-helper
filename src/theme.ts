@@ -22,7 +22,7 @@ import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
   typography: {
-    fontFamily: `"Raleway", "Roboto", "sans-serif"`,
+    fontFamily: `"Raleway", "sans-serif"`,
     h1: {
       fontWeight: 800,
       fontSize: 22,
