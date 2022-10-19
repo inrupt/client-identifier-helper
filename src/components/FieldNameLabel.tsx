@@ -30,11 +30,9 @@ export default function FieldNameLabel(props: { fieldName: string }) {
       </span>
       &nbsp;
       <span>
-        <code>
-          <Typography fontSize={13} fontFamily="Courier Prime">
-            {fieldName}
-          </Typography>
-        </code>
+        <Typography fontSize={13} fontFamily="Courier Prime" component="code">
+          {fieldName}
+        </Typography>
       </span>
     </>
   );
