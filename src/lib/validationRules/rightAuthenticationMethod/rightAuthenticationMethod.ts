@@ -25,7 +25,7 @@ const rightAuthenticationMethod: ValidationRule = {
     type: "local",
     name: "Field `token_endpoint_auth_method` must be `none`.",
     description:
-      "Authentication with Client Identifier Documents is only supported with `token_endpoint_auth_method` set to `none`. This must be made explicit to comply with the Solid OIDC specification.",
+      "Authentication with Client Identifier Documents is only supported with `token_endpoint_auth_method` set to `none` as of the Solid OIDC specification. Note that not all OIDC Providers are strict on this policy.",
   },
   check: async (context: ValidationContext) => {
     // Emits warning, if unset, as this is not spec-compliant but would probably work with a solid OIDC server
