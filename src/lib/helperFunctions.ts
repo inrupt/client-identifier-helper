@@ -29,7 +29,14 @@ export const underScoreToCamelCase = (str: string) => {
 };
 
 export const statusToNumber = (
-  state: undefined | "default" | "success" | "info" | "warning" | "error"
+  state:
+    | undefined
+    | "unknown"
+    | "default"
+    | "success"
+    | "info"
+    | "warning"
+    | "error"
 ): number => {
   const statusToNumberMap = {
     error: 50,
@@ -37,6 +44,7 @@ export const statusToNumber = (
     info: 30,
     success: 20,
     default: 10,
+    unknown: 0,
     undefined: 0,
   };
 

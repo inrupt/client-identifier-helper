@@ -35,6 +35,7 @@ import {
 } from "@mui/material";
 
 import { ValidationResult } from "../lib/types";
+import { statusToNumber } from "../lib/helperFunctions";
 
 function AffectedField({
   fieldName,
@@ -81,7 +82,7 @@ function ResultCard(
   // eslint-disable-next-line no-shadow
   { result }: { result: ValidationResult }
 ) {
-  const ResultIcon = () => iconForResult[result.status];
+  const ResultIcon = () => iconForResult[result.status || "info"];
 
   const AffectedFields = result.affectedFields.map(
     ({ fieldName, fieldValue }) =>
@@ -129,9 +130,9 @@ export default function ValidationResults({
 }) {
   const sortedResults = results.sort(
     (result1, result2) =>
-      // Define order here..
-      ["error", "warning", "info", "success"].indexOf(result1.status) -
-      ["error", "warning", "info", "success"].indexOf(result2.status) +
+      // Order by severity
+      statusToNumber(result1.status) -
+      statusToNumber(result2.status) +
       // Remote document results are shown first
       (result1.rule.type === "remote" ? -100 : 0) -
       (result2.rule.type === "remote" ? -100 : 0)
