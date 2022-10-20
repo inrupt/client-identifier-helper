@@ -33,6 +33,7 @@ import ClientIdentifierGenerator from "./pages/generate";
 import ClientIdentifierValidator from "./pages/validate";
 import theme from "./theme";
 import inruptLogoUrl from "../static/inruptLogo.svg";
+import ClientIdentifierDocumentation from "./pages/ruleDocumentation";
 
 function TabsComponent() {
   const currentTab = useLocation().pathname;
@@ -71,6 +72,13 @@ function TabsComponent() {
           label={<Typography variant="h2">Validator</Typography>}
           component={Link}
           className="openValidatorPage"
+        />
+        <Tab
+          to="/documentation"
+          value="/documentation"
+          label={<Typography variant="h2">Documentation</Typography>}
+          component={Link}
+          className="openDocumentationPage"
         />
       </Tabs>
     </Box>
@@ -111,6 +119,10 @@ function App() {
             <Route path="*" element={<Navigate replace to="/generator" />} />
             <Route path="/generator" element={<ClientIdentifierGenerator />} />
             <Route path="/validator" element={<ClientIdentifierValidator />} />
+            <Route
+              path="/documentation"
+              element={<ClientIdentifierDocumentation />}
+            />
           </Routes>
         </BrowserRouter>
       </Grid>
