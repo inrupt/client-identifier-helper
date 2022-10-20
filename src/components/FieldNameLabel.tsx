@@ -19,21 +19,19 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 
 export default function FieldNameLabel(props: { fieldName: string }) {
   const { fieldName } = props;
   return (
-    <>
-      <span>
-        <Typography fontSize={12}>Field Name:</Typography>
-      </span>
+    <Grid item lineHeight={1}>
+      <Typography fontSize={12} component="span">
+        Field Name:
+      </Typography>
       &nbsp;
-      <span>
-        <Typography fontSize={13} fontFamily="Courier Prime" component="code">
-          {fieldName}
-        </Typography>
-      </span>
-    </>
+      <Typography fontSize={13} fontFamily="Courier Prime" component="code">
+        {fieldName}
+      </Typography>
+    </Grid>
   );
 }
