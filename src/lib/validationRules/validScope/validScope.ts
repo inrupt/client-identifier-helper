@@ -71,7 +71,7 @@ const resultDescriptions: Record<string, ResultDescription> = {
 const validScope: ValidationRule = {
   rule: {
     type: "local",
-    name: "`scope` field must be valid",
+    name: "Field `scope` must be valid",
     description:
       "The field `scope` must contain `openid` and `webid` and no unknown values. Values are stored in a space-separated string.",
   },
