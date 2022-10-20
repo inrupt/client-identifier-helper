@@ -41,7 +41,7 @@ const resultDescriptions: Record<string, ResultDescription> = {
 const validDefaultMaxAge: ValidationRule = {
   rule: {
     type: "local",
-    name: "If set, `default_max_age` should have reasonable integer values.",
+    name: "Field `default_max_age` should have reasonable integer values, if set.",
     description:
       "If set, the optional field `default_max_age` (expressed in seconds) needs to be a positive integer. The user has to re-authenticate every time, the time span is expired. Therefore, small values are discouraged.",
   },
