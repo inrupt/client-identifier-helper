@@ -1,6 +1,10 @@
 # client-identifier-helper
 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE-OF-CONDUCT.md)
+
+This project adheres to the Contributor Covenant [code of conduct](CODE-OF-CONDUCT.md). 
+By participating, you are expected to uphold this code. Please report unacceptable
+behavior to [engineering@inrupt.com](mailto:engineering@inrupt.com).
 
 A tool to create and validate Client Identifier Documents. You can find a live version [here](https://client-identifier-helper.vercel.app/).
 
