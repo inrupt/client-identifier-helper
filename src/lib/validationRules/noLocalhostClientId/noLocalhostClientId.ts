@@ -21,14 +21,12 @@
 import { isUriLocalhost } from "../../helperFunctions";
 import { ValidationContext, ValidationRule } from "../../types";
 
-const descriptionMessage =
-  "Client Identifier URIs must be dereferenced by the OIDC Provider and are therefore only useful for development when your client application and OIDC Provider run on the same machine.";
-
 const noLocalhostClientId: ValidationRule = {
   rule: {
     type: "local",
     name: "The Client Identifier URI field should not use localhost",
-    description: descriptionMessage,
+    description:
+      "A localhost Client Identifier URI cannot be dereferenced by a remote OIDC Provider and is therefore only useful for local development.",
   },
   check: async (context: ValidationContext) => {
     if (isUriLocalhost(String(context.document.client_id))) {
@@ -36,7 +34,8 @@ const noLocalhostClientId: ValidationRule = {
         {
           status: "warning",
           title: "Client Identifier uses localhost for `client_id`",
-          description: descriptionMessage,
+          description:
+            "Client Identifier URIs must be dereferenced by the OIDC Provider and are therefore only useful for development when your client application and OIDC Provider run on the same machine.",
           affectedFields: [
             { fieldName: "client_id", fieldValue: context.document.client_id },
           ],
