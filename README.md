@@ -2,7 +2,7 @@
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 
-A tool to create and validate Client Identifier Documents. You can find a live version [here](https://client-identifiers.tools.inrupt.com/).
+A tool to create and validate Client Identifier Documents. You can find a live version [here](https://client-identifier-helper.vercel.app/).
 
 This web application provides a validator and a generator for [Solid Client Identifier Documents](https://solidproject.org/TR/oidc#clientids), to help developers set up their Solid apps.
 
