@@ -21,14 +21,18 @@
 
 import { Grid, Typography } from "@mui/material";
 import ValidationRuleCard from "../components/ValidationRuleCard";
+import { ValidationRule } from "../lib/types";
 import { localRules, remoteRules } from "../lib/validationRules";
 
 //
 export default function ClientIdentifierDocumentation() {
-  const rules = [...localRules, ...remoteRules];
-  const rulesSorted = rules.sort((rule1, rule2) =>
-    rule1.rule.name.localeCompare(rule2.rule.name)
-  );
+  const compareRuleByName = (rule1: ValidationRule, rule2: ValidationRule) =>
+    rule1.rule.name.localeCompare(rule2.rule.name);
+
+  const rulesOrdered = [
+    ...remoteRules.sort(compareRuleByName),
+    ...localRules.sort(compareRuleByName),
+  ];
 
   return (
     <Grid
@@ -55,7 +59,7 @@ export default function ClientIdentifierDocumentation() {
           </Grid>
         </Grid>
         <Grid container item>
-          {rulesSorted.map((rule) => (
+          {rulesOrdered.map((rule) => (
             <ValidationRuleCard
               resultDescriptions={rule.resultDescriptions}
               rule={rule.rule}
