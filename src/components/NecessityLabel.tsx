@@ -34,7 +34,7 @@ export default function NecessityLabel({
   };
 
   return (
-    <FormHelperText sx={{ fontWeight: 800 }}>
+    <FormHelperText component="label" sx={{ fontWeight: 800 }}>
       * {necessityMap[necessity]}
     </FormHelperText>
   );

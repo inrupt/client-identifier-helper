@@ -76,23 +76,21 @@ export default function VerboseTextField(props: VerboseTextFieldProps) {
 
       <Grid item sx={{ paddingLeft: 2, marginTop: 0 }}>
         <VerboseHelperText state={state} />
-      </Grid>
 
-      {!description ? (
-        <> </>
-      ) : (
-        <FormHelperText
-          sx={{ paddingLeft: 2, marginTop: 0 }}
-          {...formDescriptionTextProps}
-        >
-          {necessity && (
-            <span>
-              <NecessityLabel necessity={necessity} />
-            </span>
-          )}
-          {description}
-        </FormHelperText>
-      )}
+        {!description ? (
+          <> </>
+        ) : (
+          <FormHelperText {...formDescriptionTextProps}>
+            {necessity && (
+              <span>
+                <NecessityLabel necessity={necessity} />.{" "}
+              </span>
+            )}
+
+            <span>{description}</span>
+          </FormHelperText>
+        )}
+      </Grid>
     </>
   );
 }
