@@ -58,7 +58,7 @@ export default function ClientIdentifierDocumentation() {
             </Typography>
           </Grid>
         </Grid>
-        <Grid container item>
+        <Grid container item className="RulesContainer">
           {rulesOrdered.map((rule) => (
             <ValidationRuleCard
               resultDescriptions={rule.resultDescriptions}
