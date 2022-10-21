@@ -322,7 +322,7 @@ export default function ClientIdentifierGenerator() {
                           Document should be a static resource and publicly
                           accessible."
                         state={formFieldStates.clientId.state}
-                        required
+                        necessity="required"
                         value={form.values.clientId}
                         onChange={form.handleChange}
                         onBlur={(e) => handleFieldBlur(form, e)}
@@ -340,7 +340,7 @@ export default function ClientIdentifierGenerator() {
                           they are authenticating your application at the
                           Solid OIDC Provider."
                         state={formFieldStates.clientName.state}
-                        required
+                        necessity="recommended"
                         value={form.values.clientName}
                         onChange={form.handleChange}
                         onBlur={(e) => handleFieldBlur(form, e)}
@@ -357,7 +357,7 @@ export default function ClientIdentifierGenerator() {
                           Displayed to the user when they are authenticating
                           your application at the Solid OIDC Provider."
                         state={formFieldStates.clientUri.state}
-                        required
+                        necessity="recommended"
                         value={form.values.clientUri}
                         onChange={form.handleChange}
                         onBlur={(e) => handleFieldBlur(form, e)}
@@ -402,7 +402,7 @@ export default function ClientIdentifierGenerator() {
                             inputProps={{ inputMode: "url" }}
                             fullWidth
                             size="small"
-                            required
+                            necessity="required"
                           />
                         )}
                       </FieldArray>

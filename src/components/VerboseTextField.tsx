@@ -27,10 +27,12 @@ import { statusColors } from "../theme";
 import VerboseHelperText from "./VerboseHelperText";
 import { VerboseFieldState } from "../lib/formValidationTypes";
 import FieldNameLabel from "./FieldNameLabel";
+import NecessityLabel, { Necessity } from "./NecessityLabel";
 
 export interface VerboseTextFieldProps
   extends Omit<OutlinedTextFieldProps, "variant"> {
   state?: VerboseFieldState;
+  necessity?: Necessity;
   description?: string;
   fieldName?: string;
   formDescriptionTextProps?: FormHelperTextProps;
@@ -47,6 +49,7 @@ export interface VerboseTextFieldProps
 export default function VerboseTextField(props: VerboseTextFieldProps) {
   const {
     state = undefined,
+    necessity = undefined,
     description = undefined,
     fieldName = undefined,
     formDescriptionTextProps = {},
@@ -66,30 +69,35 @@ export default function VerboseTextField(props: VerboseTextFieldProps) {
         InputLabelProps={{ className: `Mui-${labelColor}` }}
         size="small"
         variant="outlined"
+        required={!!necessity}
         sx={statusColors}
         {...props}
       />
 
       <Grid item sx={{ paddingLeft: 2, marginTop: 0 }}>
         <VerboseHelperText state={state} />
-      </Grid>
 
-      {!description ? (
-        <> </>
-      ) : (
-        <FormHelperText
-          sx={{ paddingLeft: 2, marginTop: 0 }}
-          {...formDescriptionTextProps}
-        >
-          {description}
-        </FormHelperText>
-      )}
+        {!description ? (
+          <> </>
+        ) : (
+          <FormHelperText {...formDescriptionTextProps}>
+            {necessity && (
+              <span>
+                <NecessityLabel necessity={necessity} />.{" "}
+              </span>
+            )}
+
+            <span>{description}</span>
+          </FormHelperText>
+        )}
+      </Grid>
     </>
   );
 }
 
 VerboseTextField.defaultProps = {
   state: undefined,
+  necessity: undefined,
   description: undefined,
   fieldName: undefined,
   formDescriptionTextProps: undefined,
