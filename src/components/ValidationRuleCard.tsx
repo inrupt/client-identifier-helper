@@ -76,16 +76,28 @@ export default function ValidationRuleCard(
           sx={{ padding: "1.5em" }}
           direction="column"
         >
-          <Grid item>
-            <Typography variant="h3">{rule.name}</Typography>
+          <Grid
+            container
+            item
+            alignContent="center"
+            justifyContent="space-between"
+          >
+            <Grid item>
+              <Typography variant="h3">{rule.name}</Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant="body2">validates {rule.type}</Typography>
+            </Grid>
           </Grid>
+
           <Grid item>
             <Typography variant="body2" color="text.secondary">
               {rule.description}
             </Typography>
           </Grid>
+
+          {/* results */}
           <Grid item xs={12}>
-            {/* results */}
             <Accordion
               sx={{ boxShadow: "none" }}
               className="RuleResultsAccordion"
