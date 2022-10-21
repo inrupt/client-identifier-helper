@@ -21,35 +21,23 @@
 import { isUriLocalhost } from "../../helperFunctions";
 import { ValidationContext, ValidationRule } from "../../types";
 
-const noMixedRedirectUrls: ValidationRule = {
+const noLocalhostClientId: ValidationRule = {
   rule: {
     type: "local",
-    name: "Redirect URIs must not contain both localhost and other domain names",
-    description: "Redirect URIs must not contain localhost _and_ remote URIs.",
+    name: "The Client Identifier URI field should not use localhost",
+    description:
+      "A localhost Client Identifier URI cannot be dereferenced by a remote OIDC Provider and is therefore only useful for local development.",
   },
   check: async (context: ValidationContext) => {
-    if (!Array.isArray(context.document.redirect_uris)) {
-      return [];
-    }
-    const localHostCount = context.document.redirect_uris.filter((uri) =>
-      isUriLocalhost(uri)
-    ).length;
-
-    if (
-      localHostCount !== 0 &&
-      localHostCount !== context.document.redirect_uris.length
-    ) {
+    if (isUriLocalhost(String(context.document.client_id))) {
       return [
         {
-          status: "error",
-          title: "Mixed localhost and remote redirect URIs",
+          status: "warning",
+          title: "Client Identifier uses localhost for `client_id`",
           description:
-            "Redirect URIs must only have remote _or_ localhost URIs.",
+            "Client Identifier URIs must be dereferenced by the OIDC Provider and are therefore only useful for development when your client application and OIDC Provider run on the same machine.",
           affectedFields: [
-            {
-              fieldName: "redirect_uris",
-              fieldValue: context.document.redirect_uris,
-            },
+            { fieldName: "client_id", fieldValue: context.document.client_id },
           ],
         },
       ];
@@ -58,4 +46,4 @@ const noMixedRedirectUrls: ValidationRule = {
   },
 };
 
-export default noMixedRedirectUrls;
+export default noLocalhostClientId;

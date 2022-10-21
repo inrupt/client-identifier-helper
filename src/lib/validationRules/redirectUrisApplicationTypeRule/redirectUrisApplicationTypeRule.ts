@@ -19,6 +19,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+import { isUriLocalhost } from "../../helperFunctions";
 import { ValidationRule, RuleResult, ValidationContext } from "../../types";
 
 const redirectUrisApplicationTypeRule: ValidationRule = {
@@ -29,14 +30,6 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
       "Apps with `application_type` `web` must use https protocol for remote hosts or at least http for localhost clients. Clients with `application_type` `native` must use a custom scheme or http(s) on localhost.",
   },
   check: async (context: ValidationContext) => {
-    const isUrlLocalhost = (url: URL): boolean => {
-      return (
-        url.hostname === "localhost" ||
-        (url.hostname.startsWith("127.0.0.") && url.hostname.length <= 11) ||
-        url.hostname === "[::1]"
-      );
-    };
-
     const checkUri = (uri: string, index: number): RuleResult[] => {
       let url: URL;
       try {
@@ -48,7 +41,7 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
       if (
         (context.document.application_type === "web" ||
           context.document.application_type === undefined) &&
-        !isUrlLocalhost(url) &&
+        !isUriLocalhost(uri) &&
         url.protocol === "http:"
       ) {
         return [
@@ -92,7 +85,7 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
 
       if (
         context.document.application_type === "native" &&
-        !isUrlLocalhost(url) &&
+        !isUriLocalhost(uri) &&
         (url.protocol === "https:" || url.protocol === "http:")
       ) {
         return [

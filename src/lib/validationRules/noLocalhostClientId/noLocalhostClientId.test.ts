@@ -19,50 +19,32 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-export const underScoreToCamelCase = (str: string) => {
-  return str
-    .split("_")
-    .map((part, idx) =>
-      idx === 0 ? part : part.substring(0, 1).toUpperCase() + part.substring(1)
-    )
-    .join("");
-};
+/* eslint-disable-next-line no-shadow */
+import { describe, expect, it } from "@jest/globals";
+import noLocalhostClientId from "./noLocalhostClientId";
 
-export const statusToNumber = (
-  state: undefined | "default" | "success" | "info" | "warning" | "error"
-): number => {
-  const statusToNumberMap = {
-    error: 50,
-    warning: 40,
-    info: 30,
-    success: 20,
-    default: 10,
-    undefined: 0,
-  };
+describe("well-formed client name check", () => {
+  it("warns on localhost client_id", async () => {
+    const resultsForLocalhostClientId = await noLocalhostClientId.check({
+      document: { client_id: "http://localhost:1234" },
+    });
+    expect(resultsForLocalhostClientId).toHaveLength(1);
+    expect(resultsForLocalhostClientId[0].title).toMatch(
+      /Client Identifier uses localhost/
+    );
+  });
 
-  if (state && Object.hasOwn(statusToNumberMap, state)) {
-    return statusToNumberMap[state];
-  }
-  return 0;
-};
+  it("passes on valid client_id", async () => {
+    const resultsForLocalhostClientId = await noLocalhostClientId.check({
+      document: { client_id: "http://app.example" },
+    });
+    expect(resultsForLocalhostClientId).toHaveLength(0);
+  });
 
-const LOCALHOST_IP_REGEX = /^127.\d{1,3}.\d{1,3}.\d{1,3}$/;
-
-export const isHostnameLocal = (hostname: string) => {
-  if (hostname === "localhost" || hostname === "[::1]") {
-    return true;
-  }
-  // Test 127.0.0.0/8 range.
-  if (LOCALHOST_IP_REGEX.test(hostname)) {
-    return true;
-  }
-  return false;
-};
-
-export const isUriLocalhost = (uri: string) => {
-  try {
-    return isHostnameLocal(new URL(uri).hostname);
-  } catch (error) {
-    return false;
-  }
-};
+  it("passes on invalid client_id", async () => {
+    const resultsForLocalhostClientId = await noLocalhostClientId.check({
+      document: { client_id: "not a uri" },
+    });
+    expect(resultsForLocalhostClientId).toHaveLength(0);
+  });
+});
