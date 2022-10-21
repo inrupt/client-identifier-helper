@@ -19,7 +19,19 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 import { isUriLocalhost } from "../../helperFunctions";
-import { ValidationContext, ValidationRule } from "../../types";
+import {
+  ResultDescription,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  localAndRemoteRedirectUris: {
+    status: "error",
+    title: "Mixed localhost and remote redirect URIs",
+    description: "Redirect URIs must only have remote _or_ localhost URIs.",
+  },
+};
 
 const noMixedRedirectUrls: ValidationRule = {
   rule: {
@@ -27,6 +39,7 @@ const noMixedRedirectUrls: ValidationRule = {
     name: "Redirect URIs must not contain both localhost and other domain names",
     description: "Redirect URIs must not contain localhost _and_ remote URIs.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     if (!Array.isArray(context.document.redirect_uris)) {
       return [];
@@ -41,10 +54,7 @@ const noMixedRedirectUrls: ValidationRule = {
     ) {
       return [
         {
-          status: "error",
-          title: "Mixed localhost and remote redirect URIs",
-          description:
-            "Redirect URIs must only have remote _or_ localhost URIs.",
+          ...resultDescriptions.localAndRemoteRedirectUris,
           affectedFields: [
             {
               fieldName: "redirect_uris",

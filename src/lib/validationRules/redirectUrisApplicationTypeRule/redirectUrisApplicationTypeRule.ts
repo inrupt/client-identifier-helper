@@ -20,7 +20,32 @@
 //
 
 import { isUriLocalhost } from "../../helperFunctions";
-import { ValidationRule, RuleResult, ValidationContext } from "../../types";
+import {
+  ResultDescription,
+  RuleResult,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  noSecureRedirectUriProtocol: {
+    status: "error",
+    title: "Insecure http for Redirect URI",
+    description:
+      "Redirect URIs must use https for application type `web`, unless on localhost.",
+  },
+  invalidRedirectUriProtocol: {
+    status: "error",
+    title: "Wrong protocol for Redirect URI",
+    description:
+      "Redirect URIs must use http(s) for application type `web` on localhost (for remote URIs https).",
+  },
+  remoteUriForNativeClient: {
+    status: "error",
+    title: "No remote http(s) allowed for `native` client's redirect URIs",
+    description: `For \`application_type\` \`native\`, the redirect URIs must not use non-localhost http(s).`,
+  },
+};
 
 const redirectUrisApplicationTypeRule: ValidationRule = {
   rule: {
@@ -29,6 +54,7 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
     description:
       "Apps with `application_type` `web` must use https protocol for remote hosts or at least http for localhost clients. Clients with `application_type` `native` must use a custom scheme or http(s) on localhost.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     const checkUri = (uri: string, index: number): RuleResult[] => {
       let url: URL;
@@ -46,10 +72,7 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
       ) {
         return [
           {
-            status: "error",
-            title: "Insecure http for Redirect URI",
-            description:
-              "Redirect URIs must use https for application type `web`, unless on localhost.",
+            ...resultDescriptions.noSecureRedirectUriProtocol,
             affectedFields: [
               { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
               {
@@ -68,10 +91,7 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
       ) {
         return [
           {
-            status: "error",
-            title: "Wrong protocol for Redirect URI",
-            description:
-              "Redirect URIs must use http(s) for application type `web` on localhost (for remote URIs https).",
+            ...resultDescriptions.invalidRedirectUriProtocol,
             affectedFields: [
               { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
               {
@@ -90,10 +110,7 @@ const redirectUrisApplicationTypeRule: ValidationRule = {
       ) {
         return [
           {
-            status: "error",
-            title:
-              "No remote http(s) allowed for `native` client's redirect URIs",
-            description: `For \`application_type\` \`native\`, the redirect URIs must not use non-localhost http(s).`,
+            ...resultDescriptions.remoteUriForNativeClient,
             affectedFields: [
               { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
               {

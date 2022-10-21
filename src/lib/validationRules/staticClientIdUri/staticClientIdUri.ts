@@ -19,7 +19,20 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { ValidationRule, ValidationContext } from "../../types";
+import {
+  ValidationRule,
+  ValidationContext,
+  ResultDescription,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  searchParamsInClientId: {
+    status: "warning",
+    title: "Search parameters in Client Identifier URI",
+    description:
+      "The Client Identifier URI should be hosted statically. Search parameters seem to be wrong at place.",
+  },
+};
 
 const staticClientIdUri: ValidationRule = {
   rule: {
@@ -28,6 +41,7 @@ const staticClientIdUri: ValidationRule = {
     description:
       "The Client Identifier Document should be hosted statically. Therefore, search parameters hint at an anti-pattern.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     let url: URL;
     if (typeof context.document.client_id !== "string") {
@@ -42,10 +56,7 @@ const staticClientIdUri: ValidationRule = {
     if (url.search !== "") {
       return [
         {
-          status: "warning",
-          title: "Search parameters in Client Identifier URI",
-          description:
-            "The Client Identifier URI should be hosted statically. Search parameters seem to be wrong at place.",
+          ...resultDescriptions.searchParamsInClientId,
           affectedFields: [
             {
               fieldName: "client_id",

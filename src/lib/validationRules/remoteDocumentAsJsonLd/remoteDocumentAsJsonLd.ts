@@ -19,7 +19,41 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { RemoteValidationContext, RemoteValidationRule } from "../../types";
+import {
+  RemoteValidationContext,
+  RemoteValidationRule,
+  ResultDescription,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  unexpectedRedirect: {
+    status: "warning",
+    title: "Unexpected redirect",
+    description: "Upon fetching Client Identifier Document, redirect happened",
+  },
+  unexpectedStatusCode: {
+    status: "error",
+    title: "Unexpected status code",
+    description: `The status code from fetching Client Identifier Document should have been 200.`,
+  },
+  jsonContentTypeHeader: {
+    status: "warning",
+    title:
+      "Use `content-type` header `application/ld+json` over `application/json`",
+    description: `The Response Header \`content-type\` should return \`application/ld+json\`.`,
+  },
+  invalidContentTypeHeader: {
+    status: "error",
+    title: "Invalid `content-type` header fetching Client Identifier",
+    description: `The Response Header \`content-type\` must have a MIME type of \`application/ld+json\` or \`application/json\``,
+  },
+  validJsonLdDocument: {
+    status: "success",
+    title: "Remote Document is a valid JSON-LD document",
+    description:
+      "The Remote Document located at the Client Identifier URI could be fetched and has the right `@context` value set.",
+  },
+};
 
 const remoteDocumentAsJsonLd: RemoteValidationRule = {
   rule: {
@@ -28,14 +62,12 @@ const remoteDocumentAsJsonLd: RemoteValidationRule = {
     description:
       "The Client Identifier Document must contain the correct Solid OIDC context. The server must serve a mime type of `application/json` or `application/ld+json`",
   },
+  resultDescriptions,
   check: async (context: RemoteValidationContext) => {
     if (context.fetchResponse.redirected) {
       return [
         {
-          status: "warning",
-          title: "Unexpected redirect",
-          description:
-            "Upon fetching Client Identifier Document, redirect happened",
+          ...resultDescriptions.unexpectedRedirect,
           affectedFields: [
             { fieldName: "client_id", fieldValue: context.documentIri },
           ],
@@ -46,11 +78,13 @@ const remoteDocumentAsJsonLd: RemoteValidationRule = {
     if (context.fetchResponse.status !== 200) {
       return [
         {
-          status: "error",
-          title: "Unexpected status code",
-          description: `The status code from fetching Client Identifier Document was ${context.fetchResponse.status} but should have been 200.`,
+          ...resultDescriptions.unexpectedStatusCode,
           affectedFields: [
             { fieldName: "client_id", fieldValue: context.documentIri },
+            {
+              fieldName: "status code",
+              fieldValue: context.fetchResponse.status,
+            },
           ],
         },
       ];
@@ -62,10 +96,7 @@ const remoteDocumentAsJsonLd: RemoteValidationRule = {
     if (mimeType === "application/json") {
       return [
         {
-          status: "warning",
-          title:
-            "Use `content-type` header `application/ld+json` over `application/json`",
-          description: `The Response Header \`content-type\` should return \`application/ld+json\`.`,
+          ...resultDescriptions.jsonContentTypeHeader,
           affectedFields: [
             { fieldName: "content-type", fieldValue: contentType },
           ],
@@ -76,9 +107,7 @@ const remoteDocumentAsJsonLd: RemoteValidationRule = {
     if (mimeType !== "application/ld+json") {
       return [
         {
-          status: "error",
-          title: "Invalid `content-type` header fetching Client Identifier",
-          description: `The Response Header \`content-type\` must have a MIME type of \`application/ld+json\` or \`application/json\` but was \`${mimeType}\``,
+          ...resultDescriptions.invalidContentTypeHeader,
           affectedFields: [
             { fieldName: "content-type", fieldValue: contentType },
           ],
@@ -88,10 +117,7 @@ const remoteDocumentAsJsonLd: RemoteValidationRule = {
 
     return [
       {
-        status: "success",
-        title: "Remote Document is a valid JSON-LD document",
-        description:
-          "The Remote Document located at the Client Identifier URI could be fetched and has the right `@context` value set.",
+        ...resultDescriptions.validJsonLdDocument,
         affectedFields: [
           { fieldName: "client_id", fieldValue: context.documentIri },
         ],

@@ -18,7 +18,31 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { ValidationContext, ValidationRule } from "../../types";
+import {
+  ResultDescription,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  missingClientName: {
+    status: "warning",
+    title: "No Client Name present",
+    description:
+      "The document has no Client Name set. It should be set for authentication providers to display the name to the end-user.",
+  },
+  invalidClientName: {
+    status: "error",
+    title: "Invalid Client Name",
+    description: "The Client Name is not of type string",
+  },
+  longClientName: {
+    status: "warning",
+    title: "Long Client Name",
+    description:
+      "The length of the Client Name is longer than 50 characters. This might cause presentation problems.",
+  },
+};
 
 const decentClientName: ValidationRule = {
   rule: {
@@ -31,10 +55,7 @@ const decentClientName: ValidationRule = {
     if (!context.document.client_name) {
       return [
         {
-          status: "warning",
-          title: "No Client Name present",
-          description:
-            "The document has no Client Name set. It should be set for authentication providers to display the name to the end-user.",
+          ...resultDescriptions.missingClientName,
           affectedFields: [
             {
               fieldName: "client_name",
@@ -48,9 +69,7 @@ const decentClientName: ValidationRule = {
     if (typeof context.document.client_name !== "string") {
       return [
         {
-          status: "error",
-          title: "Invalid Client Name",
-          description: "The Client Name is not of type string",
+          ...resultDescriptions.invalidClientName,
           affectedFields: [
             {
               fieldName: "client_name",
@@ -81,10 +100,7 @@ const decentClientName: ValidationRule = {
     if (context.document.client_name.length > 50) {
       return [
         {
-          status: "warning",
-          title: "Long Client Name",
-          description:
-            "The length of the Client Name is longer than 50 characters. This might cause presentation problems.",
+          ...resultDescriptions.longClientName,
           affectedFields: [
             {
               fieldName: "client_name",
@@ -97,6 +113,7 @@ const decentClientName: ValidationRule = {
 
     return [];
   },
+  resultDescriptions,
 };
 
 export default decentClientName;

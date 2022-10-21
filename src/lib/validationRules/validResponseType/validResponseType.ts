@@ -18,7 +18,32 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { ValidationContext, ValidationRule } from "../../types";
+import {
+  ResultDescription,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  responseTypeInvalid: {
+    status: "error",
+    title: "Invalid `response_types`",
+    description:
+      'The field `response_types` should be left unset (or set to default `["code"]`).',
+  },
+  responseTypeMissesScope: {
+    status: "error",
+    title: "Missing value in `response_types`",
+    description:
+      'The field `response_types` should be left unset (or set to default `["code"]`).',
+  },
+  responseTypeUnexpectedValues: {
+    status: "warning",
+    title: "Field `response_types` has more values than expected",
+    description:
+      'The field `response_types` should be left unset (or set to default `["code"]`). There are no other valid options as per the Solid OIDC spec.',
+  },
+};
 
 const validResponseType: ValidationRule = {
   rule: {
@@ -27,6 +52,7 @@ const validResponseType: ValidationRule = {
     description:
       "For Solid OIDC, the only valid value is `code` (which is the default).",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     if (typeof context.document.response_types === "undefined") {
       return [];
@@ -34,10 +60,7 @@ const validResponseType: ValidationRule = {
     if (!Array.isArray(context.document.response_types)) {
       return [
         {
-          status: "error",
-          title: "Invalid `response_types`",
-          description:
-            'The field `response_types` should be left unset (or set to default `["code"]`).',
+          ...resultDescriptions.responseTypeInvalid,
           affectedFields: [
             {
               fieldName: "response_types",
@@ -51,10 +74,7 @@ const validResponseType: ValidationRule = {
     if (!context.document.response_types.includes("code")) {
       return [
         {
-          status: "error",
-          title: "Missing value in `response_types`",
-          description:
-            'The field `response_types` should be left unset (or set to default `["code"]`).',
+          ...resultDescriptions.responseTypeMissesScope,
           affectedFields: [
             {
               fieldName: "application_type",
@@ -68,10 +88,7 @@ const validResponseType: ValidationRule = {
     if (context.document.response_types.length > 1) {
       return [
         {
-          status: "warning",
-          title: "Field `response_types` has more values than expected",
-          description:
-            'The field `response_types` should be left unset (or set to default `["code"]`). There are no other valid options as per the Solid OIDC spec.',
+          ...resultDescriptions.responseTypeUnexpectedValues,
           affectedFields: [
             {
               fieldName: "application_type",

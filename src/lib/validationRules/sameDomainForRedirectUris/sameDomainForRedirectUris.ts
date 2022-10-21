@@ -18,7 +18,20 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { ValidationContext, ValidationRule } from "../../types";
+import {
+  ResultDescription,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  multipleRedirectDomains: {
+    status: "warning",
+    title: "Multiple redirect URI domains",
+    description:
+      "Redirect URIs should be situated within the same domain. Maybe separate apps for separate domains might be a better option..",
+  },
+};
 
 const sameDomainForRedirectUris: ValidationRule = {
   rule: {
@@ -27,6 +40,7 @@ const sameDomainForRedirectUris: ValidationRule = {
     description:
       "Redirect URIs should usually be located under the same domain. Perhaps, setting up two clients / Client Identifier Documents is better.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     if (!Array.isArray(context.document.redirect_uris)) {
       return [];
@@ -43,10 +57,7 @@ const sameDomainForRedirectUris: ValidationRule = {
     if (hostNames.size > 1) {
       return [
         {
-          status: "warning",
-          title: "Multiple redirect URI domains",
-          description:
-            "Redirect URIs should be situated within the same domain. Maybe separate apps for separate domains might be a better option..",
+          ...resultDescriptions.multipleRedirectDomains,
           affectedFields: [
             {
               fieldName: "redirect_uris",

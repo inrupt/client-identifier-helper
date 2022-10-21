@@ -18,7 +18,20 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { ValidationContext, ValidationRule } from "../../types";
+import {
+  ResultDescription,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  applicationTypeInvalid: {
+    status: "error",
+    title: "Application Type invalid",
+    description:
+      "The field `application_type` must either be `web` or `native` (or unset, defaulting to `web`).",
+  },
+};
 
 const validApplicationType: ValidationRule = {
   rule: {
@@ -27,6 +40,7 @@ const validApplicationType: ValidationRule = {
     description:
       "For the field `application_type`, the two supported values are `web` or `native`. The default is `web`.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     if (
       context.document.application_type === undefined ||
@@ -39,10 +53,7 @@ const validApplicationType: ValidationRule = {
 
     return [
       {
-        status: "error",
-        title: "Application Type invalid",
-        description:
-          "The field `application_type` must either be `web` or `native` (or unset, defaulting to `web`).",
+        ...resultDescriptions.applicationTypeInvalid,
         affectedFields: [
           {
             fieldName: "application_type",

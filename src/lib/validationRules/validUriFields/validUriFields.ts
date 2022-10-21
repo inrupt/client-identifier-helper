@@ -18,7 +18,40 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { ValidationRule, RuleResult, ValidationContext } from "../../types";
+import {
+  ValidationRule,
+  RuleResult,
+  ValidationContext,
+  ResultDescription,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  uriNotSet: {
+    status: "unknown",
+    title: `URI not set`,
+    description: "The given URI field is not present.",
+  },
+  uriNoString: {
+    status: "error",
+    title: `URI field not a string`,
+    description: "The given URI field is not a string.",
+  },
+  uriMalformed: {
+    status: "error",
+    title: `URI malformed`,
+    description: "The field is not a valid URI.",
+  },
+  uriNoHttps: {
+    status: "warning",
+    title: `URI does not use https`,
+    description: `URIs should use the https protocol.`,
+  },
+  uriValid: {
+    status: "success",
+    title: `URI syntax looks good`,
+    description: "No issues detected.",
+  },
+};
 
 /** Helper function to check each of the URI fields applied to this rule. */
 export const checkUrlSyntax = (
@@ -30,9 +63,8 @@ export const checkUrlSyntax = (
   if (!uri) {
     return [
       {
+        ...resultDescriptions.uriNotSet,
         status: resultIfMissing,
-        title: `URI field \`${fieldName}\` not set`,
-        description: "The given URI field is not present.",
         affectedFields: [{ fieldName, fieldValue: uri }],
       },
     ];
@@ -41,9 +73,7 @@ export const checkUrlSyntax = (
   if (typeof uri !== "string") {
     return [
       {
-        status: "error",
-        title: `URI field \`${fieldName}\` not a string`,
-        description: "The given URI field is not a string.",
+        ...resultDescriptions.uriNoString,
         affectedFields: [{ fieldName, fieldValue: uri }],
       },
     ];
@@ -55,9 +85,7 @@ export const checkUrlSyntax = (
   } catch {
     return [
       {
-        status: "error",
-        title: `URI of \`${fieldName}\` malformed`,
-        description: "The field is not a valid URI.",
+        ...resultDescriptions.uriMalformed,
         affectedFields: [{ fieldName, fieldValue: uri }],
       },
     ];
@@ -65,9 +93,7 @@ export const checkUrlSyntax = (
   if (parsedUrl.protocol !== "https:") {
     return [
       {
-        status: "warning",
-        title: `URI of \`${fieldName}\` does not use https`,
-        description: `URIs should use the https protocol.`,
+        ...resultDescriptions.uriNoHttps,
         affectedFields: [{ fieldName, fieldValue: uri }],
       },
     ];
@@ -76,9 +102,7 @@ export const checkUrlSyntax = (
   if (emitSuccess) {
     return [
       {
-        status: "success",
-        title: `URI syntax of \`${fieldName}\` looks good`,
-        description: "No issues detected.",
+        ...resultDescriptions.uriValid,
         affectedFields: [{ fieldName, fieldValue: uri }],
       },
     ];
@@ -90,8 +114,10 @@ const validUriFields: ValidationRule = {
   rule: {
     type: "local",
     name: "URIs must be syntactically correct",
-    description: "URI fields must follow the URI .",
+    description:
+      "Fields ending with `_uri` and the field`client_id` must adhere to URI syntax.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     const results: RuleResult[] = [
       ...checkUrlSyntax(context.document.client_id, "client_id", "error", true),

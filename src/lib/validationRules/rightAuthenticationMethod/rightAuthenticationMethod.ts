@@ -18,7 +18,31 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { ValidationContext, ValidationRule } from "../../types";
+import {
+  ResultDescription,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  authMethodUnset: {
+    status: "error",
+    title: "Field `token_endpoint_auth_method` unset.",
+    description:
+      "The field `token_endpoint_auth_method` should be explicitly set to `none`. As per the OpenID spec, the default value is `client_secret_basic` which is not valid for using Client Identifier Documents. For a solid authentication server, an unset value might work but as of the spec, it is undefined behavior.",
+  },
+  authMethodInvalid: {
+    status: "error",
+    title: "Field `token_endpoint_auth_method` must be set to `none`.",
+    description:
+      "The field `token_endpoint_auth_method` must be set to `none` for authentication with Client Identifier Documents.",
+  },
+  authMethodValid: {
+    status: "success",
+    title: "Auth method looks fine.",
+    description: "No issues found for field `token_endpoint_auth_method`.",
+  },
+};
 
 const rightAuthenticationMethod: ValidationRule = {
   rule: {
@@ -27,15 +51,13 @@ const rightAuthenticationMethod: ValidationRule = {
     description:
       "Authentication with Client Identifier Documents is only supported with `token_endpoint_auth_method` set to `none` as of the Solid OIDC specification. Note that not all OIDC Providers are strict on this policy.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     // Emits warning, if unset, as this is not spec-compliant but would probably work with a solid OIDC server
     if (typeof context.document.token_endpoint_auth_method === "undefined") {
       return [
         {
-          status: "error",
-          title: "Field `token_endpoint_auth_method` unset.",
-          description:
-            "The field `token_endpoint_auth_method` should be explicitly set to `none`. As per the OpenID spec, the default value is `client_secret_basic` which is not valid for using Client Identifier Documents. For a solid authentication server, an unset value might work but as of the spec, it is undefined behavior.",
+          ...resultDescriptions.authMethodUnset,
           affectedFields: [
             {
               fieldName: "token_endpoint_auth_method",
@@ -49,10 +71,7 @@ const rightAuthenticationMethod: ValidationRule = {
     if (context.document.token_endpoint_auth_method !== "none") {
       return [
         {
-          status: "error",
-          title: "Field `token_endpoint_auth_method` must be set to `none`.",
-          description:
-            "The field `token_endpoint_auth_method` must be set to `none` for authentication with Client Identifier Documents.",
+          ...resultDescriptions.authMethodInvalid,
           affectedFields: [
             {
               fieldName: "token_endpoint_auth_method",
@@ -65,9 +84,7 @@ const rightAuthenticationMethod: ValidationRule = {
 
     return [
       {
-        status: "success",
-        title: "Auth method looks fine.",
-        description: "No issues found for field `token_endpoint_auth_method`.",
+        ...resultDescriptions.authMethodValid,
         affectedFields: [
           {
             fieldName: "token_endpoint_auth_method",

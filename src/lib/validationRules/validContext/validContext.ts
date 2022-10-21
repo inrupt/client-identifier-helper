@@ -18,7 +18,30 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { OIDC_CONTEXT, ValidationContext, ValidationRule } from "../../types";
+import {
+  OIDC_CONTEXT,
+  ResultDescription,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  contextFieldMissing: {
+    status: "error",
+    title: "`@context` field missing",
+    description: `The Client Identifier Document must have an \`@context\` field with a value of \`["${OIDC_CONTEXT}"]\` or just "${OIDC_CONTEXT}".`,
+  },
+  contextFieldValid: {
+    status: "success",
+    title: "Document has valid json+ld context",
+    description: "The document has the correct `@context` value set.",
+  },
+  contextFieldInvalid: {
+    status: "error",
+    title: "@context must be set correctly",
+    description: `The @context must be set to \`https://www.w3.org/ns/solid/oidc-context.jsonld\` or \`[${OIDC_CONTEXT}]\``,
+  },
+};
 
 const validContext: ValidationRule = {
   rule: {
@@ -26,13 +49,12 @@ const validContext: ValidationRule = {
     name: "Correct ld+json @context",
     description: "The document must have a correct ld+json @context field.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     if (!context.document["@context"]) {
       return [
         {
-          status: "error",
-          title: "`@context` field missing",
-          description: `The Client Identifier Document must have an \`@context\` field with a value of \`["${OIDC_CONTEXT}"]\` or just "${OIDC_CONTEXT}".`,
+          ...resultDescriptions.contextFieldMissing,
           affectedFields: [
             { fieldName: "@context", fieldValue: context.document["@context"] },
           ],
@@ -48,9 +70,7 @@ const validContext: ValidationRule = {
     ) {
       return [
         {
-          status: "success",
-          title: "Document has valid json+ld context",
-          description: "The document has the correct `@context` value set.",
+          ...resultDescriptions.contextFieldValid,
           affectedFields: [
             { fieldName: "@context", fieldValue: context.document["@context"] },
           ],
@@ -60,9 +80,7 @@ const validContext: ValidationRule = {
 
     return [
       {
-        status: "error",
-        title: "@context must be set correctly",
-        description: `The @context must be set to \`https://www.w3.org/ns/solid/oidc-context.jsonld\` or \`[${OIDC_CONTEXT}]\``,
+        ...resultDescriptions.contextFieldInvalid,
         affectedFields: [
           { fieldName: "@context", fieldValue: context.document["@context"] },
         ],

@@ -19,7 +19,54 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { ValidationRule, RuleResult, ValidationContext } from "../../types";
+import {
+  ValidationRule,
+  RuleResult,
+  ValidationContext,
+  ResultDescription,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  scopeInvalid: {
+    status: "error",
+    title: "Invalid Scope value",
+    description:
+      "The field `scope` must be a string (of space-separated values) or unset.",
+  },
+  scopeNotSet: {
+    status: "warning",
+    title: "Scope field not set",
+    description:
+      "The `scope` field is unset. It is strongly recommended to explicitly set it to `openid webid`.",
+  },
+  scopeMissesOpenid: {
+    status: "error",
+    title: "Missing Scope `openid`",
+    description:
+      "If the `scope` field is set, it must contain the value `openid` (as a space-separated value).",
+  },
+  scopeMissesWebid: {
+    status: "error",
+    title: "Missing Scope `webid`",
+    description:
+      "If the `scope` field is set, it must contain the value `webid` (as a space-separated value).",
+  },
+  scopeDuplicateValues: {
+    status: "error",
+    title: "Duplicate Scope values",
+    description: "There are scope values present more than once..",
+  },
+  scopeUnknownValues: {
+    status: "info",
+    title: "Unknown Scope value",
+    description: `There are unknown scope values present. Are you sure, this is intended?`,
+  },
+  scopeValid: {
+    status: "success",
+    title: "Scope looks fine",
+    description: "The field `scope` looks fine.",
+  },
+};
 
 const validScope: ValidationRule = {
   rule: {
@@ -28,6 +75,7 @@ const validScope: ValidationRule = {
     description:
       "The field `scope` must contain `openid` and `webid` and no unknown values. Values are stored in a space-separated string.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     if (
       typeof context.document.scope !== "string" &&
@@ -35,10 +83,7 @@ const validScope: ValidationRule = {
     ) {
       return [
         {
-          status: "error",
-          title: "Invalid Scope value",
-          description:
-            "The field `scope` must be a string (of space-separated values) or unset.",
+          ...resultDescriptions.scopeInvalid,
           affectedFields: [
             { fieldName: "scope", fieldValue: context.document.scope },
           ],
@@ -52,10 +97,7 @@ const validScope: ValidationRule = {
     ) {
       return [
         {
-          status: "warning",
-          title: "Scope field not set",
-          description:
-            "The `scope` field is unset. It is strongly recommended to explicitly set it to `openid webid`.",
+          ...resultDescriptions.scopeNotSet,
           affectedFields: [
             { fieldName: "scope", fieldValue: context.document.scope },
           ],
@@ -68,10 +110,7 @@ const validScope: ValidationRule = {
     const results: RuleResult[] = [];
     if (!scopes.includes("openid")) {
       results.push({
-        status: "error",
-        title: "Missing Scope `openid`",
-        description:
-          "If the `scope` field is set, it must contain the value `openid` (as a space-separated value).",
+        ...resultDescriptions.scopeMissesOpenid,
         affectedFields: [
           { fieldName: "scope", fieldValue: context.document.scope },
         ],
@@ -79,10 +118,7 @@ const validScope: ValidationRule = {
     }
     if (!scopes.includes("webid")) {
       results.push({
-        status: "error",
-        title: "Missing Scope `webid`",
-        description:
-          "If the `scope` field is set, it must contain the value `webid` (as a space-separated value).",
+        ...resultDescriptions.scopeMissesWebid,
         affectedFields: [
           { fieldName: "scope", fieldValue: context.document.scope },
         ],
@@ -90,9 +126,7 @@ const validScope: ValidationRule = {
     }
     if (new Set(scopes).size !== scopes.length) {
       results.push({
-        status: "error",
-        title: "Duplicate Scope values",
-        description: "There are scope values present more than once..",
+        ...resultDescriptions.scopeDuplicateValues,
         affectedFields: [
           { fieldName: "scope", fieldValue: context.document.scope },
         ],
@@ -109,11 +143,7 @@ const validScope: ValidationRule = {
     ];
     if (scopes.filter((scope) => !knownScopes.includes(scope)).length > 0) {
       results.push({
-        status: "info",
-        title: "Unknown Scope value",
-        description: `There are unknown scope values present. Are you sure, this is intended? Known values are: ${knownScopes.join(
-          ", "
-        )}`,
+        ...resultDescriptions.scopeUnknownValues,
         affectedFields: [
           { fieldName: "scope", fieldValue: context.document.scope },
         ],
@@ -122,9 +152,7 @@ const validScope: ValidationRule = {
 
     if (results.length === 0) {
       results.push({
-        status: "success",
-        title: "Scope looks fine",
-        description: "The field `scope` looks fine.",
+        ...resultDescriptions.scopeValid,
         affectedFields: [
           { fieldName: "scope", fieldValue: context.document.scope },
         ],

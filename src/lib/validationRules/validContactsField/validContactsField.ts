@@ -18,7 +18,39 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { RuleResult, ValidationContext, ValidationRule } from "../../types";
+import {
+  ResultDescription,
+  RuleResult,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  noContactsPresent: {
+    status: "info",
+    title: "No maintainer contact information",
+    description:
+      "The field `contacts` should provide email address information to the client's maintainers.",
+  },
+  contactsFieldInvalid: {
+    status: "error",
+    title: "Invalid `contacts` field",
+    description:
+      "The field `contacts` must be a string array containing email addresses of the client's maintainers.",
+  },
+  contactFieldInvalid: {
+    status: "error",
+    title: "Invalid type for contact",
+    description: "Contact fields must be strings.",
+  },
+  contactFieldEmpty: {
+    status: "warning",
+    title: "Empty contact field",
+    description:
+      "The field should contain contact information to reach out to the maintainers of the application." +
+      " Consider filling it or leaving it out",
+  },
+};
 
 const noUnsetClientUri: ValidationRule = {
   rule: {
@@ -27,6 +59,7 @@ const noUnsetClientUri: ValidationRule = {
     description:
       "The field `contacts` should provide at least one maintainer contact. It is stored as array of strings.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     if (
       !context.document.contacts ||
@@ -35,10 +68,7 @@ const noUnsetClientUri: ValidationRule = {
     ) {
       return [
         {
-          status: "info",
-          title: "No maintainer contact information",
-          description:
-            "The field `contacts` should provide email address information to the client's maintainers.",
+          ...resultDescriptions.noContactsPresent,
           affectedFields: [
             {
               fieldName: "contacts",
@@ -52,10 +82,7 @@ const noUnsetClientUri: ValidationRule = {
     if (!Array.isArray(context.document.contacts)) {
       return [
         {
-          status: "error",
-          title: "Invalid `contacts` field",
-          description:
-            "The field `contacts` must be a string array containing email addresses of the client's maintainers.",
+          ...resultDescriptions.contactsFieldInvalid,
           affectedFields: [
             {
               fieldName: "contacts",
@@ -70,9 +97,7 @@ const noUnsetClientUri: ValidationRule = {
     context.document.contacts.forEach((contact, index) => {
       if (typeof contact !== "string") {
         resultValues.push({
-          status: "error",
-          title: "Invalid contact type",
-          description: "Contact fields must be strings.",
+          ...resultDescriptions.contactFieldInvalid,
           affectedFields: [
             { fieldName: `contacts[${index}]`, fieldValue: contact },
           ],
@@ -80,11 +105,7 @@ const noUnsetClientUri: ValidationRule = {
       }
       if (contact === "") {
         resultValues.push({
-          status: "warning",
-          title: "Empty contact field",
-          description:
-            "The field should contain contact information to reach out to the maintainers of the application." +
-            " Consider filling it or leaving it out",
+          ...resultDescriptions.contactFieldEmpty,
           affectedFields: [
             { fieldName: `contacts[${index}]`, fieldValue: contact },
           ],

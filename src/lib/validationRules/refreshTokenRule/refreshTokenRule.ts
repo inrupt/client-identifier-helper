@@ -18,7 +18,34 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { ValidationContext, ValidationRule } from "../../types";
+import {
+  ResultDescription,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  invalidRefreshTokenConfig: {
+    status: "error",
+    title: "Invalid Refresh Token request.",
+    description:
+      "To request a Refresh Token, the `grant_types` must include a `refresh_token` value _and_ the `scope` value must include an `offline_access` value.",
+  },
+  refreshTokenRequested: {
+    status: "success",
+    title: "Refresh Token rules are met",
+    description:
+      `The \`grant_types\` and the \`scope\` field align in properties (\`refresh_token\` and \`offline_access\`, respectively).` +
+      ` A refresh token is requested.`,
+  },
+  refreshTokenNotRequested: {
+    status: "info",
+    title: "Refresh Token rules are met",
+    description:
+      `The \`grant_types\` and the \`scope\` field align in properties (\`refresh_token\` and \`offline_access\`, respectively).` +
+      ` A refresh token is _not_ requested.`,
+  },
+};
 
 const refreshTokenRule: ValidationRule = {
   rule: {
@@ -27,61 +54,51 @@ const refreshTokenRule: ValidationRule = {
     description:
       "To request refresh tokens, `grant_types` must have `refresh_token` set and `scope`, `offline_access`. Only setting both is valid.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
-    let scopeHasOfflineAccess: boolean;
-    let grantTypesHasRefreshToken: boolean;
+    let scopeHasOfflineAccessSet: boolean;
+    let grantTypesHasRefreshTokenSet: boolean;
 
     // Invalid scope or grantType fields are handled separately..
     if (typeof context.document.scope !== "string") {
-      scopeHasOfflineAccess = false;
+      scopeHasOfflineAccessSet = false;
     } else {
-      scopeHasOfflineAccess = context.document.scope
+      scopeHasOfflineAccessSet = context.document.scope
         .split(/\s+/)
         .some((scopeValue) => scopeValue === "offline_access");
     }
 
     if (Array.isArray(context.document.grant_types)) {
-      grantTypesHasRefreshToken = context.document.grant_types.some(
+      grantTypesHasRefreshTokenSet = context.document.grant_types.some(
         (grantValue) => grantValue === "refresh_token"
       );
     } else {
-      grantTypesHasRefreshToken = false;
+      grantTypesHasRefreshTokenSet = false;
     }
 
-    if (grantTypesHasRefreshToken !== scopeHasOfflineAccess) {
+    const affectedFields = [
+      {
+        fieldName: "grant_types",
+        fieldValue: context.document.grant_types,
+      },
+      { fieldName: "scope", fieldValue: context.document.scope },
+    ];
+
+    if (grantTypesHasRefreshTokenSet !== scopeHasOfflineAccessSet) {
       return [
         {
-          status: "error",
-          title: "Invalid Refresh Token request.",
-          description:
-            "To request a Refresh Token, the `grant_types` must include a `refresh_token` value _and_ the `scope` value must include an `offline_access` value.",
-          affectedFields: [
-            {
-              fieldName: "grant_types",
-              fieldValue: context.document.grant_types,
-            },
-            { fieldName: "scope", fieldValue: context.document.scope },
-          ],
+          ...resultDescriptions.invalidRefreshTokenConfig,
+          affectedFields,
         },
       ];
     }
 
     return [
       {
-        status: "success",
-        title: "Refresh Token rules are met",
-        description:
-          `The \`grant_types\` and the \`scope\` field align in properties (\`refresh_token\` and \`offline_access\`, respectively).` +
-          `A refresh token is ${
-            grantTypesHasRefreshToken ? "" : "_not_ "
-          }requested.`,
-        affectedFields: [
-          {
-            fieldName: "grant_types",
-            fieldValue: context.document.grant_types,
-          },
-          { fieldName: "scope", fieldValue: context.document.scope },
-        ],
+        ...(grantTypesHasRefreshTokenSet
+          ? resultDescriptions.refreshTokenRequested
+          : resultDescriptions.refreshTokenNotRequested),
+        affectedFields,
       },
     ];
   },
