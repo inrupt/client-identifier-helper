@@ -29,6 +29,7 @@ import {
 } from "@mui/material";
 import { VerboseFieldState } from "../lib/formValidationTypes";
 import FieldNameLabel from "./FieldNameLabel";
+import NecessityLabel, { Necessity } from "./NecessityLabel";
 import VerboseHelperText from "./VerboseHelperText";
 import VerboseTextField from "./VerboseTextField";
 
@@ -40,7 +41,7 @@ export type VerboseFieldArrayRenderProps = TextFieldProps & {
   description: string | string[];
   values: string[];
   state?: VerboseFieldState | undefined;
-  necessity?: "recommended" | "required";
+  necessity?: Necessity;
   childStates?: (VerboseFieldState | undefined)[];
   allowEmpty?: boolean;
   pushItem(obj: unknown): void;
@@ -91,11 +92,7 @@ export default function VerboseTextFieldArray(
             <FormHelperText>{descriptionParagraph}</FormHelperText>
           ))}
         </Grid>
-        {necessity && (
-          <FormHelperText sx={{ fontWeight: 800 }}>
-            * {necessity === "recommended" ? "Recommended" : "Required"}
-          </FormHelperText>
-        )}
+        {necessity && <NecessityLabel necessity={necessity} />}
       </Grid>
 
       <VerboseHelperText state={state} />

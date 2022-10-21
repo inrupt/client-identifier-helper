@@ -27,11 +27,12 @@ import { statusColors } from "../theme";
 import VerboseHelperText from "./VerboseHelperText";
 import { VerboseFieldState } from "../lib/formValidationTypes";
 import FieldNameLabel from "./FieldNameLabel";
+import NecessityLabel, { Necessity } from "./NecessityLabel";
 
 export interface VerboseTextFieldProps
   extends Omit<OutlinedTextFieldProps, "variant"> {
   state?: VerboseFieldState;
-  necessity?: "required" | "recommended";
+  necessity?: Necessity;
   description?: string;
   fieldName?: string;
   formDescriptionTextProps?: FormHelperTextProps;
@@ -85,8 +86,8 @@ export default function VerboseTextField(props: VerboseTextFieldProps) {
           {...formDescriptionTextProps}
         >
           {necessity && (
-            <span style={{ fontWeight: 800 }}>
-              * {necessity === "recommended" ? "Recommended" : "Required"}.{" "}
+            <span>
+              <NecessityLabel necessity={necessity} />
             </span>
           )}
           {description}
