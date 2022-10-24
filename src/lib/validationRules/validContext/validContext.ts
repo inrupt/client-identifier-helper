@@ -28,17 +28,17 @@ import {
 const resultDescriptions: Record<string, ResultDescription> = {
   contextFieldMissing: {
     status: "error",
-    title: "`@context` field missing",
+    title: "Missing `@context` field",
     description: `The Client Identifier Document must have an \`@context\` field with a value of \`["${OIDC_CONTEXT}"]\` or just "${OIDC_CONTEXT}".`,
   },
   contextFieldValid: {
     status: "success",
-    title: "Document has valid json+ld context",
+    title: "Valid json+ld context",
     description: "The document has the correct `@context` value set.",
   },
   contextFieldInvalid: {
     status: "error",
-    title: "@context must be set correctly",
+    title: "Invalid `@context` field",
     description: `The @context must be set to \`https://www.w3.org/ns/solid/oidc-context.jsonld\` or \`[${OIDC_CONTEXT}]\``,
   },
 };

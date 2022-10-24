@@ -28,18 +28,18 @@ import {
 const resultDescriptions: Record<string, ResultDescription> = {
   grantTypeUnset: {
     status: "error",
-    title: "No Grant Type set",
+    title: "Missing `grant_types` field",
     description:
       "Whilst this isn't required by spec, we strongly advise you to include the grant_types field in your client identifier document.",
   },
   grantTypeInvalid: {
     status: "error",
-    title: "Invalid Grant Type",
+    title: "Invalid `grant_types` field",
     description: "The field `grant_type` must be an array of strings.",
   },
   grantTypeImplicit: {
     status: "error",
-    title: "Invalid Grant Type",
+    title: "Wrong `grant_types` field value",
     description: "For Solid OIDC, implicit authentication flow is not allowed.",
   },
   grantTypeAuthorizationCodeMissing: {

@@ -29,25 +29,25 @@ import {
 const resultDescriptions: Record<string, ResultDescription> = {
   scopeInvalid: {
     status: "error",
-    title: "Invalid Scope value",
+    title: "Invalid `scope` field value",
     description:
       "The field `scope` must be a string (of space-separated values) or unset.",
   },
   scopeNotSet: {
     status: "warning",
-    title: "Scope field not set",
+    title: "Missing `scope` field",
     description:
       "The `scope` field is unset. It is strongly recommended to explicitly set it to `openid webid`.",
   },
   scopeMissesOpenid: {
     status: "error",
-    title: "Missing Scope `openid`",
+    title: "Missing Scope value `openid`",
     description:
       "If the `scope` field is set, it must contain the value `openid` (as a space-separated value).",
   },
   scopeMissesWebid: {
     status: "error",
-    title: "Missing Scope `webid`",
+    title: "Missing Scope value `webid`",
     description:
       "If the `scope` field is set, it must contain the value `webid` (as a space-separated value).",
   },

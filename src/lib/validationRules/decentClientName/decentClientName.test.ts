@@ -29,9 +29,7 @@ describe("well-formed client name check", () => {
       document: { client_name: "" },
     });
     expect(resultsForEmptyClientName).toHaveLength(1);
-    expect(resultsForEmptyClientName[0].title).toMatch(
-      /No Client Name present/
-    );
+    expect(resultsForEmptyClientName[0].title).toMatch(/Missing Client Name/);
   });
 
   it("fails on invalid `client_name` object", async () => {

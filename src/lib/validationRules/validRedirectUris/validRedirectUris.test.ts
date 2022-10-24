@@ -24,6 +24,14 @@ import { describe, expect, it } from "@jest/globals";
 import validRedirectUris from "./validRedirectUris";
 
 describe("redirect URIs must be syntactically correct and should be static", () => {
+  it("errors on missing `redirect_uris` type", async () => {
+    const resultsForMissing = await validRedirectUris.check({
+      document: {},
+    });
+    expect(resultsForMissing).toHaveLength(1);
+    expect(resultsForMissing[0].title).toMatch(/Missing `redirect_uris` field/);
+  });
+
   it("errors on invalid `redirect_uris` type", async () => {
     const resultsForWrongType = await validRedirectUris.check({
       document: {
@@ -31,7 +39,9 @@ describe("redirect URIs must be syntactically correct and should be static", () 
       },
     });
     expect(resultsForWrongType).toHaveLength(1);
-    expect(resultsForWrongType[0].title).toMatch(/Redirect URIs field invalid/);
+    expect(resultsForWrongType[0].title).toMatch(
+      /Invalid `redirect_uris` field/
+    );
   });
 
   it("errors on empty `redirect uris`", async () => {
@@ -42,7 +52,7 @@ describe("redirect URIs must be syntactically correct and should be static", () 
     });
     expect(resultsForEmptyRedirectUris).toHaveLength(1);
     expect(resultsForEmptyRedirectUris[0].title).toMatch(
-      /No Redirect URIs set/
+      /Missing Redirect URIs/
     );
   });
 
@@ -54,7 +64,7 @@ describe("redirect URIs must be syntactically correct and should be static", () 
     });
     expect(resultsForMalformedRedirectUri).toHaveLength(1);
     expect(resultsForMalformedRedirectUri[0].title).toMatch(
-      /Redirect URI is malformed/
+      /Malformed Redirect URI/
     );
   });
 
@@ -66,7 +76,7 @@ describe("redirect URIs must be syntactically correct and should be static", () 
     });
     expect(resultsForMalformedRedirectUri).toHaveLength(1);
     expect(resultsForMalformedRedirectUri[0].title).toMatch(
-      /Redirect URI not set/
+      /Missing Redirect URI/
     );
   });
 

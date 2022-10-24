@@ -41,7 +41,7 @@ describe("valid `scope` field check", () => {
       },
     });
     expect(resultsForUnset).toHaveLength(1);
-    expect(resultsForUnset[0].title).toMatch(/Scope field not set/);
+    expect(resultsForUnset[0].title).toMatch(/Missing `scope` field/);
   });
 
   it("errors on missing `webid` and `openid` scope", async () => {

@@ -52,9 +52,9 @@ export default function ClientIdentifierDocumentation() {
         <Grid container item>
           <Grid container item direction="column">
             <Typography variant="body1">
-              Each of the following rules is used to validate a Client
-              Identifier Document. You can find possibly generated results from
-              those rules in the accordions.
+              The following rule checks are used to validate a Client Identifier
+              Document. For each rule check, you can click on the accordion to
+              view the possible validation results.
             </Typography>
           </Grid>
         </Grid>

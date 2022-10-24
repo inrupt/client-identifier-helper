@@ -27,25 +27,31 @@ import {
 } from "../../types";
 
 const resultDescriptions: Record<string, ResultDescription> = {
+  missingRedirectUrisField: {
+    status: "error",
+    title: "Missing `redirect_uris` field",
+    description:
+      "The field `redirect_uris` must be set as an array of URI strings.",
+  },
   redirectUrisFieldInvalid: {
     status: "error",
-    title: "Redirect URIs field invalid",
+    title: "Invalid `redirect_uris` field",
     description:
       "The field `redirect_uris` must be set and must be an array of valid URI-strings.",
   },
   redirectUrisUnset: {
     status: "error",
-    title: "No Redirect URIs set",
+    title: "Missing Redirect URIs",
     description: "At least one Redirect URI must be set.",
   },
   redirectUriEmpty: {
     status: "error",
-    title: "Redirect URI not set",
+    title: "Missing Redirect URI",
     description: "The redirect URI is not set.",
   },
   redirectUriMalformed: {
     status: "error",
-    title: "Redirect URI is malformed",
+    title: "Malformed Redirect URI",
     description: "The redirect URI does not have a correct URI syntax.",
   },
   redirectUriMissingPath: {
@@ -69,6 +75,20 @@ const validRedirectUris: ValidationRule = {
   },
   resultDescriptions,
   check: async (context: ValidationContext) => {
+    if (context.document.redirect_uris === undefined) {
+      return [
+        {
+          ...resultDescriptions.missingRedirectUrisField,
+          affectedFields: [
+            {
+              fieldName: "redirect_uris",
+              fieldValue: context.document.redirect_uris,
+            },
+          ],
+        },
+      ];
+    }
+
     if (!Array.isArray(context.document.redirect_uris)) {
       return [
         {

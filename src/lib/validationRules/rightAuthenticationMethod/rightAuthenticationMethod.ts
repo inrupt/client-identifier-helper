@@ -27,19 +27,19 @@ import {
 const resultDescriptions: Record<string, ResultDescription> = {
   authMethodUnset: {
     status: "error",
-    title: "Field `token_endpoint_auth_method` unset.",
+    title: "Missing `token_endpoint_auth_method `field",
     description:
       "The field `token_endpoint_auth_method` should be explicitly set to `none`. As per the OpenID spec, the default value is `client_secret_basic` which is not valid for using Client Identifier Documents. For a solid authentication server, an unset value might work but as of the spec, it is undefined behavior.",
   },
   authMethodInvalid: {
     status: "error",
-    title: "Field `token_endpoint_auth_method` must be set to `none`.",
+    title: "Invalid `token_endpoint_auth_method` field value",
     description:
       "The field `token_endpoint_auth_method` must be set to `none` for authentication with Client Identifier Documents.",
   },
   authMethodValid: {
     status: "success",
-    title: "Auth method looks fine.",
+    title: "Authentication method looks fine.",
     description: "No issues found for field `token_endpoint_auth_method`.",
   },
 };

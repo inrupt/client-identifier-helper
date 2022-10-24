@@ -27,7 +27,7 @@ import {
 const resultDescriptions: Record<string, ResultDescription> = {
   missingClientName: {
     status: "warning",
-    title: "No Client Name present",
+    title: "Missing Client Name",
     description:
       "The document has no Client Name set. It should be set for authentication providers to display the name to the end-user.",
   },
@@ -42,12 +42,18 @@ const resultDescriptions: Record<string, ResultDescription> = {
     description:
       "The length of the Client Name is longer than 50 characters. This might cause presentation problems.",
   },
+  clientNameNoWhitespace: {
+    status: "warning",
+    title: "Invalid Client Name",
+    description:
+      "The Client Name consists of whitespace only. It should be set for authentication providers to display the name to the end-user.",
+  },
 };
 
 const decentClientName: ValidationRule = {
   rule: {
     type: "local",
-    name: "Useful and Present Client Name",
+    name: "Client Name is Present",
     description:
       "The client name should not be longer than 50 characters and should be present.",
   },
@@ -83,10 +89,7 @@ const decentClientName: ValidationRule = {
     if (context.document.client_name.trim() === "") {
       return [
         {
-          status: "warning",
-          title: "Invalid Client Name",
-          description:
-            "The Client Name consists of whitespace only. It should be set for authentication providers to display the name to the end-user.",
+          ...resultDescriptions.clientNameNoWhitespace,
           affectedFields: [
             {
               fieldName: "client_name",
