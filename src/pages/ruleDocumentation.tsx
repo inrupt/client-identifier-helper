@@ -29,10 +29,9 @@ export default function ClientIdentifierDocumentation() {
   const compareRuleByName = (rule1: ValidationRule, rule2: ValidationRule) =>
     rule1.rule.name.localeCompare(rule2.rule.name);
 
-  const rulesOrdered = [
-    ...remoteRules.sort(compareRuleByName),
-    ...localRules.sort(compareRuleByName),
-  ];
+  const remoteRulesOrdered = [...remoteRules].sort(compareRuleByName);
+  const localRulesOrdered = [...localRules].sort(compareRuleByName);
+  const rulesOrdered = [...remoteRulesOrdered, ...localRulesOrdered];
 
   return (
     <Grid
