@@ -47,13 +47,16 @@ test.describe("Generator page functionality", () => {
   it("rules have the right result outputs", async ({ page }) => {
     await page.goto("/documentation");
 
-    const accordions = await page.locator(".RulesContainer .MuiAccordion-root");
+    const cards = page.locator(".RulesContainer > div");
+
+    expect(rulesOrderedByRemoteAndName.length).toEqual(await cards.count());
 
     // Validate each rule's result titles. Expects the rules to be in the right order.
-    rulesOrderedByRemoteAndName.forEach(async (_, i) => {
+    for await (const i of Array(rulesOrderedByRemoteAndName.length).keys()) {
       // Open accordion;
-      await accordions.nth(i).click();
-      const headings = await accordions
+      await cards.nth(i).locator("text=Possible results").click();
+
+      const headings = await cards
         .nth(i)
         .locator(".MuiCardHeader-root")
         .allTextContents();
@@ -65,6 +68,6 @@ test.describe("Generator page functionality", () => {
             .title
         );
       }
-    });
+    }
   });
 });
