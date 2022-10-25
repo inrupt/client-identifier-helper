@@ -23,7 +23,7 @@ import validDefaultMaxAge from "./validationRules/validDefaultMaxAge/validDefaul
 import refreshTokenRule from "./validationRules/refreshTokenRule/refreshTokenRule";
 import validRedirectUris from "./validationRules/validRedirectUris/validRedirectUris";
 import validContext from "./validationRules/validContext/validContext";
-import decentClientName from "./validationRules/decentClientName/decentClientName";
+import validClientName from "./validationRules/validClientName/validClientName";
 import validUriFields from "./validationRules/validUriFields/validUriFields";
 import sameDomainForRedirectUris from "./validationRules/sameDomainForRedirectUris/sameDomainForRedirectUris";
 import noMixedRedirectUrls from "./validationRules/noMixedRedirectUris/noMixedRedirectUrls";
@@ -42,7 +42,7 @@ import redirectUrisApplicationTypeRule from "./validationRules/redirectUrisAppli
 import noLocalhostClientId from "./validationRules/noLocalhostClientId/noLocalhostClientId";
 
 export const localRules: ValidationRule[] = [
-  decentClientName,
+  validClientName,
   noLocalhostClientId,
   noMixedRedirectUrls,
   noUnknownFields,

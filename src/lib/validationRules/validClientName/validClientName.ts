@@ -50,7 +50,7 @@ const resultDescriptions: Record<string, ResultDescription> = {
   },
 };
 
-const decentClientName: ValidationRule = {
+const validClientName: ValidationRule = {
   rule: {
     type: "local",
     name: "Client Name is Present",
@@ -119,4 +119,4 @@ const decentClientName: ValidationRule = {
   resultDescriptions,
 };
 
-export default decentClientName;
+export default validClientName;
