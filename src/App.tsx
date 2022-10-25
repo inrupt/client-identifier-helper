@@ -76,7 +76,7 @@ function TabsComponent() {
         <Tab
           to="/documentation"
           value="/documentation"
-          label={<Typography variant="h2">Documentation</Typography>}
+          label={<Typography variant="h2">Validation rules</Typography>}
           component={Link}
           className="openDocumentationPage"
         />
