@@ -108,7 +108,9 @@ test.describe("Validator page", () => {
     // Expect remote document validity to be successful.
     expect(
       await page
-        .locator(`text=Remote and local Client Identifiers match`)
+        .locator(
+          `text=Dereferenced Client Identifier and declared ${`client_id`} match`
+        )
         .count()
     ).toBe(1);
   });
