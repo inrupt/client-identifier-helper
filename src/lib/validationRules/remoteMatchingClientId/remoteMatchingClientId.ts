@@ -34,15 +34,15 @@ const resultDescriptions: Record<string, ResultDescription> = {
   },
   remoteLocalClientIdMismatch: {
     status: "error",
-    title: "Remote and local Client Identifier mismatch",
+    title: "Dereferenced Client Identifier and declared `client_id` mismatch",
     description:
-      "The remote and the local Client Identifier URI must be equal (string equality).",
+      "The Client Identifier, i.e. the URL where the Client Identifier document is fetched, and the `client_id` filed must match (string equality).",
   },
   remoteLocalClientIdMatch: {
     status: "success",
-    title: "Remote and local Client Identifiers match",
+    title: "Dereferenced Client Identifier and declared `client_id` match",
     description:
-      "The remote `client-id` field matches the local Client Identifier.",
+      "The `client_id` field matches the Client Identifier document URL.",
   },
 };
 

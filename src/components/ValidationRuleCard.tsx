@@ -85,9 +85,6 @@ export default function ValidationRuleCard(
             <Grid item>
               <Typography variant="h3">{rule.name}</Typography>
             </Grid>
-            <Grid item>
-              <Typography variant="body2">validates {rule.type}</Typography>
-            </Grid>
           </Grid>
 
           <Grid item>
