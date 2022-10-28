@@ -19,21 +19,18 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-/* eslint-disable-next-line no-shadow */
-import { describe, expect, it } from "@jest/globals";
-import noExplicitDefaults from "./noExplicitDefaults";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import InfoIcon from "@mui/icons-material/Info";
+import WarningIcon from "@mui/icons-material/Warning";
+import ErrorIcon from "@mui/icons-material/Error";
+import QuestionMark from "@mui/icons-material/QuestionMark";
 
-describe("no explicit defaults set check", () => {
-  it("errors on explicitly set defaults", async () => {
-    const resultsForNoUrl = await noExplicitDefaults.check({
-      document: {
-        application_type: "web",
-        grant_types: ["authorization_code"],
-        require_auth_time: false,
-        response_types: ["code"],
-        scope: "openid webid",
-      },
-    });
-    expect(resultsForNoUrl).toHaveLength(5);
-  });
-});
+const statusIcons = {
+  success: <CheckCircleIcon color="success" />,
+  info: <InfoIcon color="info" />,
+  warning: <WarningIcon color="warning" />,
+  error: <ErrorIcon color="error" />,
+  unknown: <QuestionMark color="primary" />,
+};
+
+export default statusIcons;

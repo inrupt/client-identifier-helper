@@ -93,7 +93,7 @@ function ClientIdentifierValidator() {
       justifyContent="center"
       maxWidth="50em"
     >
-      <Grid container item spacing={2}>
+      <Grid container item spacing={3}>
         <Grid container item>
           <Grid container item>
             <Typography variant="h2">
@@ -103,7 +103,7 @@ function ClientIdentifierValidator() {
         </Grid>
         <Grid container item>
           <Grid container item direction="column">
-            <Grid item>
+            <Grid item paddingBottom={1}>
               <Typography variant="h3">Validate from URI</Typography>
             </Grid>
             <Typography variant="body1">

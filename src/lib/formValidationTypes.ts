@@ -92,7 +92,13 @@ export function useFieldStates<IFormParameters, V>(
   return [states, setStates, setFieldState, setChildState, setChildStates];
 }
 
-export type FieldStatus = "error" | "warning" | "info" | "success" | undefined;
+export type FieldStatus =
+  | "error"
+  | "warning"
+  | "info"
+  | "success"
+  | "unknown"
+  | undefined;
 
 export interface VerboseFieldState {
   statusDescription?: string;

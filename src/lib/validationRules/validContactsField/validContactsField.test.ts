@@ -63,7 +63,7 @@ describe("maintainer contacts email fields should be set", () => {
     });
     expect(resultsForInvalidContactField).toHaveLength(1);
     expect(resultsForInvalidContactField[0].title).toMatch(
-      /Invalid contact type/
+      /Invalid type for contact/
     );
     expect(resultsForInvalidContactField[0].affectedFields[0].fieldName).toBe(
       "contacts[1]"

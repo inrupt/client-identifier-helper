@@ -108,7 +108,9 @@ test.describe("Validator page", () => {
     // Expect remote document validity to be successful.
     expect(
       await page
-        .locator(`text=Remote and local Client Identifiers match`)
+        .locator(
+          "text=Dereferenced Client Identifier and declared `client_id` match"
+        )
         .count()
     ).toBe(1);
   });
@@ -164,7 +166,7 @@ test.describe("Validator page", () => {
     await page.locator("text=Fetch & Validate").click();
 
     // Wait until remote validation is finished.
-    await page.locator(".MuiLoadingButton-root:enabled");
+    await page.locator(".MuiLoadingButton-root:enabled").waitFor();
 
     // Expect document text area to be overwritten (with Client Identifier Document).
     await expect(page.locator("[name=jsonDocument]")).not.toHaveText(

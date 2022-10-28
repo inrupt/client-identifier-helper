@@ -19,11 +19,6 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import InfoIcon from "@mui/icons-material/Info";
-import WarningIcon from "@mui/icons-material/Warning";
-import ErrorIcon from "@mui/icons-material/Error";
-
 import {
   Grid,
   Card,
@@ -35,6 +30,8 @@ import {
 } from "@mui/material";
 
 import { ValidationResult } from "../lib/types";
+import { statusToNumber } from "../lib/helperFunctions";
+import statusIcons from "./statusIcons";
 
 function AffectedField({
   fieldName,
@@ -70,18 +67,11 @@ function AffectedField({
   );
 }
 
-const iconForResult = {
-  success: <CheckCircleIcon color="success" />,
-  info: <InfoIcon color="info" />,
-  warning: <WarningIcon color="warning" />,
-  error: <ErrorIcon color="error" />,
-};
-
 function ResultCard(
   // eslint-disable-next-line no-shadow
   { result }: { result: ValidationResult }
 ) {
-  const ResultIcon = () => iconForResult[result.status];
+  const ResultIcon = () => statusIcons[result.status];
 
   const AffectedFields = result.affectedFields.map(
     ({ fieldName, fieldValue }) =>
@@ -129,9 +119,9 @@ export default function ValidationResults({
 }) {
   const sortedResults = results.sort(
     (result1, result2) =>
-      // Define order here..
-      ["error", "warning", "info", "success"].indexOf(result1.status) -
-      ["error", "warning", "info", "success"].indexOf(result2.status) +
+      // Order by severity
+      statusToNumber(result2.status) -
+      statusToNumber(result1.status) +
       // Remote document results are shown first
       (result1.rule.type === "remote" ? -100 : 0) -
       (result2.rule.type === "remote" ? -100 : 0)
@@ -139,7 +129,14 @@ export default function ValidationResults({
   return (
     <Grid container direction="column" margin={2} className="validationResults">
       {sortedResults.map((result) => (
-        <ResultCard result={result} key={result.title + result.description} />
+        <ResultCard
+          result={result}
+          key={
+            result.title +
+            result.description +
+            JSON.stringify(result.affectedFields)
+          }
+        />
       ))}
     </Grid>
   );

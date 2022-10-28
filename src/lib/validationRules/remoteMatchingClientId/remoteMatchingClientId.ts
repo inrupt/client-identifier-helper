@@ -19,7 +19,32 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { RemoteValidationContext, RemoteValidationRule } from "../../types";
+import {
+  RemoteValidationContext,
+  RemoteValidationRule,
+  ResultDescription,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  missingClientId: {
+    status: "error",
+    title: "Remote Client Identifier Document has no `client_id` set",
+    description:
+      "The remote Remote Client Identifier Document must have the Client Identifier URI set to the field `client_id`.",
+  },
+  remoteLocalClientIdMismatch: {
+    status: "error",
+    title: "Dereferenced Client Identifier and declared `client_id` mismatch",
+    description:
+      "The Client Identifier, i.e. the URL where the Client Identifier document is fetched, and the `client_id` filed must match (string equality).",
+  },
+  remoteLocalClientIdMatch: {
+    status: "success",
+    title: "Dereferenced Client Identifier and declared `client_id` match",
+    description:
+      "The `client_id` field matches the Client Identifier document URL.",
+  },
+};
 
 const remoteMatchingClientId: RemoteValidationRule = {
   rule: {
@@ -28,6 +53,7 @@ const remoteMatchingClientId: RemoteValidationRule = {
     description:
       "The Client Identifier URI specified in the remote document and the local Client Identifier URI must match exactly.",
   },
+  resultDescriptions,
   check: async (context: RemoteValidationContext) => {
     if (!context.documentIri) {
       // Errors for missing fields are handled in remoteDocumentAsJsonLD
@@ -37,10 +63,7 @@ const remoteMatchingClientId: RemoteValidationRule = {
     if (!context.document.client_id) {
       return [
         {
-          status: "error",
-          title: "Remote Client Identifier Document has no `client_id` set",
-          description:
-            "The remote Remote Client Identifier Document must have the Client Identifier URI set to the field `client_id`.",
+          ...resultDescriptions.missingClientId,
           affectedFields: [],
         },
       ];
@@ -49,10 +72,7 @@ const remoteMatchingClientId: RemoteValidationRule = {
     if (context.document.client_id !== context.documentIri) {
       return [
         {
-          status: "error",
-          title: "Remote and local Client Identifier mismatch",
-          description:
-            "The remote and the local Client Identifier URI must be equal (string equality).",
+          ...resultDescriptions.remoteLocalClientIdMismatch,
           affectedFields: [
             { fieldName: "client_id", fieldValue: context.document.client_id },
             { fieldName: "client_id", fieldValue: context.documentIri },
@@ -63,10 +83,7 @@ const remoteMatchingClientId: RemoteValidationRule = {
 
     return [
       {
-        status: "success",
-        title: "Remote and local Client Identifiers match",
-        description:
-          "The remote `client-id` field matches the local Client Identifier.",
+        ...resultDescriptions.remoteLocalClientIdMatch,
         affectedFields: [
           { fieldName: "client_id", fieldValue: context.document.client_id },
         ],

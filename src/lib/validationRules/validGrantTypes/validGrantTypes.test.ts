@@ -31,7 +31,7 @@ describe("grant types must be known and valid for Solid OIDC", () => {
       },
     });
     expect(resultsForUndefined).toHaveLength(1);
-    expect(resultsForUndefined[0].title).toMatch(/No Grant Type set/);
+    expect(resultsForUndefined[0].title).toMatch(/Missing `grant_types` field/);
   });
 
   it("errors on invalid `grant_types` object", async () => {
@@ -51,7 +51,9 @@ describe("grant types must be known and valid for Solid OIDC", () => {
       },
     });
     expect(resultsForNoAuthCode).toHaveLength(1);
-    expect(resultsForNoAuthCode[0].title).toMatch(/Missing Grant Type/);
+    expect(resultsForNoAuthCode[0].title).toMatch(
+      /Missing Grant Type `authorization_code`/
+    );
   });
 
   it("errors on present grant type `implicit`", async () => {
@@ -62,7 +64,7 @@ describe("grant types must be known and valid for Solid OIDC", () => {
     });
     expect(resultsForImplicit).toHaveLength(1);
     expect(resultsForImplicit[0].description).toMatch(
-      /implicit .* not allowed/
+      /implicit authentication flow is not allowed/
     );
   });
 

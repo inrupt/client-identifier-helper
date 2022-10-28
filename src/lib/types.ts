@@ -60,16 +60,19 @@ export interface ValidationRuleMetadata {
 export interface ValidationRule {
   rule: ValidationRuleMetadata;
   check(context: ValidationContext): Promise<RuleResult[]>;
+  resultDescriptions: Record<string, ResultDescription>;
 }
 
 export interface RemoteValidationRule extends ValidationRule {
   check(context: RemoteValidationContext): Promise<RuleResult[]>;
 }
 
-export interface RuleResult {
-  status: "error" | "warning" | "info" | "success";
+export interface ResultDescription {
+  status: "error" | "warning" | "info" | "success" | "unknown";
   title: string;
   description: string;
+}
+export interface RuleResult extends ResultDescription {
   affectedFields: { fieldName: string; fieldValue: unknown }[];
 }
 

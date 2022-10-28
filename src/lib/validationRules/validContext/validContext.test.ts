@@ -31,7 +31,7 @@ describe("json ld @context field must be set correctly", () => {
     });
     expect(resultsForMissingContext).toHaveLength(1);
     expect(resultsForMissingContext[0].title).toMatch(
-      /`@context` field missing/
+      /Missing `@context` field/
     );
   });
 
@@ -42,9 +42,7 @@ describe("json ld @context field must be set correctly", () => {
       },
     });
     expect(resultsForInvalidContext).toHaveLength(1);
-    expect(resultsForInvalidContext[0].title).toMatch(
-      /@context must be set correctly/
-    );
+    expect(resultsForInvalidContext[0].title).toMatch(/Invalid `@context`/);
   });
 
   it("errors on empty context", async () => {
@@ -54,9 +52,7 @@ describe("json ld @context field must be set correctly", () => {
       },
     });
     expect(resultsForEmptyContext).toHaveLength(1);
-    expect(resultsForEmptyContext[0].title).toMatch(
-      /@context must be set correctly/
-    );
+    expect(resultsForEmptyContext[0].title).toMatch(/Invalid `@context` field/);
   });
 
   it("errors on additional context values", async () => {
@@ -67,7 +63,7 @@ describe("json ld @context field must be set correctly", () => {
     });
     expect(resultsForAdditionalContext).toHaveLength(1);
     expect(resultsForAdditionalContext[0].title).toMatch(
-      /@context must be set correctly/
+      /Invalid `@context` field/
     );
   });
 
@@ -78,9 +74,7 @@ describe("json ld @context field must be set correctly", () => {
       },
     });
     expect(resultsForSuccess1).toHaveLength(1);
-    expect(resultsForSuccess1[0].title).toMatch(
-      /Document has valid json\+ld context/
-    );
+    expect(resultsForSuccess1[0].title).toMatch(/Valid json\+ld context/);
   });
 
   it("succeeds on valid context set as array", async () => {
@@ -90,8 +84,6 @@ describe("json ld @context field must be set correctly", () => {
       },
     });
     expect(resultsForSuccess2).toHaveLength(1);
-    expect(resultsForSuccess2[0].title).toMatch(
-      /Document has valid json\+ld context/
-    );
+    expect(resultsForSuccess2[0].title).toMatch(/Valid json\+ld context/);
   });
 });

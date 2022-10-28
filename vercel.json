@@ -1,6 +1,7 @@
 {
   "routes": [
     { "src": "/validator", "dest": "/" },
-    { "src": "/generator", "dest": "/" }
+    { "src": "/generator", "dest": "/" },
+    { "src": "/documentation", "dest": "/" }
   ]
 }

@@ -32,7 +32,7 @@ describe("URI fields must be valid URIs (and some set) check", () => {
     });
     expect(resultsForEmpty).toHaveLength(5);
     resultsForEmpty.forEach((result) => {
-      expect(result.title).toMatch(/URI .* not set/);
+      expect(result.title).toMatch(/URI not set/);
     });
   });
 
@@ -48,7 +48,7 @@ describe("URI fields must be valid URIs (and some set) check", () => {
     });
     expect(resultsForInvalidClientIdObject).toHaveLength(2);
     expect(resultsForInvalidClientIdObject[1].title).toMatch(
-      /URI .* not a string/
+      /URI field not a string/
     );
   });
 
@@ -63,7 +63,7 @@ describe("URI fields must be valid URIs (and some set) check", () => {
       },
     });
     expect(resultsForInvalidClientIdUri).toHaveLength(1);
-    expect(resultsForInvalidClientIdUri[0].title).toMatch(/URI .* malformed/);
+    expect(resultsForInvalidClientIdUri[0].title).toMatch(/URI malformed/);
   });
 
   it("warns on non-https URI", async () => {
@@ -77,9 +77,7 @@ describe("URI fields must be valid URIs (and some set) check", () => {
       },
     });
     expect(resultsForNoTlsLogoUri).toHaveLength(2);
-    expect(resultsForNoTlsLogoUri[1].title).toMatch(
-      /URI .* does not use https/
-    );
+    expect(resultsForNoTlsLogoUri[1].title).toMatch(/URI does not use https/);
   });
 
   it("succeeds on well-formed Client Identifier URI", async () => {
@@ -94,7 +92,7 @@ describe("URI fields must be valid URIs (and some set) check", () => {
     });
     expect(resultsForValidClientIdUri).toHaveLength(1);
     expect(resultsForValidClientIdUri[0].title).toMatch(
-      /URI syntax .* looks good/
+      /URI syntax looks good/
     );
   });
 });

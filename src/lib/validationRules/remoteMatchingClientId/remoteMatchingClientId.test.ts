@@ -81,7 +81,7 @@ describe("remote document Client Identifier URI check", () => {
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(
-      /Remote and local Client Identifier mismatch/
+      /Dereferenced Client Identifier and declared `client_id` mismatch/
     );
   });
 
@@ -115,7 +115,7 @@ describe("remote document Client Identifier URI check", () => {
     });
     expect(results).toHaveLength(1);
     expect(results[0].title).toMatch(
-      /Remote and local Client Identifiers match/
+      /Dereferenced Client Identifier and declared `client_id` match/
     );
   });
 });

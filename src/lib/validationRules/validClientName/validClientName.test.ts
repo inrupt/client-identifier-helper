@@ -21,21 +21,19 @@
 
 /* eslint-disable-next-line no-shadow */
 import { describe, expect, it } from "@jest/globals";
-import decentClientName from "./decentClientName";
+import validClientName from "./validClientName";
 
 describe("well-formed client name check", () => {
   it("fails on empty client name", async () => {
-    const resultsForEmptyClientName = await decentClientName.check({
+    const resultsForEmptyClientName = await validClientName.check({
       document: { client_name: "" },
     });
     expect(resultsForEmptyClientName).toHaveLength(1);
-    expect(resultsForEmptyClientName[0].title).toMatch(
-      /No Client Name present/
-    );
+    expect(resultsForEmptyClientName[0].title).toMatch(/Missing Client Name/);
   });
 
   it("fails on invalid `client_name` object", async () => {
-    const resultsForInvalidClientName = await decentClientName.check({
+    const resultsForInvalidClientName = await validClientName.check({
       document: { client_name: ["arrays are invalid client names"] },
     });
     expect(resultsForInvalidClientName).toHaveLength(1);
@@ -43,7 +41,7 @@ describe("well-formed client name check", () => {
   });
 
   it("warns on whitespace client name", async () => {
-    const resultsForLongClientName = await decentClientName.check({
+    const resultsForLongClientName = await validClientName.check({
       document: {
         client_name: "   ",
       },
@@ -55,7 +53,7 @@ describe("well-formed client name check", () => {
   });
 
   it("warns on long client name", async () => {
-    const resultsForLongClientName = await decentClientName.check({
+    const resultsForLongClientName = await validClientName.check({
       document: {
         client_name:
           "this is a super long client name that will likely not be rendered nicely",
@@ -66,7 +64,7 @@ describe("well-formed client name check", () => {
   });
 
   it("passes on decent client name", async () => {
-    const resultsForValidClientName = await decentClientName.check({
+    const resultsForValidClientName = await validClientName.check({
       document: {
         client_name: "My regular app",
       },

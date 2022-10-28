@@ -32,7 +32,7 @@ describe("authentication method must be explicitly set to none", () => {
     });
     expect(resultsForNoAuthMethod).toHaveLength(1);
     expect(resultsForNoAuthMethod[0].title).toMatch(
-      /Field `token_endpoint_auth_method` unset/
+      /Missing `token_endpoint_auth_method `field/
     );
   });
 
@@ -43,7 +43,9 @@ describe("authentication method must be explicitly set to none", () => {
       },
     });
     expect(resultsForWrongAuthMethod).toHaveLength(1);
-    expect(resultsForWrongAuthMethod[0].title).toMatch(/must be set to `none`/);
+    expect(resultsForWrongAuthMethod[0].title).toMatch(
+      /Invalid `token_endpoint_auth_method` field value/
+    );
   });
 
   it("succeeds on right authentication method (`none`)", async () => {

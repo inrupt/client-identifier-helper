@@ -18,7 +18,11 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { ValidationContext, ValidationRule } from "../../types";
+import {
+  ResultDescription,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
 
 const knownFields = new Set([
   "@context",
@@ -47,6 +51,14 @@ const knownLocalizableFields = [
   "policy_uri",
 ];
 
+const resultDescriptions: Record<string, ResultDescription> = {
+  unrecognizedField: {
+    status: "warning",
+    title: `Unknown field`,
+    description: `The given field name is not known to the specification. Did you misspell it?`,
+  },
+};
+
 const noUnknownFields: ValidationRule = {
   rule: {
     type: "local",
@@ -55,6 +67,7 @@ const noUnknownFields: ValidationRule = {
       ...knownFields,
     ].join('", "')}".`,
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     const remainingFields = Object.keys(context.document).filter(
       (field) => !knownFields.has(field)
@@ -69,9 +82,7 @@ const noUnknownFields: ValidationRule = {
 
     return unknownFields.map((unknownField) => {
       return {
-        status: "warning",
-        title: `Unknown field \`${unknownField}\``,
-        description: `The field \`${unknownField}\` is not recognized. Did you misspell it?`,
+        ...resultDescriptions.unrecognizedField,
         affectedFields: [
           {
             fieldName: unknownField,

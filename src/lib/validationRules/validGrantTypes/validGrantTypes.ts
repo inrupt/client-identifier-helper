@@ -18,7 +18,52 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { ValidationRule, RuleResult, ValidationContext } from "../../types";
+import {
+  ValidationRule,
+  RuleResult,
+  ValidationContext,
+  ResultDescription,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  grantTypeUnset: {
+    status: "error",
+    title: "Missing `grant_types` field",
+    description:
+      "Whilst this isn't required by spec, we strongly advise you to include the grant_types field in your client identifier document.",
+  },
+  grantTypeInvalid: {
+    status: "error",
+    title: "Invalid `grant_types` field",
+    description: "The field `grant_type` must be an array of strings.",
+  },
+  grantTypeImplicit: {
+    status: "error",
+    title: "Wrong `grant_types` field value",
+    description: "For Solid OIDC, implicit authentication flow is not allowed.",
+  },
+  grantTypeAuthorizationCodeMissing: {
+    status: "error",
+    title: "Missing Grant Type `authorization_code`",
+    description: "The Grant Type `authorization_code` must be set.",
+  },
+  grantTypeDuplicates: {
+    status: "warning",
+    title: "Duplicate Grant Types",
+    description: "There are duplicate values in the `grant_type` array.",
+  },
+  grantTypeUnknown: {
+    status: "info",
+    title: "Unknown Grant Types",
+    description:
+      "There are Grant Types present that are not specified in the OIDC spec. Are you sure, this is intended?",
+  },
+  grantTypesValid: {
+    status: "success",
+    title: "Grant Types look fine",
+    description: "The field `grant_types` looks fine.",
+  },
+};
 
 const validGrantTypes: ValidationRule = {
   rule: {
@@ -27,14 +72,12 @@ const validGrantTypes: ValidationRule = {
     description:
       "The field `authorization_code` should be set and must not have value `implicit` set (implicit OIDC workflow is not supported).",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     if (typeof context.document.grant_types === "undefined") {
       return [
         {
-          status: "error",
-          title: "No Grant Type set",
-          description:
-            "Whilst this isn't required by spec, we strongly advise you to include the grant_types field in your client identifier document.",
+          ...resultDescriptions.grantTypeUnset,
           affectedFields: [
             {
               fieldName: "grant_types",
@@ -47,9 +90,7 @@ const validGrantTypes: ValidationRule = {
     if (!Array.isArray(context.document.grant_types)) {
       return [
         {
-          status: "error",
-          title: "Invalid Grant Type",
-          description: "The field `grant_type` must be an array of strings.",
+          ...resultDescriptions.grantTypeInvalid,
           affectedFields: [
             {
               fieldName: "grant_types",
@@ -65,10 +106,7 @@ const validGrantTypes: ValidationRule = {
     // No grant type `implicit`
     if (context.document.grant_types.includes("implicit")) {
       results.push({
-        status: "error",
-        title: "Invalid Grant Type",
-        description:
-          "For Solid OIDC, implicit authentication flow is not allowed.",
+        ...resultDescriptions.grantTypeImplicit,
         affectedFields: [
           {
             fieldName: "grant_types",
@@ -80,9 +118,7 @@ const validGrantTypes: ValidationRule = {
     // No missing authorization_code grant type
     if (!context.document.grant_types.includes("authorization_code")) {
       results.push({
-        status: "error",
-        title: "Missing Grant Type `authorization_code`",
-        description: "The Grant Type `authorization_code` must be set.",
+        ...resultDescriptions.grantTypeAuthorizationCodeMissing,
         affectedFields: [
           {
             fieldName: "grant_types",
@@ -97,9 +133,7 @@ const validGrantTypes: ValidationRule = {
       context.document.grant_types.length
     ) {
       results.push({
-        status: "warning",
-        title: "Duplicate Grant Types",
-        description: "There are duplicate values in the `grant_type` array.",
+        ...resultDescriptions.grantTypeDuplicates,
         affectedFields: [
           {
             fieldName: "grant_types",
@@ -116,10 +150,7 @@ const validGrantTypes: ValidationRule = {
       ).length > 0
     ) {
       results.push({
-        status: "info",
-        title: "Unknown Grant Types",
-        description:
-          "There are Grant Types present that are not specified in the OIDC spec. Are you sure, this is intended?",
+        ...resultDescriptions.grantTypeUnknown,
         affectedFields: [
           {
             fieldName: "grant_types",
@@ -131,9 +162,7 @@ const validGrantTypes: ValidationRule = {
 
     if (results.length === 0) {
       results.push({
-        status: "success",
-        title: "Grant Types look fine",
-        description: "The field `grant_types` looks fine.",
+        ...resultDescriptions.grantTypesValid,
         affectedFields: [
           {
             fieldName: "grant_types",

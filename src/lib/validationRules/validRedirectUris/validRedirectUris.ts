@@ -19,7 +19,52 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import { ValidationRule, RuleResult, ValidationContext } from "../../types";
+import {
+  ValidationRule,
+  RuleResult,
+  ValidationContext,
+  ResultDescription,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  missingRedirectUrisField: {
+    status: "error",
+    title: "Missing `redirect_uris` field",
+    description:
+      "The field `redirect_uris` must be set as an array of URI strings.",
+  },
+  redirectUrisFieldInvalid: {
+    status: "error",
+    title: "Invalid `redirect_uris` field",
+    description:
+      "The field `redirect_uris` must be set and must be an array of valid URI-strings.",
+  },
+  redirectUrisUnset: {
+    status: "error",
+    title: "Missing Redirect URIs",
+    description: "At least one Redirect URI must be set.",
+  },
+  redirectUriEmpty: {
+    status: "error",
+    title: "Missing Redirect URI",
+    description: "The redirect URI is not set.",
+  },
+  redirectUriMalformed: {
+    status: "error",
+    title: "Malformed Redirect URI",
+    description: "The redirect URI does not have a correct URI syntax.",
+  },
+  redirectUriMissingPath: {
+    status: "warning",
+    title: "Redirect URI should have a path (`/`)",
+    description: `Redirect URIs are usually compared for string equality. A path should be specified to reduce unexpected behavior.`,
+  },
+  redirectUriWithSearchParams: {
+    status: "warning",
+    title: "Redirect URI has search parameters",
+    description: `The redirect URI has search parameters attached. The redirect URI must be static. To maintain state, use the localStorage instead.`,
+  },
+};
 
 const validRedirectUris: ValidationRule = {
   rule: {
@@ -28,14 +73,26 @@ const validRedirectUris: ValidationRule = {
     description:
       "Redirect URIs must be well-formed. They should have an explicit path, as they are compared for string equality. Search parameters are discouraged.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
+    if (context.document.redirect_uris === undefined) {
+      return [
+        {
+          ...resultDescriptions.missingRedirectUrisField,
+          affectedFields: [
+            {
+              fieldName: "redirect_uris",
+              fieldValue: context.document.redirect_uris,
+            },
+          ],
+        },
+      ];
+    }
+
     if (!Array.isArray(context.document.redirect_uris)) {
       return [
         {
-          status: "error",
-          title: "Redirect URIs field invalid",
-          description:
-            "The field `redirect_uris` must be set and must be an array of valid URI-strings.",
+          ...resultDescriptions.redirectUrisFieldInvalid,
           affectedFields: [
             {
               fieldName: "redirect_uris",
@@ -49,9 +106,7 @@ const validRedirectUris: ValidationRule = {
     if (context.document.redirect_uris.length === 0) {
       return [
         {
-          status: "error",
-          title: "No Redirect URIs set",
-          description: "At least one Redirect URI must be set.",
+          ...resultDescriptions.redirectUrisUnset,
           affectedFields: [
             {
               fieldName: "redirect_uris",
@@ -66,9 +121,7 @@ const validRedirectUris: ValidationRule = {
       if (!uri) {
         return [
           {
-            status: "error",
-            title: "Redirect URI not set",
-            description: "The redirect URI is not set.",
+            ...resultDescriptions.redirectUriEmpty,
             affectedFields: [
               { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
             ],
@@ -81,9 +134,7 @@ const validRedirectUris: ValidationRule = {
       } catch {
         return [
           {
-            status: "error",
-            title: "Redirect URI is malformed",
-            description: "The redirect URI does not have a correct URI syntax.",
+            ...resultDescriptions.redirectUriMalformed,
             affectedFields: [
               { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
             ],
@@ -96,9 +147,7 @@ const validRedirectUris: ValidationRule = {
       // The URL constructor sets `pathname` in all cases. Thus, this comparison here.
       if (url.pathname === "/" && !uri.endsWith("/")) {
         results.push({
-          status: "warning",
-          title: "Redirect URI should have a path (`/`)",
-          description: `Redirect URIs are usually compared for string equality. A path should be specified to reduce unexpected behavior. Affected URI: ${uri}`,
+          ...resultDescriptions.redirectUriMissingPath,
           affectedFields: [
             { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
           ],
@@ -107,9 +156,7 @@ const validRedirectUris: ValidationRule = {
 
       if (url.search !== "") {
         results.push({
-          status: "warning",
-          title: "Redirect URI has search parameters",
-          description: `The redirect URI "${uri}" has search parameters attached. The redirect URI must be static. To maintain state, use the localStorage instead.`,
+          ...resultDescriptions.redirectUriWithSearchParams,
           affectedFields: [
             { fieldName: `redirect_uris[${index}]`, fieldValue: uri },
           ],

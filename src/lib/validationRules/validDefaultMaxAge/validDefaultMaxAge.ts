@@ -18,15 +18,34 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-import { ValidationContext, ValidationRule } from "../../types";
+import {
+  ResultDescription,
+  ValidationContext,
+  ValidationRule,
+} from "../../types";
+
+const resultDescriptions: Record<string, ResultDescription> = {
+  defaultMaxAgeSmall: {
+    status: "info",
+    title: "Small `default_max_age` value",
+    description:
+      "The value of `default_max_age` is set to less than 60 seconds. Thus, the end user must be re-authenticated after this period. Are you sure, this is intended?",
+  },
+  defaultMaxAgeInvalid: {
+    status: "error",
+    title: "Invalid `default_max_age` value",
+    description: "The value of `default_max_age` must be a positive integer.",
+  },
+};
 
 const validDefaultMaxAge: ValidationRule = {
   rule: {
     type: "local",
-    name: "If set, `default_max_age` should have reasonable integer values.",
+    name: "Field `default_max_age` should have reasonable integer values, if set.",
     description:
       "If set, the optional field `default_max_age` (expressed in seconds) needs to be a positive integer. The user has to re-authenticate every time, the time span is expired. Therefore, small values are discouraged.",
   },
+  resultDescriptions,
   check: async (context: ValidationContext) => {
     if (
       Number(context.document.default_max_age) ===
@@ -37,10 +56,7 @@ const validDefaultMaxAge: ValidationRule = {
       if (context.document.default_max_age < 60) {
         return [
           {
-            status: "info",
-            title: "Small `default_max_age` value",
-            description:
-              "The value of `default_max_age` is set to less than 60 seconds. Thus, the end user must be re-authenticated after this period. Are you sure, this is intended?",
+            ...resultDescriptions.defaultMaxAgeSmall,
             affectedFields: [
               {
                 fieldName: "default_max_age",
@@ -55,10 +71,7 @@ const validDefaultMaxAge: ValidationRule = {
     if (context.document.default_max_age !== undefined) {
       return [
         {
-          status: "error",
-          title: "Invalid `default_max_age` value",
-          description:
-            "The value of `default_max_age` must be a positive integer.",
+          ...resultDescriptions.defaultMaxAgeInvalid,
           affectedFields: [
             {
               fieldName: "default_max_age",
