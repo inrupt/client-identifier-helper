@@ -109,7 +109,7 @@ test.describe("Validator page", () => {
     expect(
       await page
         .locator(
-          `text=Dereferenced Client Identifier and declared ${`client_id`} match`
+          "text=Dereferenced Client Identifier and declared `client_id` match"
         )
         .count()
     ).toBe(1);
