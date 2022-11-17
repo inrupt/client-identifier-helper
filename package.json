@@ -20,7 +20,7 @@
     "@mui/icons-material": "^5.10.9",
     "@mui/lab": "^5.0.0-alpha.105",
     "@mui/material": "^5.10.11",
-    "@vercel/node": "^2.5.24",
+    "@vercel/node": "^2.6.3",
     "formik": "^2.2.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
