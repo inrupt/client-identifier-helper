@@ -5,10 +5,12 @@ env:
 
 on: [push]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   lint:
-    # FIXME: Use published version once it's released
-    uses: inrupt/javascript-style-configs/.github/workflows/reusable-lint.yml@main
+    uses: inrupt/typescript-sdk-tools/.github/workflows/reusable-lint.yml@v1.4.2
 
   ci:
     runs-on: ubuntu-latest
