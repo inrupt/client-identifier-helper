@@ -27,6 +27,7 @@ export const DEFAULT_CLIENT_LOGO_URI = "https://app.example/logo";
 export const DEFAULT_CLIENT_TOS_URI = "https://app.example/tos";
 export const DEFAULT_CLIENT_POLICY_URI = "https://app.example/policy";
 export const DEFAULT_CLIENT_EMAIL = "maintainers@app.example";
+export const DEFAULT_MAX_AGE = 3600;
 
 export const VALID_CLIENT_IDENTIFIER_DOCUMENT = JSON.stringify({
   "@context": ["https://www.w3.org/ns/solid/oidc-context.jsonld"],

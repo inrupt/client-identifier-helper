@@ -34,6 +34,7 @@ import {
   DEFAULT_CLIENT_POLICY_URI,
   DEFAULT_CLIENT_TOS_URI,
   DEFAULT_CLIENT_EMAIL,
+  DEFAULT_MAX_AGE,
 } from "./constants";
 
 async function openAccordion(page: Page, selector: string) {
@@ -79,6 +80,21 @@ async function fillUserFacingFieldsWithDefaults(page: Page) {
   await page.locator('input[name="contacts.0"]').fill(DEFAULT_CLIENT_EMAIL);
 }
 
+async function expectUserFacingFieldsDefaults(page: Page) {
+  await expect(page.locator('input[name="logoUri"]')).toHaveValue(
+    DEFAULT_CLIENT_LOGO_URI
+  );
+  await expect(page.locator('input[name="policyUri"]')).toHaveValue(
+    DEFAULT_CLIENT_POLICY_URI
+  );
+  await expect(page.locator('input[name="tosUri"]')).toHaveValue(
+    DEFAULT_CLIENT_TOS_URI
+  );
+  await expect(page.locator('input[name="contacts.0"]')).toHaveValue(
+    DEFAULT_CLIENT_EMAIL
+  );
+}
+
 async function fillTechnicalFields(page: Page) {
   await openAccordion(page, ".AdvancedFieldsAccordion");
 
@@ -90,10 +106,20 @@ async function fillTechnicalFields(page: Page) {
 
   // Set default max age.
   await page.locator('input[name="defaultMaxAge"]').click();
-  await page.locator('input[name="defaultMaxAge"]').fill("3600");
+  await page
+    .locator('input[name="defaultMaxAge"]')
+    .fill(DEFAULT_MAX_AGE.toString());
 
   // Request a time of authentication claim.
   await page.locator("text=Request a time of authentication claim").click();
+}
+
+async function expectTechnicalFieldsDefaults(page: Page) {
+  await expect(page.locator("input[name='applicationType']")).toHaveValue(
+    "native"
+  );
+  await expect(page.locator('input[name="defaultMaxAge"]')).toHaveValue("3600");
+  await expect(page.locator("input[name='requireAuthTime']")).toBeChecked();
 }
 
 test.describe("Generator page functionality", () => {
@@ -168,7 +194,7 @@ test.describe("Generator page functionality", () => {
 
     const clientIdentifierDocument = await clickAndGenerateDocument(page);
     expect(clientIdentifierDocument.application_type).toBe("native");
-    expect(clientIdentifierDocument.default_max_age).toBe(3600);
+    expect(clientIdentifierDocument.default_max_age).toBe(DEFAULT_MAX_AGE);
     expect(clientIdentifierDocument.require_auth_time).toBe(true);
   });
 
@@ -190,7 +216,7 @@ test.describe("Generator page functionality", () => {
     expect(clientIdentifierDocument?.contacts[0]).toBe(DEFAULT_CLIENT_EMAIL);
 
     expect(clientIdentifierDocument.application_type).toBe("native");
-    expect(clientIdentifierDocument.default_max_age).toBe(3600);
+    expect(clientIdentifierDocument.default_max_age).toBe(DEFAULT_MAX_AGE);
     expect(clientIdentifierDocument.require_auth_time).toBe(true);
   });
 
@@ -227,5 +253,42 @@ test.describe("Generator page functionality", () => {
     ).toHaveClass(/Mui-error/);
 
     await expect(page.locator("[name=generatedJson]")).not.toBeVisible();
+  });
+
+  it("Remembers states and values", async ({ page }) => {
+    await page.goto("/generator");
+    await fillEssentialFieldsWithDefaults(page);
+    await fillUserFacingFieldsWithDefaults(page);
+    await fillTechnicalFields(page);
+
+    // Cause field error state for empty clientId.
+    await page.locator("[name=clientId]").fill("");
+
+    // Switch page and go back.
+    await page.locator(".openValidatorPage").click();
+    await page.locator(".openGeneratorPage").click();
+
+    // Expect values to have remained the same.
+    await expect(page.locator("[name=clientId]")).toHaveValue("");
+    await expect(page.locator("[name=clientName]")).toHaveValue(
+      DEFAULT_CLIENT_NAME
+    );
+    await expect(page.locator("[name=clientUri]")).toHaveValue(
+      DEFAULT_CLIENT_HOMEPAGE
+    );
+    await expect(page.locator(`[name="redirectUris.0"]`)).toHaveValue(
+      `${DEFAULT_CLIENT_REDIRECT_URI}1`
+    );
+    await expectUserFacingFieldsDefaults(page);
+    await expectTechnicalFieldsDefaults(page);
+
+    // Expect clientId error state to have remained.
+    expect(
+      await page.locator(`.MuiFormHelperText-root.Mui-error`).count()
+    ).toBe(1);
+    const errorDescriptions = page.locator(`.MuiFormHelperText-root.Mui-error`);
+    await expect(errorDescriptions).toHaveText(
+      /The given URI field is not present./
+    );
   });
 });
