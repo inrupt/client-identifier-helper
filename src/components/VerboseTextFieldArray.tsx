@@ -95,7 +95,9 @@ export default function VerboseTextFieldArray(
         {necessity && <NecessityLabel necessity={necessity} />}
       </Grid>
 
-      <VerboseHelperText state={state} />
+      <Grid item>
+        <VerboseHelperText state={state} />
+      </Grid>
 
       {/* Field name label */}
       <Grid container item spacing={1}>
@@ -111,7 +113,7 @@ export default function VerboseTextFieldArray(
         <Grid
           container
           item
-          spacing={2}
+          spacing={1}
           className={`${componentName} TextFieldArrayRows`}
         >
           {values.map((value: string, index: number) => {
@@ -124,7 +126,7 @@ export default function VerboseTextFieldArray(
                 // eslint-disable-next-line react/no-array-index-key
                 key={index}
                 spacing={1}
-                sx={{ pt: "0 !important" }}
+                sx={{ ":first-of-type": { pt: "0 !important" } }}
                 flexWrap="nowrap"
               >
                 <Grid item flexGrow={1} className="test">
