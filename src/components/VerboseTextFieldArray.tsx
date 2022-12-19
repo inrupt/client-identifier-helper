@@ -27,7 +27,7 @@ import {
   TextFieldProps,
   Typography,
 } from "@mui/material";
-import { VerboseFieldState } from "../lib/formValidationTypes";
+import { FormFieldState, VerboseFieldState } from "../lib/formValidationTypes";
 import FieldNameLabel from "./FieldNameLabel";
 import NecessityLabel, { Necessity } from "./NecessityLabel";
 import VerboseHelperText from "./VerboseHelperText";
@@ -40,9 +40,8 @@ export type VerboseFieldArrayRenderProps = TextFieldProps & {
   componentFieldName?: string;
   description: string | string[];
   values: string[];
-  state?: VerboseFieldState | undefined;
+  state?: FormFieldState<VerboseFieldState | undefined>;
   necessity?: Necessity;
-  childStates?: (VerboseFieldState | undefined)[];
   allowEmpty?: boolean;
   pushItem(obj: unknown): void;
   removeItem(index: number): void;
@@ -64,7 +63,6 @@ export default function VerboseTextFieldArray(
     values,
     state = undefined,
     necessity = undefined,
-    childStates = undefined,
     allowEmpty = false,
 
     pushItem,
@@ -96,7 +94,7 @@ export default function VerboseTextFieldArray(
       </Grid>
 
       <Grid item>
-        <VerboseHelperText state={state} />
+        <VerboseHelperText state={state?.state} />
       </Grid>
 
       {/* Field name label */}
@@ -138,8 +136,8 @@ export default function VerboseTextFieldArray(
                     name={`${componentName}.${index}`}
                     label={rowLabel}
                     state={
-                      Array.isArray(childStates)
-                        ? childStates[index]
+                      Array.isArray(state?.childStates)
+                        ? state?.childStates[index]
                         : undefined
                     }
                     value={value}
@@ -184,7 +182,6 @@ export default function VerboseTextFieldArray(
 VerboseTextFieldArray.defaultProps = {
   state: undefined,
   necessity: undefined,
-  childStates: undefined,
   componentFieldName: undefined,
   addRowLabel: "Add row",
   allowEmpty: false,

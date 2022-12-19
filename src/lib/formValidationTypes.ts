@@ -21,13 +21,19 @@
 
 import { useState } from "react";
 
+export declare type FormFieldState<State> = {
+  state?: State;
+  childStates?: State[];
+};
+
 /**
- * Provides a type to store states of type State of a form
- * with field values of type `Value`.
+ * Provides a type to store states of type `State` of a form
+ * with the value keys of type `Value`. Additionally, an array
+ * `childStates` is provided for nested components.
  * Inspired by `FormikErrors<Values>` type.
  */
 export declare type FormFieldStates<Values, State> = {
-  [K in keyof Values]: { state?: State; childStates?: State[] };
+  [K in keyof Values]: FormFieldState<State>;
 };
 
 /**
@@ -41,20 +47,22 @@ export declare type FormFieldHelperTexts<Values> = FormFieldStates<
 >;
 
 /**
- * Helper function to manage field values of verbose forms.
+ * Helper function to manage validation state of forms.
  *
  * @param initialValues
  * @returns [states, setStates, setFieldState, setArrayFieldState]
  */
 export function useFieldStates<IFormParameters, V>(
   initialValues: FormFieldStates<IFormParameters, V>
-): [
-  FormFieldStates<IFormParameters, V>,
-  React.Dispatch<React.SetStateAction<FormFieldStates<IFormParameters, V>>>,
-  (fieldName: keyof IFormParameters, value: V) => void,
-  (fieldName: keyof IFormParameters, value: V, index: number) => void,
-  (fieldName: keyof IFormParameters, value: V[]) => void
-] {
+): {
+  all: FormFieldStates<IFormParameters, V>;
+  setAll: React.Dispatch<
+    React.SetStateAction<FormFieldStates<IFormParameters, V>>
+  >;
+  setFor: (fieldName: keyof IFormParameters, value: V) => void;
+  setChild: (fieldName: keyof IFormParameters, value: V, index: number) => void;
+  setChildren: (fieldName: keyof IFormParameters, value: V[]) => void;
+} {
   const [states, setStates] = useState(initialValues);
 
   const setFieldState = (fieldName: keyof IFormParameters, value: V) => {
@@ -89,7 +97,13 @@ export function useFieldStates<IFormParameters, V>(
     });
   };
 
-  return [states, setStates, setFieldState, setChildState, setChildStates];
+  return {
+    all: states,
+    setAll: setStates,
+    setFor: setFieldState,
+    setChild: setChildState,
+    setChildren: setChildStates,
+  };
 }
 
 export type FieldStatus =

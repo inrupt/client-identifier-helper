@@ -36,6 +36,8 @@ export type FormParameters = {
   defaultMaxAge?: number;
 };
 
+// TODO: make this dependent on initial values which ought to be moved here.
+
 const emptyFormState: FormFieldStates<
   FormParameters,
   VerboseFieldState | undefined
@@ -65,6 +67,7 @@ export function getEmptyFormState() {
  * @param key The FormParameters key as string.
  * @returns FormParameters key
  */
+// TODO: does this warn if parameters are added?
 export function getFormParametersKey(key: string): keyof FormParameters {
   const parameterMap: Record<string, keyof FormParameters> = {
     clientId: "clientId",
