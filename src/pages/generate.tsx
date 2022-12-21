@@ -40,7 +40,7 @@ import { Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FieldNameLabel from "../components/FieldNameLabel";
-import useVerboseFormik from "../components/useVerboseFormik";
+import useExtendedFormik from "../components/useExtendedFormik";
 import VerboseSlider from "../components/VerboseSlider";
 import VerboseTextField from "../components/VerboseTextField";
 import VerboseTextFieldArray from "../components/VerboseTextFieldArray";
@@ -95,7 +95,7 @@ export default function ClientIdentifierGenerator() {
   };
 
   /** Create a modified formik instance supporting verbose field states. */
-  const formik = useVerboseFormik<FormParameters>({
+  const formik = useExtendedFormik<FormParameters>({
     ...getSessionStorageStateOrDefault(),
   });
 

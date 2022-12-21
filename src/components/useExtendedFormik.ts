@@ -35,7 +35,7 @@ import {
  *
  * @returns formik object
  */
-export default function useVerboseFormik<FormParameters extends FormikValues>({
+export default function useExtendedFormik<FormParameters extends FormikValues>({
   initialValues,
   initialStates,
 }: {
