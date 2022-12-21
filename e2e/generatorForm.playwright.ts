@@ -284,9 +284,11 @@ test.describe("Generator page functionality", () => {
 
     // Expect clientId error state to have remained.
     expect(
-      await page.locator(`.MuiFormHelperText-root.Mui-error`).count()
+      await page.locator(`[data-testid=VerboseHelperText].Mui-error`).count()
     ).toBe(1);
-    const errorDescriptions = page.locator(`.MuiFormHelperText-root.Mui-error`);
+    const errorDescriptions = page.locator(
+      `[data-testid=VerboseHelperText].Mui-error`
+    );
     await expect(errorDescriptions).toHaveText(
       /The given URI field is not present./
     );

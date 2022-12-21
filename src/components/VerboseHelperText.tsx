@@ -29,7 +29,11 @@ export default function VerboseHelperText({
   state: VerboseFieldState | undefined;
 }) {
   return state ? (
-    <FormHelperText className={`Mui-${state.statusValue}`} sx={statusColors}>
+    <FormHelperText
+      className={`Mui-${state.statusValue}`}
+      data-testid="VerboseHelperText"
+      sx={statusColors}
+    >
       {state.statusDescription}
     </FormHelperText>
   ) : (
