@@ -81,17 +81,23 @@ export default function ClientIdentifierGenerator() {
     initialStates: ReturnType<typeof getEmptyFormState>;
   } = () => {
     // Load state from session store, if present, else use empty values.
-    const storedFormValues = sessionStorage.getItem("formValues");
-    const formValidationState = sessionStorage.getItem("formValidationState");
-    const initialValues = storedFormValues
-      ? JSON.parse(storedFormValues)
-      : initialFormValues;
-    const initialStates =
-      formValidationState && storedFormValues
-        ? JSON.parse(formValidationState)
-        : getEmptyFormState();
-
-    return { initialValues, initialStates };
+    const formStateString = sessionStorage.getItem("formState") || "";
+    try {
+      const formState = JSON.parse(formStateString);
+      // Only restore form data younger than an hour.
+      if (new Date(formState.timestamp) > new Date(Date.now() - 3600)) {
+        return {
+          initialValues: formState.values,
+          initialStates: formState.states,
+        };
+      }
+    } catch (error) {
+      // We just return the default values.
+    }
+    return {
+      initialValues: initialFormValues,
+      initialStates: getEmptyFormState(),
+    };
   };
 
   /** Create a modified formik instance supporting verbose field states. */
@@ -214,11 +220,18 @@ export default function ClientIdentifierGenerator() {
     }
 
     // Save state of the form.
-    sessionStorage.setItem("formValues", JSON.stringify(formik.values));
-    sessionStorage.setItem(
-      "formValidationState",
-      JSON.stringify(formik.states.all)
-    );
+    try {
+      sessionStorage.setItem(
+        "formState",
+        JSON.stringify({
+          values: formik.values,
+          states: formik.states.all,
+          timestamp: new Date(),
+        })
+      );
+    } catch (exception) {
+      // Failing to save form state is no drama..
+    }
   };
 
   /** Set field validation status for each field.
