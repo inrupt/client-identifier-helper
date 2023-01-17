@@ -36,41 +36,29 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import type { FieldArrayRenderProps, FormikProps } from "formik";
-import { FieldArray, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FieldNameLabel from "../components/FieldNameLabel";
+import useExtendedFormik from "../components/useExtendedFormik";
 import VerboseSlider from "../components/VerboseSlider";
 import VerboseTextField from "../components/VerboseTextField";
 import VerboseTextFieldArray from "../components/VerboseTextFieldArray";
+import { FieldStatus, VerboseFieldState } from "../lib/formValidationTypes";
 import generateClientIdDocument from "../lib/generateDocument/generateDocument";
 import {
   FormParameters,
   getEmptyFormState,
   getFormParametersKey,
 } from "../lib/generatorFormParameters";
-import {
-  FieldStatus,
-  useFieldStates,
-  VerboseFieldState,
-} from "../lib/formValidationTypes";
 import { statusToNumber } from "../lib/helperFunctions";
 import { validateField } from "../lib/validateLocalDocument";
 import { localRules } from "../lib/validationRules";
 
+/** Wrapped by `ClientIdentifierGenerator`,  */
 export default function ClientIdentifierGenerator() {
   const [documentJson, setDocumentJson] = useState("");
   const [hasFormError, setHasFormError] = useState("");
-  const [
-    formFieldStates,
-    setFormFieldStates,
-    setFormFieldState,
-    setFormArrayFieldState,
-    setFormArrayFieldStates,
-  ] = useFieldStates<FormParameters, VerboseFieldState | undefined>(
-    getEmptyFormState()
-  );
 
   const initialFormValues: FormParameters = {
     clientId: "",
@@ -87,10 +75,42 @@ export default function ClientIdentifierGenerator() {
     defaultMaxAge: undefined,
   };
 
+  /** Helper to load form state and values from storage or defaults. */
+  const getSessionStorageStateOrDefault: () => {
+    initialValues: FormParameters;
+    initialStates: ReturnType<typeof getEmptyFormState>;
+  } = () => {
+    // Load state from session store, if present, else use empty values.
+    const formStateString = sessionStorage.getItem("formState") || "";
+    try {
+      const formState = JSON.parse(formStateString);
+      // Only restore form data younger than an hour.
+      if (new Date(formState.timestamp) > new Date(Date.now() - 3600)) {
+        return {
+          initialValues: formState.values,
+          initialStates: formState.states,
+        };
+      }
+    } catch (error) {
+      // We just return the default values.
+    }
+    return {
+      initialValues: initialFormValues,
+      initialStates: getEmptyFormState(),
+    };
+  };
+
+  /** Create a modified formik instance supporting verbose field states. */
+  const formik = useExtendedFormik<FormParameters>({
+    ...getSessionStorageStateOrDefault(),
+  });
+
   const onReset = () => {
+    sessionStorage.removeItem("formValues");
+    sessionStorage.removeItem("formValidationState");
     setDocumentJson("");
     setHasFormError("");
-    setFormFieldStates(getEmptyFormState());
+    formik.states.setAll(getEmptyFormState());
   };
 
   const navigate = useNavigate();
@@ -139,9 +159,9 @@ export default function ClientIdentifierGenerator() {
     const setFieldState =
       arrayFieldIndex === undefined
         ? (state?: VerboseFieldState) =>
-            setFormFieldState(targetFieldKey, state)
+            formik.states.setFor(targetFieldKey, state)
         : (state?: VerboseFieldState) =>
-            setFormArrayFieldState(targetFieldKey, state, arrayFieldIndex);
+            formik.states.setChild(targetFieldKey, state, arrayFieldIndex);
 
     // Omit showing success messages on fields.
     if (mostSevereStatus !== "success") {
@@ -161,14 +181,16 @@ export default function ClientIdentifierGenerator() {
   };
 
   const formHasErrors = () => {
-    const hasErrors = Object.entries(formFieldStates).some(([, fieldState]) => {
-      if (Array.isArray(fieldState.childStates)) {
-        return fieldState.childStates.some(
-          (state) => state?.statusValue === "error"
-        );
+    const hasErrors = Object.entries(formik.states.all).some(
+      ([, fieldState]) => {
+        if (Array.isArray(fieldState.childStates)) {
+          return fieldState.childStates.some(
+            (state) => state?.statusValue === "error"
+          );
+        }
+        return fieldState?.state?.statusValue === "error";
       }
-      return fieldState?.state?.statusValue === "error";
-    });
+    );
     return hasErrors;
   };
 
@@ -176,10 +198,9 @@ export default function ClientIdentifierGenerator() {
    * Handles field validation triggers
    */
   const handleFieldBlur = async (
-    form: FormikProps<FormParameters>,
     blurEvent: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement, Element>
   ) => {
-    form.handleBlur(blurEvent);
+    formik.handleBlur(blurEvent);
 
     const fieldName = blurEvent.target.name;
 
@@ -188,28 +209,42 @@ export default function ClientIdentifierGenerator() {
     }
 
     // If the value has not initially been set, do not validate.
-    if (!form.getFieldMeta(fieldName).touched && !blurEvent.target.value) {
+    if (!formik.getFieldMeta(fieldName).touched && !blurEvent.target.value) {
       return;
     }
 
-    await validateFormField(fieldName, form.values);
+    await validateFormField(fieldName, formik.values);
 
     if (!formHasErrors()) {
       setHasFormError("");
+    }
+
+    // Save state of the form.
+    try {
+      sessionStorage.setItem(
+        "formState",
+        JSON.stringify({
+          values: formik.values,
+          states: formik.states.all,
+          timestamp: new Date(),
+        })
+      );
+    } catch (exception) {
+      // Failing to save form state is no drama..
     }
   };
 
   /** Set field validation status for each field.
    * @returns true, if form has errors.
    */
-  const validateAll = async (form: FormikProps<FormParameters>) => {
+  const validateAll = async () => {
     const formValues = {
-      ...form.values,
-      contacts: form.values.contacts.filter((contact) => contact !== ""),
+      ...formik.values,
+      contacts: formik.values.contacts.filter((contact) => contact !== ""),
     };
     const fieldStatuses = (
       await Promise.all(
-        Object.keys(formFieldStates).map(async (key) => {
+        Object.keys(formik.states.all).map(async (key) => {
           const formKey = getFormParametersKey(key);
           const value = formValues[formKey];
 
@@ -228,14 +263,14 @@ export default function ClientIdentifierGenerator() {
 
     // set all fields to touched
     Object.keys(formValues).forEach((field) =>
-      form.setFieldTouched(field, true)
+      formik.setFieldTouched(field, true)
     );
 
     return fieldStatuses.some((s) => s === "error");
   };
 
-  const onSubmit = async (form: FormikProps<FormParameters>) => {
-    const hasErrors = await validateAll(form);
+  const onSubmit = async () => {
+    const hasErrors = await validateAll();
 
     if (hasErrors) {
       setHasFormError("There are errors in the form.");
@@ -244,8 +279,8 @@ export default function ClientIdentifierGenerator() {
     setHasFormError("");
 
     const clientIdDocument = generateClientIdDocument({
-      ...form.values,
-      contacts: form.values.contacts.filter((contact) => contact !== ""),
+      ...formik.values,
+      contacts: formik.values.contacts.filter((contact) => contact !== ""),
       compact: false,
     });
     setDocumentJson(clientIdDocument);
@@ -302,452 +337,413 @@ export default function ClientIdentifierGenerator() {
           </Grid>
           <Grid container item>
             <Formik
-              onReset={onReset}
+              initialValues={formik.initialValues}
               onSubmit={() => {}}
-              initialValues={initialFormValues}
-              validateOnChange={false}
-              validateOnBlur={false}
+              validateOnChange={formik.validateOnChange}
+              validateOnBlur={formik.validateOnBlur}
             >
-              {(form) => (
-                <Form>
-                  <Grid container item direction="column" spacing={2}>
-                    <Grid container item>
-                      <VerboseTextField
-                        name="clientId"
-                        fieldName="client_id"
-                        label="Client Identifier URI"
-                        description="The URI where your Client Identifier Document is
+              <Form>
+                <Grid container item direction="column" spacing={2}>
+                  <Grid container item>
+                    <VerboseTextField
+                      name="clientId"
+                      fieldName="client_id"
+                      label="Client Identifier URI"
+                      description="The URI where your Client Identifier Document is
                           located. It identifies your application, the client,
                           to the Solid OIDC Provider. The Client Identifier
                           Document should be a static resource and publicly
                           accessible."
-                        state={formFieldStates.clientId.state}
-                        necessity="required"
-                        value={form.values.clientId}
-                        onChange={form.handleChange}
-                        onBlur={(e) => handleFieldBlur(form, e)}
-                        inputProps={{ inputMode: "url" }}
-                        fullWidth
-                        size="small"
-                      />
-                    </Grid>
-                    <Grid container item>
-                      <VerboseTextField
-                        name="clientName"
-                        fieldName="client_name"
-                        label="Client Name"
-                        description="Your application name displayed to the user when
+                      state={formik.states.all.clientId.state}
+                      necessity="required"
+                      value={formik.values.clientId}
+                      onChange={formik.handleChange}
+                      onBlur={handleFieldBlur}
+                      inputProps={{ inputMode: "url" }}
+                      fullWidth
+                      size="small"
+                    />
+                  </Grid>
+                  <Grid container item>
+                    <VerboseTextField
+                      name="clientName"
+                      fieldName="client_name"
+                      label="Client Name"
+                      description="Your application name displayed to the user when
                           they are authenticating your application at the
                           Solid OIDC Provider."
-                        state={formFieldStates.clientName.state}
-                        necessity="recommended"
-                        value={form.values.clientName}
-                        onChange={form.handleChange}
-                        onBlur={(e) => handleFieldBlur(form, e)}
-                        fullWidth
-                        size="small"
-                      />
-                    </Grid>
-                    <Grid container item>
-                      <VerboseTextField
-                        name="clientUri"
-                        fieldName="client_uri"
-                        label="Client Homepage URI"
-                        description="The URI of your application's homepage.
+                      state={formik.states.all.clientName.state}
+                      necessity="recommended"
+                      value={formik.values.clientName}
+                      onChange={formik.handleChange}
+                      onBlur={handleFieldBlur}
+                      fullWidth
+                      size="small"
+                    />
+                  </Grid>
+                  <Grid container item>
+                    <VerboseTextField
+                      name="clientUri"
+                      fieldName="client_uri"
+                      label="Client Homepage URI"
+                      description="The URI of your application's homepage.
                           Displayed to the user when they are authenticating
                           your application at the Solid OIDC Provider."
-                        state={formFieldStates.clientUri.state}
-                        necessity="recommended"
-                        value={form.values.clientUri}
-                        onChange={form.handleChange}
-                        onBlur={(e) => handleFieldBlur(form, e)}
-                        fullWidth
-                        size="small"
-                      />
-                    </Grid>
+                      state={formik.states.all.clientUri.state}
+                      necessity="recommended"
+                      value={formik.values.clientUri}
+                      onChange={formik.handleChange}
+                      onBlur={handleFieldBlur}
+                      fullWidth
+                      size="small"
+                    />
+                  </Grid>
 
-                    <Grid item container marginTop={3}>
-                      <FieldArray name="redirectUris">
-                        {(props: FieldArrayRenderProps) => (
-                          <VerboseTextFieldArray
-                            label="Redirect URIs"
-                            rowLabel="Redirect URI"
-                            addRowLabel="Add Redirect URI"
-                            componentFieldName="redirect_uris"
-                            name="redirectUris"
-                            description={[
-                              "The URIs that the Solid OIDC Provider is allowed to redirect to after the user authenticated at the OIDC Provider.",
-                              "Flow: Your application will send an authentication request to the OIDC Provider with one redirect URI. The OIDC Provider redirects the browser/user agent to the redirect URI after the user authenticated and issues a code to your application that it can use to complete authentication.",
-                            ]}
-                            state={formFieldStates.redirectUris.state}
-                            childStates={
-                              formFieldStates.redirectUris.childStates
-                            }
-                            values={form.values.redirectUris}
-                            pushItem={props.push}
-                            removeItem={(index) => {
-                              props.remove(index);
-                              if (!formFieldStates.redirectUris.childStates) {
-                                return;
-                              }
-                              setFormArrayFieldStates(
-                                "redirectUris",
-                                formFieldStates.redirectUris.childStates.filter(
-                                  (_val, i) => index !== i
-                                )
-                              );
-                            }}
-                            onChange={form.handleChange}
-                            onBlur={(e) => handleFieldBlur(form, e)}
-                            inputProps={{ inputMode: "url" }}
-                            fullWidth
-                            size="small"
-                            necessity="required"
-                          />
-                        )}
-                      </FieldArray>
-                    </Grid>
+                  <Grid item container marginTop={3}>
+                    <VerboseTextFieldArray
+                      label="Redirect URIs"
+                      rowLabel="Redirect URI"
+                      addRowLabel="Add Redirect URI"
+                      componentFieldName="redirect_uris"
+                      name="redirectUris"
+                      description={[
+                        "The URIs that the Solid OIDC Provider is allowed to redirect to after the user authenticated at the OIDC Provider.",
+                        "Flow: Your application will send an authentication request to the OIDC Provider with one redirect URI. The OIDC Provider redirects the browser/user agent to the redirect URI after the user authenticated and issues a code to your application that it can use to complete authentication.",
+                      ]}
+                      state={formik.states.all.redirectUris}
+                      pushItem={(value: string) =>
+                        formik.addChild("redirectUris", value)
+                      }
+                      removeItem={(index: number) =>
+                        formik.removeChild("redirectUris", index)
+                      }
+                      values={formik.values.redirectUris}
+                      onChange={formik.handleChange}
+                      onBlur={handleFieldBlur}
+                      inputProps={{ inputMode: "url" }}
+                      fullWidth
+                      size="small"
+                      necessity="required"
+                    />
+                  </Grid>
 
-                    <Grid container item spacing={1} marginTop={1}>
-                      <Grid item>
-                        <Typography variant="h3">Refresh Tokens</Typography>
-                      </Grid>
+                  <Grid container item spacing={1} marginTop={1}>
+                    <Grid item>
+                      <Typography variant="h3">Refresh Tokens</Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      sx={{
+                        marginTop: -3,
+                        // Prevent colliding caption.
+                        "@media (max-width: 480px)": {
+                          marginTop: 0,
+                        },
+                      }}
+                    >
                       <Grid
+                        container
                         item
+                        direction="row"
+                        spacing={1}
+                        justifyContent="end"
                         sx={{
-                          marginTop: -3,
-                          // Prevent colliding caption.
-                          "@media (max-width: 480px)": {
-                            marginTop: 0,
+                          // Put the "Field name" label to the left for very small screens.
+                          "@media (max-width: 330px)": {
+                            justifyContent: "start",
                           },
                         }}
                       >
-                        <Grid
-                          container
-                          item
-                          direction="row"
-                          spacing={1}
-                          justifyContent="end"
-                          sx={{
-                            // Put the "Field name" label to the left for very small screens.
-                            "@media (max-width: 330px)": {
-                              justifyContent: "start",
-                            },
-                          }}
-                        >
-                          <Grid item>
-                            <Typography fontSize={12}>Field names:</Typography>
-                          </Grid>
-                          <Grid item>
-                            <Typography
-                              fontSize={12}
-                              fontFamily="Courier Prime"
-                            >
-                              grant_types = [&quot;refresh_token&quot;]
-                            </Typography>
-
-                            <Typography
-                              fontSize={12}
-                              fontFamily="Courier Prime"
-                            >
-                              scope = &quot;offline_access&quot;
-                            </Typography>
-                          </Grid>
+                        <Grid item>
+                          <Typography fontSize={12}>Field names:</Typography>
                         </Grid>
-                        <VerboseSlider
-                          name="useRefreshTokens"
-                          fieldName={undefined}
-                          label="Support usage of refresh tokens / offline access"
-                          description="Recommended. A refresh token can be used to request new access tokens
+                        <Grid item>
+                          <Typography fontSize={12} fontFamily="Courier Prime">
+                            grant_types = [&quot;refresh_token&quot;]
+                          </Typography>
+
+                          <Typography fontSize={12} fontFamily="Courier Prime">
+                            scope = &quot;offline_access&quot;
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                      <VerboseSlider
+                        name="useRefreshTokens"
+                        fieldName={undefined}
+                        label="Support usage of refresh tokens / offline access"
+                        description="Recommended. A refresh token can be used to request new access tokens
                             after they expire. If not requested, the user will have to
                             re-authenticate after the access token expires, which will happen
                             quite frequently (e.g. every 5 minutes or so). The field `scope`
                             will have the value `offline_access` set and the field `grant_types`
                             will have the value `refresh_token` set."
-                          value={form.values.useRefreshTokens}
-                          onChange={form.handleChange}
-                        />
-                      </Grid>
+                        value={formik.values.useRefreshTokens}
+                        onChange={formik.handleChange}
+                      />
                     </Grid>
-                    <Grid container item>
-                      <Accordion
-                        sx={{ boxShadow: "none" }}
-                        className="MoreFieldsAccordion"
+                  </Grid>
+                  <Grid container item>
+                    <Accordion
+                      sx={{ boxShadow: "none" }}
+                      className="MoreFieldsAccordion"
+                    >
+                      <AccordionSummary
+                        className="AccordionSummary"
+                        sx={{
+                          paddingLeft: 0,
+                          "&.Mui-expanded .ExpandIcon": {
+                            transform: "rotate(-180deg)",
+                          },
+                          ".ExpandIcon": {
+                            transition:
+                              "transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+                          },
+                        }}
                       >
-                        <AccordionSummary
-                          className="AccordionSummary"
-                          sx={{
-                            paddingLeft: 0,
-                            "&.Mui-expanded .ExpandIcon": {
-                              transform: "rotate(-180deg)",
-                            },
-                            ".ExpandIcon": {
-                              transition:
-                                "transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
-                            },
-                          }}
-                        >
-                          <Grid container>
-                            <Grid item>
-                              <Typography variant="h2">
-                                Additional client information
-                              </Typography>
-                            </Grid>
-                            <Grid item>
-                              <ExpandMoreIcon className="ExpandIcon" />
-                            </Grid>
+                        <Grid container>
+                          <Grid item>
+                            <Typography variant="h2">
+                              Additional client information
+                            </Typography>
                           </Grid>
-                        </AccordionSummary>
-                        <AccordionDetails sx={{ padding: 0 }}>
-                          <Grid container spacing={2} paddingTop={-1}>
-                            <Grid container item>
-                              <VerboseTextField
-                                name="logoUri"
-                                fieldName="logo_uri"
-                                label="Logo URI"
-                                description="The URI to the logo of your application.
+                          <Grid item>
+                            <ExpandMoreIcon className="ExpandIcon" />
+                          </Grid>
+                        </Grid>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ padding: 0 }}>
+                        <Grid container spacing={2} paddingTop={-1}>
+                          <Grid container item>
+                            <VerboseTextField
+                              name="logoUri"
+                              fieldName="logo_uri"
+                              label="Logo URI"
+                              description="The URI to the logo of your application.
                                   This will be displayed by the OIDC Provider while
                                   the user is logging in."
-                                state={formFieldStates.logoUri.state}
-                                value={form.values.logoUri}
-                                onChange={form.handleChange}
-                                onBlur={(e) => handleFieldBlur(form, e)}
-                                inputProps={{ inputMode: "url" }}
-                                fullWidth
-                                size="small"
-                              />
-                            </Grid>
-                            <Grid container item>
-                              <VerboseTextField
-                                name="policyUri"
-                                fieldName="policy_uri"
-                                label="Policy URI"
-                                description="The URI to the Policy terms of
-                                  your application. This will be linked to by the
-                                  OIDC Provider while the user is logging in."
-                                state={formFieldStates.policyUri.state}
-                                value={form.values.policyUri}
-                                onChange={form.handleChange}
-                                onBlur={(e) => handleFieldBlur(form, e)}
-                                inputProps={{ inputMode: "url" }}
-                                fullWidth
-                                size="small"
-                              />
-                            </Grid>
-                            <Grid container item>
-                              <VerboseTextField
-                                name="tosUri"
-                                fieldName="tos_uri"
-                                label="Terms of Service URI"
-                                description="The URI to the Terms of Service of
-                                  your application. This will be linked to by the
-                                  OIDC Provider while the user is logging in."
-                                state={formFieldStates.tosUri.state}
-                                value={form.values.tosUri}
-                                onChange={form.handleChange}
-                                onBlur={(e) => handleFieldBlur(form, e)}
-                                inputProps={{ inputMode: "url" }}
-                                fullWidth
-                                size="small"
-                              />
-                            </Grid>
-                            <Grid container item>
-                              <FieldArray name="contacts">
-                                {(props: FieldArrayRenderProps) => (
-                                  <VerboseTextFieldArray
-                                    label="Maintainer contacts"
-                                    rowLabel="Email"
-                                    addRowLabel="Add Email"
-                                    name="contacts"
-                                    componentFieldName="contacts"
-                                    description={[
-                                      "Contact information for reaching out to the maintainers of the application.",
-                                    ]}
-                                    state={formFieldStates.contacts.state}
-                                    childStates={
-                                      formFieldStates.contacts.childStates
-                                    }
-                                    values={form.values.contacts}
-                                    pushItem={props.push}
-                                    removeItem={(index) => {
-                                      props.remove(index);
-                                      if (
-                                        formFieldStates.contacts.childStates
-                                      ) {
-                                        setFormArrayFieldStates(
-                                          "contacts",
-                                          formFieldStates.contacts.childStates.filter(
-                                            (_val, i) => index !== i
-                                          )
-                                        );
-                                      }
-                                    }}
-                                    onChange={form.handleChange}
-                                    onBlur={(e) => handleFieldBlur(form, e)}
-                                    inputProps={{ inputMode: "email" }}
-                                    fullWidth
-                                    size="small"
-                                    allowEmpty
-                                  />
-                                )}
-                              </FieldArray>
-                            </Grid>
+                              state={formik.states.all.logoUri.state}
+                              value={formik.values.logoUri}
+                              onChange={formik.handleChange}
+                              onBlur={handleFieldBlur}
+                              inputProps={{ inputMode: "url" }}
+                              fullWidth
+                              size="small"
+                            />
                           </Grid>
-                        </AccordionDetails>
-                      </Accordion>
-                      <Accordion
+                          <Grid container item>
+                            <VerboseTextField
+                              name="policyUri"
+                              fieldName="policy_uri"
+                              label="Policy URI"
+                              description="The URI to the Policy terms of
+                                  your application. This will be linked to by the
+                                  OIDC Provider while the user is logging in."
+                              state={formik.states.all.policyUri.state}
+                              value={formik.values.policyUri}
+                              onChange={formik.handleChange}
+                              onBlur={handleFieldBlur}
+                              inputProps={{ inputMode: "url" }}
+                              fullWidth
+                              size="small"
+                            />
+                          </Grid>
+                          <Grid container item>
+                            <VerboseTextField
+                              name="tosUri"
+                              fieldName="tos_uri"
+                              label="Terms of Service URI"
+                              description="The URI to the Terms of Service of
+                                  your application. This will be linked to by the
+                                  OIDC Provider while the user is logging in."
+                              state={formik.states.all.tosUri.state}
+                              value={formik.values.tosUri}
+                              onChange={formik.handleChange}
+                              onBlur={handleFieldBlur}
+                              inputProps={{ inputMode: "url" }}
+                              fullWidth
+                              size="small"
+                            />
+                          </Grid>
+                          <Grid container item>
+                            <VerboseTextFieldArray
+                              label="Maintainer contacts"
+                              rowLabel="Email"
+                              addRowLabel="Add Email"
+                              name="contacts"
+                              componentFieldName="contacts"
+                              description={[
+                                "Contact information for reaching out to the maintainers of the application.",
+                              ]}
+                              state={formik.states.all.contacts}
+                              values={formik.values.contacts}
+                              pushItem={(value: string) =>
+                                formik.addChild("contacts", value)
+                              }
+                              removeItem={(index: number) =>
+                                formik.removeChild("contacts", index)
+                              }
+                              onChange={formik.handleChange}
+                              onBlur={handleFieldBlur}
+                              inputProps={{ inputMode: "email" }}
+                              fullWidth
+                              size="small"
+                              allowEmpty
+                            />
+                          </Grid>
+                        </Grid>
+                      </AccordionDetails>
+                    </Accordion>
+                    <Accordion
+                      sx={{
+                        boxShadow: "none",
+                        "&::before": { backgroundColor: "transparent" },
+                      }}
+                      className="AdvancedFieldsAccordion"
+                    >
+                      <AccordionSummary
+                        className="AccordionSummary"
                         sx={{
-                          boxShadow: "none",
-                          "&::before": { backgroundColor: "transparent" },
+                          paddingLeft: 0,
+                          "&.Mui-expanded .ExpandIcon": {
+                            transform: "rotate(-180deg)",
+                          },
+                          ".ExpandIcon": {
+                            transition:
+                              "transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+                          },
                         }}
-                        className="AdvancedFieldsAccordion"
                       >
-                        <AccordionSummary
-                          className="AccordionSummary"
-                          sx={{
-                            paddingLeft: 0,
-                            "&.Mui-expanded .ExpandIcon": {
-                              transform: "rotate(-180deg)",
-                            },
-                            ".ExpandIcon": {
-                              transition:
-                                "transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
-                            },
-                          }}
-                        >
-                          <Grid container>
-                            <Grid item>
-                              <Typography variant="h2">
-                                Advanced OIDC options
-                              </Typography>
-                            </Grid>
-                            <Grid item>
-                              <ExpandMoreIcon className="ExpandIcon" />
-                            </Grid>
+                        <Grid container>
+                          <Grid item>
+                            <Typography variant="h2">
+                              Advanced OIDC options
+                            </Typography>
                           </Grid>
-                        </AccordionSummary>
-                        <AccordionDetails sx={{ padding: 0 }}>
-                          <Grid container spacing={2} paddingTop={-1}>
-                            <Grid item>
-                              <Grid container item justifyContent="end">
-                                <FieldNameLabel fieldName="application_type" />
-                              </Grid>
-                              <FormControl>
-                                <InputLabel
-                                  variant="standard"
-                                  id="applicationTypeLabel"
-                                  shrink
-                                  sx={{
-                                    transform:
-                                      "translate(14px, -9px) scale(0.75)",
-                                  }}
-                                >
-                                  Application Type
-                                </InputLabel>
-                                <Select
-                                  name="applicationType"
-                                  labelId="applicationTypeLabel"
-                                  label="Application Type"
-                                  value={form.values.applicationType}
-                                  onChange={form.handleChange}
-                                  size="small"
-                                  notched
-                                >
-                                  <MenuItem value="web">
-                                    Web Application
-                                  </MenuItem>
-                                  <MenuItem value="native">
-                                    Native Application
-                                  </MenuItem>
-                                </Select>
-                                <Grid item>
-                                  <FormHelperText>
-                                    Usually, you will develop a Web Application.
-                                    With a Client Identifier Document for a
-                                    native application, your redirect urls will
-                                    go to local host or use a non-http protocol.
-                                  </FormHelperText>
-                                </Grid>
-                              </FormControl>
+                          <Grid item>
+                            <ExpandMoreIcon className="ExpandIcon" />
+                          </Grid>
+                        </Grid>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ padding: 0 }}>
+                        <Grid container spacing={2} paddingTop={-1}>
+                          <Grid item>
+                            <Grid container item justifyContent="end">
+                              <FieldNameLabel fieldName="application_type" />
                             </Grid>
-                            <Grid container item>
-                              <VerboseTextField
-                                name="defaultMaxAge"
-                                fieldName="default_max_age"
-                                label="Default maximum age"
-                                description="The number of seconds after which the
-                                  user must be actively re-authenticated."
-                                state={formFieldStates.defaultMaxAge?.state}
-                                value={form.values.defaultMaxAge}
-                                onChange={form.handleChange}
-                                onBlur={(e) => handleFieldBlur(form, e)}
-                                inputProps={{
-                                  inputMode: "numeric",
-                                  pattern: "[0-9]*",
+                            <FormControl>
+                              <InputLabel
+                                variant="standard"
+                                id="applicationTypeLabel"
+                                shrink
+                                sx={{
+                                  transform:
+                                    "translate(14px, -9px) scale(0.75)",
                                 }}
-                                fullWidth
+                              >
+                                Application Type
+                              </InputLabel>
+                              <Select
+                                name="applicationType"
+                                labelId="applicationTypeLabel"
+                                label="Application Type"
+                                value={formik.values.applicationType}
+                                onChange={formik.handleChange}
                                 size="small"
-                              />
-                            </Grid>
-                            <Grid item>
-                              <VerboseSlider
-                                label="Request a time of authentication claim"
-                                name="requireAuthTime"
-                                fieldName="require_auth_time"
-                                value={form.values.requireAuthTime}
-                                onChange={form.handleChange}
-                                description="Requests that the ID Token will contain a
+                                notched
+                              >
+                                <MenuItem value="web">Web Application</MenuItem>
+                                <MenuItem value="native">
+                                  Native Application
+                                </MenuItem>
+                              </Select>
+                              <Grid item>
+                                <FormHelperText>
+                                  Usually, you will develop a Web Application.
+                                  With a Client Identifier Document for a native
+                                  application, your redirect urls will go to
+                                  local host or use a non-http protocol.
+                                </FormHelperText>
+                              </Grid>
+                            </FormControl>
+                          </Grid>
+                          <Grid container item>
+                            <VerboseTextField
+                              name="defaultMaxAge"
+                              fieldName="default_max_age"
+                              label="Default maximum age"
+                              description="The number of seconds after which the
+                                  user must be actively re-authenticated."
+                              state={formik.states.all.defaultMaxAge?.state}
+                              value={formik.values.defaultMaxAge}
+                              onChange={formik.handleChange}
+                              onBlur={handleFieldBlur}
+                              inputProps={{
+                                inputMode: "numeric",
+                                pattern: "[0-9]*",
+                              }}
+                              fullWidth
+                              size="small"
+                            />
+                          </Grid>
+                          <Grid item>
+                            <VerboseSlider
+                              label="Request a time of authentication claim"
+                              name="requireAuthTime"
+                              fieldName="require_auth_time"
+                              value={formik.values.requireAuthTime}
+                              onChange={formik.handleChange}
+                              description="Requests that the ID Token will contain a
                                   record (claim) with its time of creation, i.e.
                                   the authentication time."
-                              />
-                            </Grid>
+                            />
                           </Grid>
-                        </AccordionDetails>
-                      </Accordion>
-                    </Grid>
+                        </Grid>
+                      </AccordionDetails>
+                    </Accordion>
                   </Grid>
-                  <Grid
-                    item
-                    container
-                    sx={{
-                      backgroundColor: "white",
-                      zIndex: 1,
-                      borderTop: "1px solid",
-                      borderColor: "divider",
-                    }}
-                    position="sticky"
-                    justifyContent="space-between"
-                    bottom={0}
-                    marginTop={2}
-                    paddingBottom={1}
-                    spacing={1}
-                  >
-                    <Grid item>
-                      <Button
-                        variant="text"
-                        type="reset"
-                        sx={{ textDecoration: "underline" }}
-                      >
-                        Reset
-                      </Button>
-                    </Grid>
-                    <Grid item>
-                      <Typography color="error">{hasFormError}</Typography>
-                    </Grid>
-                    <Grid item>
-                      <Button
-                        onClick={() => onSubmit(form)}
-                        name="generateDocument"
-                        color="primary"
-                        variant="contained"
-                        size="large"
-                      >
-                        Generate
-                      </Button>
-                    </Grid>
+                </Grid>
+                <Grid
+                  item
+                  container
+                  sx={{
+                    backgroundColor: "white",
+                    zIndex: 1,
+                    borderTop: "1px solid",
+                    borderColor: "divider",
+                  }}
+                  position="sticky"
+                  justifyContent="space-between"
+                  bottom={0}
+                  marginTop={2}
+                  paddingBottom={1}
+                  spacing={1}
+                >
+                  <Grid item>
+                    <Button
+                      variant="text"
+                      type="reset"
+                      onClick={() => onReset()}
+                      sx={{ textDecoration: "underline" }}
+                    >
+                      Reset
+                    </Button>
                   </Grid>
-                </Form>
-              )}
+                  <Grid item>
+                    <Typography color="error">{hasFormError}</Typography>
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      onClick={() => onSubmit()}
+                      name="generateDocument"
+                      color="primary"
+                      variant="contained"
+                      size="large"
+                    >
+                      Generate
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Form>
             </Formik>
           </Grid>
 
