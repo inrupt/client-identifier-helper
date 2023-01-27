@@ -2,6 +2,7 @@
   "name": "@inrupt/client-identifier-helper",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite dev",
     "build": "tsc && vite build",
