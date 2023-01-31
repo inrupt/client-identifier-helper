@@ -28,7 +28,7 @@
     "react-router-dom": "^6.4.3"
   },
   "devDependencies": {
-    "@inrupt/eslint-config-lib": "^1.3.1",
+    "@inrupt/eslint-config-lib": "^1.5.4",
     "@inrupt/eslint-config-react": "^1.3.1",
     "@jest/globals": "^29.2.2",
     "@rushstack/eslint-patch": "^1.2.0",
