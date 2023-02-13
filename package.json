@@ -43,7 +43,7 @@
     "jest-environment-jsdom": "^29.2.2",
     "ts-jest": "^28.0.7",
     "typescript": "^4.8.4",
-    "undici": "^5.11.0",
+    "undici": "^5.19.1",
     "vercel": "^28.4.12",
     "vite": "^3.2.2"
   },
